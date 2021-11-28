@@ -1,0 +1,21 @@
+{
+  "name": "timeline",
+  "version": "0.1.0",
+  "description": "A educational real-time online party game. COMP3207 Coursework 2",
+  "main": "app.js",
+  "engines": {
+    "node": "16.x"
+  },
+  "scripts": {
+    "start": "node main.js",
+    "gdeploy": "gcloud app deploy --version test",
+    "hdeploy": "git push heroku master"
+  },
+  "author": "Group H",
+  "license": "ECS",
+  "dependencies": {
+    "ejs": "^3.1.6",
+    "express": "^4.17.1",
+    "socket.io": "^4.3.1"
+  }
+}

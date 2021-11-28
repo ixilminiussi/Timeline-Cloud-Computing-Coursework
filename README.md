@@ -10,11 +10,13 @@ Contains the Azure Functions project that provides an endpoint that the game can
 
 ### One-Time Setup
 
-Create a virtual environment with Python 3.8.9. VS Code might offer to do this for you.
+Create a virtual environment with Python 3.8.9 and download the azure packages into it. VS Code might offer to do some of this for you.
 
 ```bash
 cd API
 python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
 Make sure you have the Azure Core Tools installed (the `func` command-line tool):

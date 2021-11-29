@@ -28,7 +28,12 @@ var app = new Vue({
         new Promise(resolve => setTimeout(resolve, 1000))
           .then(() => this.copiedJoinLink = false)
       }
-    }
+    },
+    openGameLink: function () {
+      if (this.joinLink) {
+        window.open(this.joinLink)
+      }
+    },
   }
 })
 

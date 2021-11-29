@@ -11,14 +11,24 @@ var app = new Vue({
       "20th Century Scientists",
     ],
     selectedDeckIndex: null,
+    joinLink: "https://localhost:8080/xyz123",
+    copiedJoinLink: false,
   },
   mounted: function () {
     connect()
   },
   methods: {
-    selectDeckAt: function(index) {
+    selectDeckAt: function (index) {
       this.selectedDeckIndex = index
     },
+    copyJoinLink: function () {
+      if (this.joinLink) {
+        navigator.clipboard.writeText(this.joinLink)
+        this.copiedJoinLink = true
+        new Promise(resolve => setTimeout(resolve, 1000))
+          .then(() => this.copiedJoinLink = false)
+      }
+    }
   }
 })
 

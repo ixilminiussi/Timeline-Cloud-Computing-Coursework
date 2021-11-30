@@ -13,10 +13,11 @@ var app = new Vue({
     selectedDeckIndex: null,
     joinLink: "https://localhost:8080/xyz123",
     copiedJoinLink: false,
+    dropPlaceholderIndex: 2,
     cards: [
       { type: "fixed", value: 1 },
       { type: "fixed", value: 2 },
-      { type: "placeholder", value: "" },
+      // { type: "placeholder", value: "" },
       { type: "fixed", value: 3 },
       { type: "fixed", value: 4 },
       { type: "fixed", value: 5 },

@@ -1,5 +1,9 @@
 var socket = null
 
+function remToPixels(rem) {    
+  return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
+}
+
 var app = new Vue({
   el: '#vue-app',
   data: {
@@ -13,7 +17,7 @@ var app = new Vue({
     selectedDeckIndex: null,
     joinLink: "https://localhost:8080/xyz123",
     copiedJoinLink: false,
-    dropPlaceholderIndex: 2,
+    dropPlaceholderIndex: null,
     cards: [
       { type: "fixed", value: 1 },
       { type: "fixed", value: 2 },
@@ -48,6 +52,27 @@ var app = new Vue({
         window.open(this.joinLink)
       }
     },
+
+    cardDragStarted: function (event) {
+      console.log("Drag started")
+    },
+    cardDropped: function (event) {
+      console.log("Dropped")
+    },
+    cardDraggedOver: function (event) {
+      event.preventDefault()
+      console.log("Dragged over!")
+      const e = event || window.event
+      const dragX = e.pageX
+      const cardWidth = remToPixels(10)
+      const margin = remToPixels(1)
+      const index = (dragX ) / (cardWidth + margin)
+      this.dropPlaceholderIndex = Math.round(index - 1)
+      //console.log({ cardWidth, margin })
+    },
+    cardDragLeft: function (event) {
+      this.dropPlaceholderIndex = null
+    }
   }
 })
 

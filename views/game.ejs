@@ -1,0 +1,13 @@
+<div class="w-screen h-screen flex items-center bg-gray-50 overflow-x-scroll">
+    <div v-for="card in cards" class="flex">
+        <div v-if="card.type === 'fixed'" class="mx-2 h-56 w-40 border-2 rounded-md border-gray-300">
+        </div>
+        <div v-else class="mx-2 h-56 w-40 border-2 rounded-md border-gray-300 border-dashed">
+            Drop
+        </div>
+    </div>
+</div>
+
+<div draggable="true" class="h-56 w-40 absolute left-5 bg-white bottom-5 border-2 rounded-md border-gray-300">
+
+</div>

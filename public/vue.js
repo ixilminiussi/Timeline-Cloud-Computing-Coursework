@@ -13,6 +13,19 @@ var app = new Vue({
     selectedDeckIndex: null,
     joinLink: "https://localhost:8080/xyz123",
     copiedJoinLink: false,
+    cards: [
+      { type: "fixed", value: 1 },
+      { type: "fixed", value: 2 },
+      { type: "placeholder", value: "" },
+      { type: "fixed", value: 3 },
+      { type: "fixed", value: 4 },
+      { type: "fixed", value: 5 },
+      { type: "fixed", value: 6 },
+      { type: "fixed", value: 7 },
+      { type: "fixed", value: 8 },
+      { type: "fixed", value: 9 },
+      { type: "fixed", value: 10 },
+    ]
   },
   mounted: function () {
     connect()

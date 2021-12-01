@@ -1,4 +1,4 @@
-<div class="w-screen h-screen flex items-center bg-gray-50 overflow-x-scroll">
+<div id="timeline" class="w-screen h-screen flex items-center bg-gray-50 overflow-x-scroll">
     <div v-for="(card, index) in cards" class="flex py-10" v-on:drop="cardDropped" v-on:dragover="cardDraggedOver" v-on:dragleave="cardDragLeft">
         <div v-if="card.type === 'fixed'"
             class="mx-2 h-56 w-40 border-2 rounded-md border-gray-300 transform transition duration-150" 

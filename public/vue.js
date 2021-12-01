@@ -61,9 +61,10 @@ var app = new Vue({
     },
     cardDraggedOver: function (event) {
       event.preventDefault()
-      console.log("Dragged over!")
+      const xOffset = document.getElementById("timeline").scrollLeft
+      console.log("Dragged over!", xOffset)
       const e = event || window.event
-      const dragX = e.pageX
+      const dragX = e.pageX + xOffset
       const cardWidth = remToPixels(10)
       const margin = remToPixels(1)
       const index = (dragX ) / (cardWidth + margin)

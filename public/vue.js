@@ -21,7 +21,6 @@ var app = new Vue({
     cards: [
       { type: "fixed", value: 1 },
       { type: "fixed", value: 2 },
-      // { type: "placeholder", value: "" },
       { type: "fixed", value: 3 },
       { type: "fixed", value: 4 },
       { type: "fixed", value: 5 },
@@ -58,6 +57,10 @@ var app = new Vue({
     },
     cardDropped: function (event) {
       console.log("Dropped")
+      event.preventDefault()
+
+      this.cards.splice(this.dropPlaceholderIndex, 0, { type: "dropped", value: 99 })
+      this.dropPlaceholderIndex = null
     },
     cardDraggedOver: function (event) {
       event.preventDefault()
@@ -67,9 +70,8 @@ var app = new Vue({
       const dragX = e.pageX + xOffset
       const cardWidth = remToPixels(10)
       const margin = remToPixels(1)
-      const index = (dragX ) / (cardWidth + margin)
-      this.dropPlaceholderIndex = Math.round(index - 1)
-      //console.log({ cardWidth, margin })
+      const index = dragX / (cardWidth + margin)
+      this.dropPlaceholderIndex = Math.round(index)
     },
     cardDragLeft: function (event) {
       this.dropPlaceholderIndex = null

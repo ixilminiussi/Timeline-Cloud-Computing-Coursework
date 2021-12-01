@@ -18,6 +18,7 @@ var app = new Vue({
     joinLink: "https://localhost:8080/xyz123",
     copiedJoinLink: false,
     dropPlaceholderIndex: null,
+    timelineTransitionsEnabled: true,
     timeline: [
       { value: 2 },
       { value: 3 },
@@ -59,6 +60,7 @@ var app = new Vue({
 
     cardDragStarted: function (event, cardIndex) {
       console.log("Drag started", this.hand[cardIndex])
+      this.timelineTransitionsEnabled = true
       event.dataTransfer.setData("application/timeline", cardIndex)
     },
     cardDropped: function (event) {
@@ -67,6 +69,7 @@ var app = new Vue({
       console.log("Dropped", card)
       event.preventDefault()
 
+      this.timelineTransitionsEnabled = false
       this.hand.splice(cardIndex, 1)
       this.timeline.splice(this.dropPlaceholderIndex, 0, card)
       this.dropPlaceholderIndex = null

@@ -4,12 +4,12 @@
       v-on:dragleave="cardDragLeft">
       <div class="h-56 w-40 flex items-center border-2 rounded-md border-gray-300 transform transition duration-150"
         v-bind:class="{
-          'translate-x-24': dropPlaceholderIndex !== null && dropPlaceholderIndex <= index,
-          '-translate-x-24': dropPlaceholderIndex !== null && dropPlaceholderIndex > index,
+          'translate-x-44': dropPlaceholderIndex !== null && dropPlaceholderIndex <= index,
           'ml-32': index === 0,
           'ml-2': index !== 0,
           'mr-2': index !== (timeline.length - 1),
-          'mr-32': index === (timeline.length - 1)
+          'mr-32': index === (timeline.length - 1),
+          'transition-none': !timelineTransitionsEnabled,
         }">
         <span class="w-full p-4 text-center text-gray-400 text-4xl">{{card.value}}</span>
       </div>

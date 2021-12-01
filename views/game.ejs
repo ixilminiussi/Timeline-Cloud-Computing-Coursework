@@ -18,8 +18,8 @@
   
   <div class="w-full py-4 bg-gray-50">
     <div class="w-full flex flex-row justify-center space-x-4">
-      <div v-for="card in hand">
-        <div draggable="true" v-on:dragstart="cardDragStarted"
+      <div v-for="(card, index) in hand">
+        <div draggable="true" v-on:dragstart="cardDragStarted($event, index)"
           class="h-56 w-40 flex items-center border-2 rounded-md border-gray-300">
           <span class="w-full p-4 text-center text-gray-400 text-4xl">{{card.value}}</span>
         </div>

@@ -62,11 +62,11 @@ var app = new Vue({
       this.dropPlaceholderIndex = null
     },
     cardDraggedOver: function (event) {
+      console.log("Dragged over")
       event.preventDefault()
       const xOffset = document.getElementById("timeline").scrollLeft
-      console.log("Dragged over!", xOffset)
       const e = event || window.event
-      const dragX = e.pageX + xOffset
+      const dragX = e.pageX + xOffset - remToPixels(8)
       const cardWidth = remToPixels(10)
       const margin = remToPixels(1)
       const index = dragX / (cardWidth + margin)

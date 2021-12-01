@@ -18,7 +18,7 @@ var app = new Vue({
     joinLink: "https://localhost:8080/xyz123",
     copiedJoinLink: false,
     dropPlaceholderIndex: null,
-    cards: [
+    timeline: [
       { value: 2 },
       { value: 3 },
       { value: 5 },
@@ -28,6 +28,12 @@ var app = new Vue({
       { value: 17 },
       { value: 23 },
       { value: 27 },
+    ],
+    hand: [
+      { value: 4 },
+      { value: 8 },
+      { value: 26 },
+      { value: 32 },
     ]
   },
   mounted: function () {
@@ -58,7 +64,7 @@ var app = new Vue({
       console.log("Dropped")
       event.preventDefault()
 
-      this.cards.splice(this.dropPlaceholderIndex, 0, { type: "dropped", value: 99 })
+      this.timeline.splice(this.dropPlaceholderIndex, 0, { type: "dropped", value: 99 })
       this.dropPlaceholderIndex = null
     },
     cardDraggedOver: function (event) {

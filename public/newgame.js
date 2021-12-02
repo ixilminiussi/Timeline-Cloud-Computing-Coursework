@@ -11,7 +11,7 @@ var app = new Vue({
       "20th Century Scientists",
     ],
     selectedDeckIndex: null,
-    joinLink: "https://localhost:8080/xyz123",
+    joinLink: "http://localhost:8080/play/xyz123",
     copiedJoinLink: false,
   },
   mounted: function () {

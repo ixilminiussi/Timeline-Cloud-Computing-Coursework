@@ -14,8 +14,14 @@ app.set("view engine", "ejs")
 app.use("/static", express.static("public"))
 
 app.get("/", (req, res) => {
-  res.render("main", { version: process.version })
-});
+  console.log("BBB")
+  res.render("newgame", { version: process.version })
+})
+
+app.get("/play/:code", (req, res) => {
+  console.log("AAAAA")
+  res.render("game", { version: process.version })
+})
 
 function startServer() {
   const PORT = process.env.PORT || 8080

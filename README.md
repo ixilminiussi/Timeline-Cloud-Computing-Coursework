@@ -21,10 +21,40 @@ COSMOS_KEY = "<database account masterkey>"
 
 ### Every Time
 
-To start development, run these two commands in separate shells.
+To start development, first start TailwindCSS by running:
+
+```bash
+npx tailwindcss -o public/main.css --watch --jit --purge="./views/*.ejs"
+```
+
+This is what the output should look like:
+
+```
+aglen@Andrews-MBP Timeline % npx tailwindcss -o public/main.css --watch --jit --purge="./views/*.ejs"
+
+warn - You have enabled the JIT engine which is currently in preview.
+warn - Preview features are not covered by semver, may introduce breaking changes, and can change at any time.
+
+Rebuilding...
+Done in 69ms.
+```
+
+Then, *in another shell*, start the server with:
 
 ```bash
 npm run start
-npx tailwindcss -o public/main.css --watch --jit --purge="./views/*.ejs"
 ```
+
+This is what the output should look like:
+
+```
+aglen@Andrews-MBP Timeline % npm run start
+
+> timeline@0.1.0 start
+> node main.js
+
+Server listening on port 8080
+```
+
+Open http://localhost:8080.
 

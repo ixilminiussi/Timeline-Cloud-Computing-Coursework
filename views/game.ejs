@@ -29,7 +29,7 @@
                 v-bind:class="{
                 'flipped': flippedIndices.includes(index),
               }">
-                <span class="w-full p-4 text-center text-gray-400 text-4xl">{{card.frontValue}}</span>
+                <span class="w-full p-4 text-center text-gray-400 text-3xl">{{card.frontValue}}</span>
               </div>
               <div
                 class="absolute w-full h-full flex items-center border-2 rounded-md border-gray-300 transform transition flippable"
@@ -38,7 +38,7 @@
                   'border-red-300': index === justDroppedInfo?.index && justDroppedInfo?.isCorrect === false,
                   'border-green-300': index === justDroppedInfo?.index && justDroppedInfo?.isCorrect === true,
                 }">
-                <span class="w-full p-4 text-center text-gray-400 text-4xl">{{card.backValue}}</span>
+                <span class="w-full p-4 text-center text-gray-400 text-3xl">{{card.backValue}}</span>
               </div>
             </div>
           </div>
@@ -50,7 +50,7 @@
           <div v-for="(card, index) in hand">
             <div draggable="true" @dragstart="cardDragStarted($event, index)"
               class="h-56 w-40 flex items-center border-2 rounded-md border-gray-300">
-              <span class="w-full p-4 text-center text-gray-400 text-4xl">{{card.frontValue}}</span>
+              <span class="w-full p-4 text-center text-gray-400 text-3xl">{{card.frontValue}}</span>
             </div>
           </div>
         </div>

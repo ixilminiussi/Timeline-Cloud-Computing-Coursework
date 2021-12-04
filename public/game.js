@@ -4,29 +4,42 @@ function remToPixels(rem) {
   return rem * parseFloat(getComputedStyle(document.documentElement).fontSize)
 }
 
+function isAbsolutelyOrdered(cards) {
+  if (cards.length < 2) return true;
+
+  for (var i = 1; i < cards.length; i++) {
+    if (cards[i].absoluteOrder < cards[i-1].absoluteOrder) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 var app = new Vue({
   el: '#vue-app',
   data: {
     dropPlaceholderIndex: null,
     timelineTransitionsEnabled: true,
     timeline: [
-      { value: 2 },
-      { value: 3 },
-      { value: 5 },
-      { value: 7 },
-      { value: 11 },
-      { value: 13 },
-      { value: 17 },
-      { value: 23 },
-      { value: 27 },
+      { frontValue: 2, backValue: "123", absoluteOrder: 1 },
+      { frontValue: 3, backValue: "123", absoluteOrder: 3 },
+      { frontValue: 5, backValue: "123", absoluteOrder: 5 },
+      { frontValue: 7, backValue: "123", absoluteOrder: 7 },
+      { frontValue: 11, backValue: "123", absoluteOrder: 9 },
+      { frontValue: 13, backValue: "123", absoluteOrder: 11 },
+      { frontValue: 17, backValue: "123", absoluteOrder: 13 },
+      { frontValue: 23, backValue: "123", absoluteOrder: 15 },
+      { frontValue: 27, backValue: "123", absoluteOrder: 17 },
     ],
     hand: [
-      { value: 4 },
-      { value: 8 },
-      { value: 26 },
-      { value: 32 },
+      { frontValue: 4, backValue: "567", absoluteOrder: 4 },
+      { frontValue: 8, backValue: "567", absoluteOrder: 8 },
+      { frontValue: 26, backValue: "567", absoluteOrder: 26 },
+      { frontValue: 32, backValue: "567", absoluteOrder: 32 },
     ],
     isFlipped: false,
+    justDroppedInfo: null, // or { index: int, isCorrect: bool }
   },
   mounted: function () {
     connect()
@@ -46,6 +59,7 @@ var app = new Vue({
       this.timelineTransitionsEnabled = false
       this.hand.splice(cardIndex, 1)
       this.timeline.splice(this.dropPlaceholderIndex, 0, card)
+      this.justDroppedInfo = { index: this.dropPlaceholderIndex, isCorrect: isAbsolutelyOrdered(this.timeline) }
       this.dropPlaceholderIndex = null
     },
     cardDraggedOver: function (event) {

@@ -1,0 +1,9 @@
+.flipped {
+    transform: rotateY(180deg);
+}
+
+.flippable {
+    /* transform-style: preserve-3d; */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}

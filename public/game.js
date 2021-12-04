@@ -25,7 +25,8 @@ var app = new Vue({
       { value: 8 },
       { value: 26 },
       { value: 32 },
-    ]
+    ],
+    isFlipped: false,
   },
   mounted: function () {
     connect()

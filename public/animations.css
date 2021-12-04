@@ -1,9 +1,11 @@
-.flipped {
-    transform: rotateY(180deg);
-}
-
 .flippable {
-    /* transform-style: preserve-3d; */
+    transform-style: preserve-3d;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
+    transition-duration: 0.75s;
+    transition-timing-function: ease-in-out;
+}
+
+.flipped {
+    transform: rotateY(181deg);
 }

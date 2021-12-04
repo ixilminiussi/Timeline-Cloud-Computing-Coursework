@@ -27,14 +27,14 @@
               <div
                 class="absolute w-full h-full flex items-center border-2 rounded-md border-gray-300 transform transition flippable"
                 v-bind:class="{
-                'flipped': isFlipped,
+                'flipped': flippedIndices.includes(index),
               }">
                 <span class="w-full p-4 text-center text-gray-400 text-4xl">{{card.frontValue}}</span>
               </div>
               <div
                 class="absolute w-full h-full flex items-center border-2 rounded-md border-gray-300 transform transition flippable"
                 v-bind:class="{ 
-                  'flipped': !isFlipped,
+                  'flipped': !flippedIndices.includes(index),
                   'border-red-300': index === justDroppedInfo?.index && justDroppedInfo?.isCorrect === false,
                   'border-green-300': index === justDroppedInfo?.index && justDroppedInfo?.isCorrect === true,
                 }">

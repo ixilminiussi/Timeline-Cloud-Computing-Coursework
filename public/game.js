@@ -16,6 +16,26 @@ function isAbsolutelyOrdered(cards) {
   return true;
 }
 
+function wait(duration) {
+  return new Promise(function(resolve, reject) {
+    setTimeout(function(){
+      resolve();
+    }, duration)
+  })
+}
+
+function animateRippledCardFlipsToBack(fromIndex = 0) {
+  if (fromIndex >= app.timeline.length) return;
+  app.flippedIndices.push(fromIndex)
+  wait(50).then(() => animateRippledCardFlipsToBack(fromIndex + 1))
+}
+
+function animateRippledCardFlipsToFront() {
+  if (app.flippedIndices.length === 0) return;
+  app.flippedIndices.splice(0, 1);
+  wait(50).then(() => animateRippledCardFlipsToFront())
+}
+
 var app = new Vue({
   el: '#vue-app',
   data: {
@@ -38,8 +58,8 @@ var app = new Vue({
       { frontValue: 26, backValue: "567", absoluteOrder: 26 },
       { frontValue: 32, backValue: "567", absoluteOrder: 32 },
     ],
-    isFlipped: false,
-    justDroppedInfo: null, // or { index: int, isCorrect: bool }
+    justDroppedInfo: null, // { index: int, isCorrect: bool }
+    flippedIndices: [],
   },
   mounted: function () {
     connect()
@@ -61,6 +81,9 @@ var app = new Vue({
       this.timeline.splice(this.dropPlaceholderIndex, 0, card)
       this.justDroppedInfo = { index: this.dropPlaceholderIndex, isCorrect: isAbsolutelyOrdered(this.timeline) }
       this.dropPlaceholderIndex = null
+      animateRippledCardFlipsToBack()
+
+      wait(2000).then(() => animateRippledCardFlipsToFront())
     },
     cardDraggedOver: function (event) {
       console.log("Dragged over")
@@ -75,7 +98,7 @@ var app = new Vue({
     },
     cardDragLeft: function (event) {
       this.dropPlaceholderIndex = null
-    }
+    },
   }
 })
 

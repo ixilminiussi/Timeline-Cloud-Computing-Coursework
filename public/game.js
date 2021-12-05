@@ -79,11 +79,35 @@ var app = new Vue({
       this.timelineTransitionsEnabled = false
       this.hand.splice(cardIndex, 1)
       this.timeline.splice(this.dropPlaceholderIndex, 0, card)
-      this.justDroppedInfo = { index: this.dropPlaceholderIndex, isCorrect: isAbsolutelyOrdered(this.timeline) }
+      const isCorrect = isAbsolutelyOrdered(this.timeline)
+      this.justDroppedInfo = { index: this.dropPlaceholderIndex, isCorrect }
       this.dropPlaceholderIndex = null
       animateRippledCardFlipsToBack()
 
-      wait(2000).then(() => animateRippledCardFlipsToFront())
+      if (isCorrect) {
+        wait(2000).then(() => animateRippledCardFlipsToFront())
+      } else {
+        const indexAfter = this.timeline.findIndex(c => c.absoluteOrder > card.absoluteOrder)
+        const newIndex = indexAfter === -1 ? this.timeline.length : indexAfter - 1
+        wait(2000)
+        .then(() => {
+          this.dropPlaceholderIndex = this.justDroppedInfo.index
+          this.timeline.splice(this.justDroppedInfo.index, 1)
+          this.justDroppedInfo = null
+        })
+        .then(() => wait(500))
+        .then(() => {
+          this.timelineTransitionsEnabled = true
+          this.dropPlaceholderIndex = newIndex - 1
+        })
+        .then(() => wait(500))
+        .then(() => {
+          this.timelineTransitionsEnabled = false
+          this.timeline.splice(this.dropPlaceholderIndex, 0, card)
+          this.justDroppedInfo = { index: this.dropPlaceholderIndex, isCorrect: true }
+          this.dropPlaceholderIndex = null
+        })
+      }
     },
     cardDraggedOver: function (event) {
       console.log("Dragged over")

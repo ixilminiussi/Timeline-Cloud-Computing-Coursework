@@ -16,12 +16,8 @@ function isAbsolutelyOrdered(cards) {
   return true;
 }
 
-function wait(duration) {
-  return new Promise(function(resolve, reject) {
-    setTimeout(function(){
-      resolve();
-    }, duration)
-  })
+function wait(duration) { // Delay without blocking the main thread
+  return new Promise(resolve => setTimeout(resolve, duration))
 }
 
 function animateRippledCardFlipsToBack(fromIndex = 0) {

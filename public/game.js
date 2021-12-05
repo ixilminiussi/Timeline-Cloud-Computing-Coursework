@@ -89,13 +89,17 @@ var app = new Vue({
         wait(2000).then(() => animateRippledCardFlipsToFront())
       } else {
         const indexAfter = this.timeline.findIndex(c => c.absoluteOrder > card.absoluteOrder)
-        const newIndex = indexAfter === -1 ? this.timeline.length : indexAfter - 2
-        wait(1000)
+        let newIndex = this.timeline.length
+        if (indexAfter >= 0) {
+          newIndex = this.justDroppedInfo.index < indexAfter ? indexAfter - 1 : indexAfter
+        }
+
+        wait(2000)
         .then(() => {
           this.timelineTransitionsEnabled = true
           this.removedIndex = this.justDroppedInfo.index
         })
-        .then(() => wait(1000))
+        .then(() => wait(500))
         .then(() => {
           this.timelineTransitionsEnabled = false
           this.timeline.splice(this.justDroppedInfo.index, 1)
@@ -108,7 +112,7 @@ var app = new Vue({
           this.timelineTransitionsEnabled = true
           this.dropPlaceholderIndex = newIndex
         })
-        .then(() => wait(100))
+        .then(() => wait(500))
         .then(() => {
           this.timelineTransitionsEnabled = false
           this.dropPlaceholderIndex = null
@@ -124,7 +128,7 @@ var app = new Vue({
           this.removedIndex = null
           this.justDroppedInfo = { index: newIndex, isCorrect: true }
         })
-        .then(() => wait(500))
+        .then(() => wait(1000))
         .then(() => {
           animateRippledCardFlipsToFront()
         })

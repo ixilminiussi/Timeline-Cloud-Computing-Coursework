@@ -60,6 +60,7 @@ var app = new Vue({
     ],
     justDroppedInfo: null, // { index: int, isCorrect: bool }
     flippedIndices: [],
+    removedIndex: null,
   },
   mounted: function () {
     connect()
@@ -88,24 +89,44 @@ var app = new Vue({
         wait(2000).then(() => animateRippledCardFlipsToFront())
       } else {
         const indexAfter = this.timeline.findIndex(c => c.absoluteOrder > card.absoluteOrder)
-        const newIndex = indexAfter === -1 ? this.timeline.length : indexAfter - 1
-        wait(2000)
-        .then(() => {
-          this.dropPlaceholderIndex = this.justDroppedInfo.index
-          this.timeline.splice(this.justDroppedInfo.index, 1)
-          this.justDroppedInfo = null
-        })
-        .then(() => wait(500))
+        const newIndex = indexAfter === -1 ? this.timeline.length : indexAfter - 2
+        wait(1000)
         .then(() => {
           this.timelineTransitionsEnabled = true
-          this.dropPlaceholderIndex = newIndex - 1
+          this.removedIndex = this.justDroppedInfo.index
+        })
+        .then(() => wait(1000))
+        .then(() => {
+          this.timelineTransitionsEnabled = false
+          this.timeline.splice(this.justDroppedInfo.index, 1)
+          this.dropPlaceholderIndex = this.removedIndex
+          this.removedIndex = null
+          this.justDroppedInfo = null
+        })
+        .then(() => wait(100))
+        .then(() => {
+          this.timelineTransitionsEnabled = true
+          this.dropPlaceholderIndex = newIndex
+        })
+        .then(() => wait(100))
+        .then(() => {
+          this.timelineTransitionsEnabled = false
+          this.dropPlaceholderIndex = null
+          this.timeline.splice(newIndex, 0, card)
+        })
+        .then(() => wait(1))
+        .then(() => {
+          this.removedIndex = newIndex
+        })
+        .then(() => wait(100))
+        .then(() => {
+          this.timelineTransitionsEnabled = true
+          this.removedIndex = null
+          this.justDroppedInfo = { index: newIndex, isCorrect: true }
         })
         .then(() => wait(500))
         .then(() => {
-          this.timelineTransitionsEnabled = false
-          this.timeline.splice(this.dropPlaceholderIndex, 0, card)
-          this.justDroppedInfo = { index: this.dropPlaceholderIndex, isCorrect: true }
-          this.dropPlaceholderIndex = null
+          animateRippledCardFlipsToFront()
         })
       }
     },

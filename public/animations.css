@@ -1,11 +1,31 @@
 .flippable {
-    transform-style: preserve-3d;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    transition-duration: 0.75s;
-    transition-timing-function: ease-in-out;
+  transform-style: preserve-3d;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transition-duration: 0.75s;
+  transition-timing-function: ease-in-out;
 }
 
 .flipped {
-    transform: rotateY(181deg);
+  transform: rotateY(181deg);
+}
+
+.insert-removeable {
+
+}
+
+.removed {
+  transform: translateY(-200pt);
+  opacity: 0;
+}
+
+.fade-top-enter-active {
+  transition: all .5s ease-in;
+}
+.fade-top-leave-active {
+  transition: all .5s ease-out;
+}
+.fade-top-enter, .fade-top-leave-to {
+  
+  
 }

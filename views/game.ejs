@@ -32,13 +32,17 @@
                 <span class="w-full p-4 text-center text-gray-400 text-3xl">{{card.frontValue}}</span>
               </div>
               <div
-                class="absolute w-full h-full flex items-center border-2 rounded-md border-gray-300 transform transition flippable"
+                class="absolute w-full h-full flex items-center text-gray-400 border-2 rounded-md border-gray-300 transform transition flippable"
                 v-bind:class="{ 
                   'flipped': !flippedIndices.includes(index),
                   'border-red-300': index === justDroppedInfo?.index && justDroppedInfo?.isCorrect === false,
+                  'bg-red-100': index === justDroppedInfo?.index && justDroppedInfo?.isCorrect === false,
+                  'text-red-600': index === justDroppedInfo?.index && justDroppedInfo?.isCorrect === false,
                   'border-green-300': index === justDroppedInfo?.index && justDroppedInfo?.isCorrect === true,
+                  'bg-green-100': index === justDroppedInfo?.index && justDroppedInfo?.isCorrect === true,
+                  'text-green-600': index === justDroppedInfo?.index && justDroppedInfo?.isCorrect === true,
                 }">
-                <span class="w-full p-4 text-center text-gray-400 text-3xl">{{card.backValue}}</span>
+                <span class="w-full p-4 text-center text-3xl">{{card.backValue}}</span>
               </div>
             </div>
           </div>

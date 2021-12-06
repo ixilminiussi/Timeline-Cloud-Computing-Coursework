@@ -1,3 +1,6 @@
+/* These transitions are for flipping over the cards on the timeline. */
+/* They're not available in Tailwind. */
+
 .flippable {
   transform-style: preserve-3d;
   -webkit-backface-visibility: hidden;
@@ -7,25 +10,5 @@
 }
 
 .flipped {
-  transform: rotateY(181deg);
-}
-
-.insert-removeable {
-
-}
-
-.removed {
-  transform: translateY(-200pt);
-  opacity: 0;
-}
-
-.fade-top-enter-active {
-  transition: all .5s ease-in;
-}
-.fade-top-leave-active {
-  transition: all .5s ease-out;
-}
-.fade-top-enter, .fade-top-leave-to {
-  
-  
+  transform: rotateY(180deg);
 }

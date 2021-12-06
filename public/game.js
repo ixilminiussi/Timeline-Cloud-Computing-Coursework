@@ -4,28 +4,104 @@ function remToPixels(rem) {
   return rem * parseFloat(getComputedStyle(document.documentElement).fontSize)
 }
 
+function isAbsolutelyOrdered(cards) {
+  if (cards.length < 2) return true;
+
+  for (var i = 1; i < cards.length; i++) {
+    if (cards[i].absoluteOrder < cards[i-1].absoluteOrder) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function chill(duration) { // Delay without blocking the main thread
+  return new Promise(resolve => setTimeout(resolve, duration))
+}
+
+function animateRippledCardFlipsToBack(fromIndex = 0) {
+  if (fromIndex >= app.timeline.length) return;
+  app.flippedIndices.push(fromIndex)
+  chill(50).then(() => animateRippledCardFlipsToBack(fromIndex + 1))
+}
+
+function animateRippledCardFlipsToFront() {
+  if (app.flippedIndices.length === 0) return;
+  app.flippedIndices.splice(0, 1);
+  chill(50).then(() => animateRippledCardFlipsToFront())
+}
+
+async function animateCardFromIndexToIndex(card, fromIndex, toIndex) {
+  await chill(2000)
+  
+  // Pull the incorrect card up & out of the timeline
+  app.timelineTransitionsEnabled = true
+  app.removedIndex = fromIndex
+
+  await chill(500)
+
+  // Take the incorrect card out of the model without any visual change
+  app.timelineTransitionsEnabled = false
+  app.timeline.splice(fromIndex, 1)
+  app.dropPlaceholderIndex = app.removedIndex
+  app.removedIndex = null
+  app.justDroppedInfo = null
+  
+  await chill(100)
+
+  // Make a space for the insertion point
+  app.timelineTransitionsEnabled = true
+  app.dropPlaceholderIndex = toIndex
+  
+  await chill(500)
+
+  // Add the card to the model in the correct place...
+  app.timelineTransitionsEnabled = false
+  app.dropPlaceholderIndex = null
+  app.timeline.splice(toIndex, 0, card)
+
+  await chill(1)
+
+  // ...using this hack to keep it out-of-frame (for now)
+  app.removedIndex = toIndex
+  
+  await chill(100)
+
+  // Animate the card down into the correct position
+  app.timelineTransitionsEnabled = true
+  app.removedIndex = null
+  app.justDroppedInfo = { index: toIndex, isCorrect: true }
+
+  await chill(1000)
+  animateRippledCardFlipsToFront()
+}
+
 var app = new Vue({
   el: '#vue-app',
   data: {
     dropPlaceholderIndex: null,
     timelineTransitionsEnabled: true,
     timeline: [
-      { value: 2 },
-      { value: 3 },
-      { value: 5 },
-      { value: 7 },
-      { value: 11 },
-      { value: 13 },
-      { value: 17 },
-      { value: 23 },
-      { value: 27 },
+      { frontValue: "Event A", backValue: "1432", absoluteOrder: 1 },
+      { frontValue: "Event B", backValue: "1500", absoluteOrder: 3 },
+      { frontValue: "Event C", backValue: "1523", absoluteOrder: 5 },
+      { frontValue: "Event D", backValue: "1524", absoluteOrder: 7 },
+      { frontValue: "Event E", backValue: "1599", absoluteOrder: 9 },
+      { frontValue: "Event F", backValue: "1635", absoluteOrder: 11 },
+      { frontValue: "Event G", backValue: "1912", absoluteOrder: 13 },
+      { frontValue: "Event H", backValue: "1914", absoluteOrder: 15 },
+      { frontValue: "Event I", backValue: "1915", absoluteOrder: 17 },
     ],
     hand: [
-      { value: 4 },
-      { value: 8 },
-      { value: 26 },
-      { value: 32 },
-    ]
+      { frontValue: "Event W", backValue: "1510", absoluteOrder: 4 },
+      { frontValue: "Event X", backValue: "1589", absoluteOrder: 8 },
+      { frontValue: "Event Y", backValue: "1634", absoluteOrder: 10 },
+      { frontValue: "Event Z", backValue: "2004", absoluteOrder: 18 },
+    ],
+    justDroppedInfo: null, // { index: int, isCorrect: bool }
+    flippedIndices: [],
+    removedIndex: null, // The index of the card that's pulled up out of the timeline
   },
   mounted: function () {
     connect()
@@ -45,7 +121,22 @@ var app = new Vue({
       this.timelineTransitionsEnabled = false
       this.hand.splice(cardIndex, 1)
       this.timeline.splice(this.dropPlaceholderIndex, 0, card)
+      const isCorrect = isAbsolutelyOrdered(this.timeline)
+      this.justDroppedInfo = { index: this.dropPlaceholderIndex, isCorrect }
       this.dropPlaceholderIndex = null
+      animateRippledCardFlipsToBack()
+
+      if (isCorrect) {
+        chill(2000).then(() => animateRippledCardFlipsToFront())
+      } else { // Animate the correction
+        const indexAfter = this.timeline.findIndex(c => c.absoluteOrder > card.absoluteOrder)
+        let newIndex = this.timeline.length
+        if (indexAfter >= 0) {
+          newIndex = this.justDroppedInfo.index < indexAfter ? indexAfter - 1 : indexAfter
+        }
+
+        animateCardFromIndexToIndex(card, this.justDroppedInfo.index, newIndex)
+      }
     },
     cardDraggedOver: function (event) {
       console.log("Dragged over")
@@ -60,7 +151,7 @@ var app = new Vue({
     },
     cardDragLeft: function (event) {
       this.dropPlaceholderIndex = null
-    }
+    },
   }
 })
 

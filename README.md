@@ -132,11 +132,11 @@ socket.on("set_current_turn", (username) => { /* ... */ })
 
 These are the socket messages the client will use to update the server.
 
-#### card_dropped
+#### card_placed
 
 Called when the current player drops a card onto the timeline. The server should:
 * retrieve the information about the card
-* figure out whether it was dropped in the correct position (see `isAbsolutelyOrdered` in _game.js_)
+* figure out whether it was placed in the correct position (see `isAbsolutelyOrdered` in _game.js_)
 * Update all clients by emitting `insert_card`
 * If incorrect, send a replacement card with `deal_card`
 * Update the clients with the new player states
@@ -145,11 +145,11 @@ Called when the current player drops a card onto the timeline. The server should
 The client provides less information than it actually has because it's untrustworthy source of information.
 
 Args:
-* `id`: The identifier of the card that was dropped
-* `index`: The index in the timeline at which the card was dropped
+* `id`: The identifier of the card that was placed
+* `index`: The index in the timeline at which the card was placed
 
 ```javascript
-socket.emit("card_dropped", card.id, cardIndex)
+socket.emit("card_placed", card.id, cardIndex)
 ```
 
 ## Client Object Schemas

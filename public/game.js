@@ -82,9 +82,9 @@ var app = new Vue({
   data: {
     // Players and turns
     username: "Jason",
-    currentTurn: "Karl",
+    currentTurn: "Jason",
     players: [
-      { username: "Jason", cardsRemaining: 5 },
+      { username: "Jason", cardsRemaining: 4 },
       { username: "Karl", cardsRemaining: 3 },
       { username: "Beth", cardsRemaining: 5 },
       { username: "Alice", cardsRemaining: 1 },

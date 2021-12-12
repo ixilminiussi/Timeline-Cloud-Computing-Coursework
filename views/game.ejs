@@ -16,17 +16,16 @@
       <div class="w-full py-3 border-b-2 border-gray-200">
         <div class="flex justify-center space-x-6">
           <div v-for="player in players">
-            <span class="text-gray-300" v-bind:class="{
-              'text-gray-400': player.username === username && player.username !== currentTurn,
-              'text-blue-500': player.username === currentTurn,
+            <div class="text-gray-300 flex flex-col items-center" v-bind:class="{
+              'text-gray-400': player.username === currentTurn,
             }">
-              {{player.username}} ({{player.cardsRemaining}})
-            </span>
+              <span>{{player.username}} ({{player.cardsRemaining}})</span>
+          </div>
           </div>
         </div>
       </div>
 
-      <!-- The area that shows the timeline so far -->
+      <!-- The area that shows the timeline -->
       <div id="timeline" class="w-full flex-grow flex items-center overflow-x-scroll">
         <div v-for="(card, index) in timeline" class="flex py-10" @drop="cardDropped" @dragover="cardDraggedOver"
           @dragleave="cardDragLeft">

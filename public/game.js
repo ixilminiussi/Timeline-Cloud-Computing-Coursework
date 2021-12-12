@@ -172,16 +172,47 @@ var app = new Vue({
 })
 
 function connect() {
-  socket = io();
-  socket.on('connect', function () {
+  socket = io()
 
+  socket.on("connect", function () {
+    console.log("Connected")
   })
 
-  socket.on('connect_error', function (message) {
+  socket.on("connect_error", function (message) {
     console.error("Connection failed", message)
   })
 
-  socket.on('disconnect', function () {
+  socket.on("disconnect", function () {
     console.error("Connection dropped")
+  })
+
+  // ================ Messages from the server ================
+
+  // Receive a hand of cards to show to the user
+  socket.on("deal_hand", (cards) => {
+    app.hand = cards
+  })
+  
+  // Update the whole timeline without animation (e.g. if you need to load
+  // many cards at once).
+  socket.on("overwrite_timeline", (cards) => {
+    app.timeline = cards
+  })
+
+  // Insert a card into the timeline (e.g. if another player has played
+  // their turn)
+  socket.on("insert_card", (card, index) => {
+    console.log(`TODO: Inserting card ${card} at index ${index}`)
+  })
+
+  // Update the list of players. For use when players are joining or a turn
+  // has been taken.
+  socket.on("overwrite_players", (players) => {
+    app.players = players
+  })
+  
+  // Set the current turn to the player with the received username.
+  socket.on("set_current_turn", (username) => {
+    app.currentTurn = username
   })
 }

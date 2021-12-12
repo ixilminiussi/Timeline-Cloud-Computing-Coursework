@@ -80,8 +80,17 @@ async function animateCardFromIndexToIndex(card, fromIndex, toIndex) {
 var app = new Vue({
   el: '#vue-app',
   data: {
-    username: "",
-    currentTurn: "", 
+    // Players and turns
+    username: "Jason",
+    currentTurn: "Beth",
+    players: [
+      { username: "Jason", cardsRemaining: 5 },
+      { username: "Karl", cardsRemaining: 3 },
+      { username: "Beth", cardsRemaining: 5 },
+      { username: "Alice", cardsRemaining: 1 },
+    ],
+
+    // Cards and timeline animations
     dropPlaceholderIndex: null,
     timelineTransitionsEnabled: true,
     timeline: [

@@ -51,8 +51,27 @@
         </div>
       </div>
 
-      <div class="w-full py-4 bg-gray-50">
-        <div class="w-full flex flex-row justify-center space-x-4">
+      <div class="w-full py-4 bg-gray-50 flex flex-col items-center">
+        <!-- Current turn indicator -->
+        <div class="inline-block mx-auto bg">
+          <div v-if="username === currentTurn">
+            <div class="text-blue-500 text-lg font-medium justify-center flex items-center space-x-1">
+              <span class="">It's your turn</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l4.293-4.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="text-gray-400 text-sm">Drag one of your cards into the Timeline, placing it in order.</div>
+          </div>
+          <div v-else>
+            <div class="text-gray-400 text-lg font-medium justify-center flex items-center space-x-1">
+              <span class="">(It's {{currentTurn}}'s turn)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- The player's hand -->
+        <div class="mt-8 flex flex-row space-x-4">
           <div v-for="(card, index) in hand">
             <div draggable="true" @dragstart="cardDragStarted($event, index)"
               class="h-56 w-40 flex items-center border-2 rounded-md border-gray-300">

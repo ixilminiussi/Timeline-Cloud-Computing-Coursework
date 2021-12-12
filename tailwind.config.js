@@ -1,13 +1,12 @@
 const colors = require('tailwindcss/colors')
 
 module.exports = {
-  purge: [],
-  darkMode: false, // or 'media' or 'class'
+  content: ["./views/*.ejs"],
   theme: {
     extend: {
       colors: {
         blue: colors.cyan,
-        gray: colors.blueGray,
+        gray: colors.slate,
       }
     },
   },

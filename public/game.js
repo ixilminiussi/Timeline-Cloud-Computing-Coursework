@@ -82,7 +82,7 @@ var app = new Vue({
   data: {
     // Players and turns
     username: "Jason",
-    currentTurn: "Beth",
+    currentTurn: "Karl",
     players: [
       { username: "Jason", cardsRemaining: 5 },
       { username: "Karl", cardsRemaining: 3 },
@@ -163,6 +163,11 @@ var app = new Vue({
     cardDragLeft: function (event) {
       this.dropPlaceholderIndex = null
     },
+  },
+  computed: {
+    isMyTurn: function () {
+      return this.currentTurn === this.username
+    }
   }
 })
 

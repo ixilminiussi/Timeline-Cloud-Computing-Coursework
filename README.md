@@ -57,3 +57,88 @@ Server listening on port 8080
 
 Open http://localhost:8080.
 
+## Updating the Client
+
+These are the socket messages the server can use to update the client
+
+#### deal_hand
+
+Call this once at the start of the game to give the player a hand of cards from the game deck.
+
+Args:
+* `cards`: An array of `Card` objects to place in the player's hand.
+
+```javascript
+socket.on("deal_hand", (cards) => { /* ... */ })
+```
+
+#### overwrite_timeline
+
+Call this to update the client's entire record of the current timeline with no animation. This will be useful if, for example, a player reconnects mid-game.
+
+Args:
+* `cards`: An array of `Card` objects to place on the canvas as 'already played'.
+
+```javascript
+socket.on("overwrite_timeline", (cards) => { /* ... */ })
+```
+
+#### insert_card
+
+Call this to insert a single card into the timeline&mdash;for example, when someone else has made a move and you need to update all the other players. The addition may be animated, so prefer this method over `overwrite_timeline` if only one card is being inserted.
+
+Args:
+* `card`: A single `Card` object to add to the timeline. 
+* `index`: An integer. The index in the timeline into which this card was inserted.
+
+```javascript
+socket.on("insert_card", (card, index) => { /* ... */ })
+```
+
+#### overwrite_players
+
+Call this to update the list of players the client holds. The list of players should remain in a stable order across successive calls. Use this method if a new player joins or after a player makes a move that decreases the number of cards in their hand.
+
+Args:
+* `players`: An array of `Player` objects with information about all players in this game.
+
+```javascript
+socket.on("overwrite_players", (players) => { /* ... */ })
+```
+
+#### set_current_turn
+
+Call this to let the client know which player's turn it is. The username given should be present in the current list of players the client keeps.
+
+Args:
+* `username`: The username of the player whose turn it is.
+
+```javascript
+socket.on("set_current_turn", (username) => { /* ... */ })
+```
+
+## Client Object Schemas
+
+### Card
+
+The card object represents a card in the timeline or in a player's hand. Note that the `absoluteOrder` property should be the order of the card in the whole deck, not just the cards being used in the game (to account for replacement).
+
+```javascript
+{
+    id: String,                 // The unique identifier of this card
+    frontValue: String,         // The 'event' that the player will see
+    backValue: String,          // The 'answer' that will be revealed
+    absoluteOrder: Number       // The order of this card in the whole deck
+}
+```
+
+### Player
+
+The player object represents everything the client needs to know about a player.
+
+```javascript
+{
+    username: String            // Unique within any particular game
+    cardsRemaining: Number      // The number of cards in this player's hand
+}
+```

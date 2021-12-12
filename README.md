@@ -36,6 +36,8 @@ Rebuilding...
 Done in 82ms.
 ```
 
+> **Warning:** It should not take more than 500ms to rebuild. If that's the case, you're probably still on Tailwind 2. Run `npm install` to update to Tailwind 3, then try this step again.
+
 Then, *in another shell*, start the server with:
 
 ```bash

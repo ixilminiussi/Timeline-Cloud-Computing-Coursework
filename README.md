@@ -57,19 +57,30 @@ Server listening on port 8080
 
 Open http://localhost:8080.
 
-## Updating the Client
+## Server: Updating the Client
 
-These are the socket messages the server can use to update the client
+These are the socket messages the server can use to update the client.
 
 #### deal_hand
 
-Call this once at the start of the game to give the player a hand of cards from the game deck.
+Call this once at the start of the game to give the player a hand of cards from the game deck. This replaces the current hand.
 
 Args:
 * `cards`: An array of `Card` objects to place in the player's hand.
 
 ```javascript
 socket.on("deal_hand", (cards) => { /* ... */ })
+```
+
+#### deal_replacement
+
+Call this to add a card to a player's hand, e.g. in response to an incorrect move. This may be an animated transition so prefer this over `deal_hand` when inserting only a single card.
+
+Args:
+* `card`: A `Card` object to add to the hand.
+
+```javascript
+socket.on("deal_card", (card) => { /* ... */ })
 ```
 
 #### overwrite_timeline
@@ -115,6 +126,30 @@ Args:
 
 ```javascript
 socket.on("set_current_turn", (username) => { /* ... */ })
+```
+
+## Server: Listening for Client Updates
+
+These are the socket messages the client will use to update the server.
+
+#### card_dropped
+
+Called when the current player drops a card onto the timeline. The server should:
+* retrieve the information about the card
+* figure out whether it was dropped in the correct position (see `isAbsolutelyOrdered` in _game.js_)
+* Update all clients by emitting `insert_card`
+* If incorrect, send a replacement card with `deal_card`
+* Update the clients with the new player states
+* Update the clients with the new current player
+
+The client provides less information than it actually has because it's untrustworthy source of information.
+
+Args:
+* `id`: The identifier of the card that was dropped
+* `index`: The index in the timeline at which the card was dropped
+
+```javascript
+socket.emit("card_dropped", card.id, cardIndex)
 ```
 
 ## Client Object Schemas

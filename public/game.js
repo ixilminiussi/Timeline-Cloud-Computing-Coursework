@@ -137,6 +137,8 @@ var app = new Vue({
       this.dropPlaceholderIndex = null
       animateRippledCardFlipsToBack()
 
+      socket.emit("card_dropped", card.id, cardIndex)
+
       if (isCorrect) {
         chill(2000).then(() => animateRippledCardFlipsToFront())
       } else { // Animate the correction
@@ -191,6 +193,11 @@ function connect() {
   // Receive a hand of cards to show to the user
   socket.on("deal_hand", (cards) => {
     app.hand = cards
+  })
+
+  // Add a card to this player's hand
+  socket.on("deal_card", (card) => {
+    app.hand.push(card)
   })
   
   // Update the whole timeline without animation (e.g. if you need to load

@@ -24,20 +24,19 @@ COSMOS_KEY = "<database account masterkey>"
 To start development, first start TailwindCSS by running:
 
 ```bash
-npx tailwindcss -o public/main.css --watch --jit --purge="./views/*.ejs"
+npx tailwindcss -o public/main.css --watch
 ```
 
 This is what the output should look like:
 
 ```
-aglen@Andrews-MBP Timeline % npx tailwindcss -o public/main.css --watch --jit --purge="./views/*.ejs"
-
-warn - You have enabled the JIT engine which is currently in preview.
-warn - Preview features are not covered by semver, may introduce breaking changes, and can change at any time.
+aglen@Andrews-MBP Timeline % npx tailwindcss -o public/main.css --watch                        
 
 Rebuilding...
-Done in 69ms.
+Done in 82ms.
 ```
+
+> **Warning:** It should not take more than 500ms to rebuild. If that's the case, you're probably still on Tailwind 2. Run `npm install` to update to Tailwind 3, then try this step again.
 
 Then, *in another shell*, start the server with:
 

@@ -80,6 +80,17 @@ async function animateCardFromIndexToIndex(card, fromIndex, toIndex) {
 var app = new Vue({
   el: '#vue-app',
   data: {
+    // Players and turns
+    username: "Jason",
+    currentTurn: "Jason",
+    players: [
+      { username: "Jason", cardsRemaining: 4 },
+      { username: "Karl", cardsRemaining: 3 },
+      { username: "Beth", cardsRemaining: 5 },
+      { username: "Alice", cardsRemaining: 1 },
+    ],
+
+    // Cards and timeline animations
     dropPlaceholderIndex: null,
     timelineTransitionsEnabled: true,
     timeline: [
@@ -126,6 +137,8 @@ var app = new Vue({
       this.dropPlaceholderIndex = null
       animateRippledCardFlipsToBack()
 
+      socket.emit("card_dropped", card.id, cardIndex)
+
       if (isCorrect) {
         chill(2000).then(() => animateRippledCardFlipsToFront())
       } else { // Animate the correction
@@ -152,20 +165,61 @@ var app = new Vue({
     cardDragLeft: function (event) {
       this.dropPlaceholderIndex = null
     },
+  },
+  computed: {
+    isMyTurn: function () {
+      return this.currentTurn === this.username
+    }
   }
 })
 
 function connect() {
-  socket = io();
-  socket.on('connect', function () {
+  socket = io()
 
+  socket.on("connect", function () {
+    console.log("Connected")
   })
 
-  socket.on('connect_error', function (message) {
+  socket.on("connect_error", function (message) {
     console.error("Connection failed", message)
   })
 
-  socket.on('disconnect', function () {
+  socket.on("disconnect", function () {
     console.error("Connection dropped")
+  })
+
+  // ================ Messages from the server ================
+
+  // Receive a hand of cards to show to the user
+  socket.on("deal_hand", (cards) => {
+    app.hand = cards
+  })
+
+  // Add a card to this player's hand
+  socket.on("deal_card", (card) => {
+    app.hand.push(card)
+  })
+  
+  // Update the whole timeline without animation (e.g. if you need to load
+  // many cards at once).
+  socket.on("overwrite_timeline", (cards) => {
+    app.timeline = cards
+  })
+
+  // Insert a card into the timeline (e.g. if another player has played
+  // their turn)
+  socket.on("insert_card", (card, index) => {
+    console.log(`TODO: Inserting card ${card} at index ${index}`)
+  })
+
+  // Update the list of players. For use when players are joining or a turn
+  // has been taken.
+  socket.on("overwrite_players", (players) => {
+    app.players = players
+  })
+  
+  // Set the current turn to the player with the received username.
+  socket.on("set_current_turn", (username) => {
+    app.currentTurn = username
   })
 }

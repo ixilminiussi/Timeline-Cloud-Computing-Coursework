@@ -137,7 +137,7 @@ var app = new Vue({
       this.dropPlaceholderIndex = null
       animateRippledCardFlipsToBack()
 
-      socket.emit("card_dropped", card.id, cardIndex)
+      socket.emit("card_placed", card.id, cardIndex)
 
       if (isCorrect) {
         chill(2000).then(() => animateRippledCardFlipsToFront())

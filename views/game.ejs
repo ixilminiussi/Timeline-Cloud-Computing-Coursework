@@ -85,6 +85,8 @@
               v-bind:class="{
                 'translate-y-[150pt]': undealtHandIndices.includes(index),
                 'opacity-0': undealtHandIndices.includes(index),
+                'translate-x-[5.5rem]': isDealingInNewCard && !undealtHandIndices.includes(index),
+                'transition-none': !handTransitionsEnabled
               }">
               <span class="w-full p-4 text-center text-gray-400 text-3xl">{{card.frontValue}}</span>
             </div>

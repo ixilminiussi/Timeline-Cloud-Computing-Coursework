@@ -11,8 +11,13 @@ function dealHand(cards) {
 
 async function dealCard(card) {
   app.hand.push(card)
+  app.handTransitionsEnabled = false
+  app.isDealingInNewCard = true
   app.undealtHandIndices = [app.hand.length - 1]
   await _chill(50)
+  
+  app.handTransitionsEnabled = true
+  app.isDealingInNewCard = false
   app.undealtHandIndices = []
 }
 
@@ -191,6 +196,8 @@ var app = new Vue({
     flippedIndices: [],
     removedIndex: null,     // The index of the card that's pulled up out of the timeline
     undealtHandIndices: [], // Indices of cards in the hand that are animated out
+    isDealingInNewCard: false,
+    handTransitionsEnabled: true,
   },
   mounted: function () {
     connect()

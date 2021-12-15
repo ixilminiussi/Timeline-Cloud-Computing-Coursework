@@ -217,7 +217,7 @@ var app = new Vue({
   },
   computed: {
     isMyTurn: function () {
-      return this.currentTurn === this.username
+      return this.currentTurn === this.username && this.username !== ""
     }
   }
 })

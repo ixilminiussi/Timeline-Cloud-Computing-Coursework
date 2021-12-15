@@ -77,14 +77,11 @@ async function animateCardFromIndexToIndex(card, fromIndex, toIndex) {
   animateRippledCardFlipsToFront()
 }
 
-function insertCardAtDropIndexWithAutocorrection(card) {
-  app.timeline.splice(app.dropPlaceholderIndex, 0, card)
+function insertCardAtDropIndexWithAutocorrection(card, index) {
   const isCorrect = isAbsolutelyOrdered(app.timeline)
   app.justDroppedInfo = { index: app.dropPlaceholderIndex, isCorrect }
-  socket.emit("card_placed", card.id, app.dropPlaceholderIndex)
   app.dropPlaceholderIndex = null
   animateRippledCardFlipsToBack()
-
 
   if (isCorrect) {
     chill(2000).then(() => animateRippledCardFlipsToFront())
@@ -97,6 +94,28 @@ function insertCardAtDropIndexWithAutocorrection(card) {
 
     animateCardFromIndexToIndex(card, app.justDroppedInfo.index, newIndex)
   }
+}
+
+async function animateAutocorrectingMoveByOtherPlayer(card, index) {
+  console.log(`Inserting card ${card} at index ${index}`)
+  
+  // Animate the drop by the other player
+  app.dropPlaceholderIndex = index
+  
+  await chill(200)
+
+  app.timelineTransitionsEnabled = false
+  app.dropPlaceholderIndex = null
+  app.timeline.splice(index, 0, card)
+  app.removedIndex = index
+
+  await chill(200)
+
+  app.timelineTransitionsEnabled = true
+  app.removedIndex = null
+
+  await chill(200)
+  insertCardAtDropIndexWithAutocorrection(card)
 }
 
 var app = new Vue({
@@ -153,6 +172,8 @@ var app = new Vue({
 
       app.timelineTransitionsEnabled = false
       app.hand.splice(cardIndex, 1)
+      app.timeline.splice(app.dropPlaceholderIndex, 0, card)
+      socket.emit("card_placed", card.id, app.dropPlaceholderIndex)
       insertCardAtDropIndexWithAutocorrection(card)
     },
     cardDraggedOver: function (event) {
@@ -213,7 +234,7 @@ function connect() {
   // Insert a card into the timeline (e.g. if another player has played
   // their turn)
   socket.on("insert_card", (card, index) => {
-    console.log(`TODO: Inserting card ${card} at index ${index}`)
+    animateAutocorrectingMoveByOtherPlayer(card, index)
   })
 
   // Update the list of players. For use when players are joining or a turn

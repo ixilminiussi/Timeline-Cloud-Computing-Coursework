@@ -49,15 +49,15 @@ function _remToPixels(rem) {
 }
 
 function _isAbsolutelyOrdered(cards) {
-  if (cards.length < 2) return true;
-
-  for (var i = 1; i < cards.length; i++) {
-    if (cards[i].absoluteOrder < cards[i-1].absoluteOrder) {
-      return false;
+  if (cards.length > 1) {
+    for (var i = 1; i < cards.length; i++) {
+      if (cards[i].absoluteOrder < cards[i-1].absoluteOrder) {
+        return false
+      }
     }
   }
 
-  return true;
+  return true
 }
 
 function _chill(duration) { // Delay without blocking the main thread

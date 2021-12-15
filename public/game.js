@@ -1,10 +1,34 @@
 var socket = null
 
-function remToPixels(rem) {    
+// ============================= Public Functions =============================
+//              (in response to messages sent from the server)
+
+async function animateAutocorrectingMoveByOtherPlayer(card, index) {
+  console.log(`Inserting card ${card} at index ${index}`)
+  app.dropPlaceholderIndex = index
+  
+  await _chill(200)
+
+  app.timelineTransitionsEnabled = false
+  app.dropPlaceholderIndex = null
+  app.timeline.splice(index, 0, card)
+  app.removedIndex = index
+
+  await _chill(200)
+
+  app.timelineTransitionsEnabled = true
+  app.removedIndex = null
+
+  await _chill(200)
+  _insertCardAtDropIndexWithAutocorrection(card, index)
+}
+
+// ============================= Private Functions =============================
+function _remToPixels(rem) {    
   return rem * parseFloat(getComputedStyle(document.documentElement).fontSize)
 }
 
-function isAbsolutelyOrdered(cards) {
+function _isAbsolutelyOrdered(cards) {
   if (cards.length < 2) return true;
 
   for (var i = 1; i < cards.length; i++) {
@@ -16,30 +40,30 @@ function isAbsolutelyOrdered(cards) {
   return true;
 }
 
-function chill(duration) { // Delay without blocking the main thread
+function _chill(duration) { // Delay without blocking the main thread
   return new Promise(resolve => setTimeout(resolve, duration))
 }
 
-function animateRippledCardFlipsToBack(fromIndex = 0) {
+function _animateRippledCardFlipsToBack(fromIndex = 0) {
   if (fromIndex >= app.timeline.length) return;
   app.flippedIndices.push(fromIndex)
-  chill(50).then(() => animateRippledCardFlipsToBack(fromIndex + 1))
+  _chill(50).then(() => _animateRippledCardFlipsToBack(fromIndex + 1))
 }
 
-function animateRippledCardFlipsToFront() {
+function _animateRippledCardFlipsToFront() {
   if (app.flippedIndices.length === 0) return;
   app.flippedIndices.splice(0, 1);
-  chill(50).then(() => animateRippledCardFlipsToFront())
+  _chill(50).then(() => _animateRippledCardFlipsToFront())
 }
 
-async function animateCardFromIndexToIndex(card, fromIndex, toIndex) {
-  await chill(2000)
+async function _animateCardFromIndexToIndex(card, fromIndex, toIndex) {
+  await _chill(2000)
   
   // Pull the incorrect card up & out of the timeline
   app.timelineTransitionsEnabled = true
   app.removedIndex = fromIndex
 
-  await chill(500)
+  await _chill(500)
 
   // Take the incorrect card out of the model without any visual change
   app.timelineTransitionsEnabled = false
@@ -48,42 +72,42 @@ async function animateCardFromIndexToIndex(card, fromIndex, toIndex) {
   app.removedIndex = null
   app.justDroppedInfo = null
   
-  await chill(100)
+  await _chill(100)
 
   // Make a space for the insertion point
   app.timelineTransitionsEnabled = true
   app.dropPlaceholderIndex = toIndex
   
-  await chill(500)
+  await _chill(500)
 
   // Add the card to the model in the correct place...
   app.timelineTransitionsEnabled = false
   app.dropPlaceholderIndex = null
   app.timeline.splice(toIndex, 0, card)
 
-  await chill(1)
+  await _chill(1)
 
   // ...using this hack to keep it out-of-frame (for now)
   app.removedIndex = toIndex
   
-  await chill(100)
+  await _chill(100)
 
   // Animate the card down into the correct position
   app.timelineTransitionsEnabled = true
   app.removedIndex = null
   app.justDroppedInfo = { index: toIndex, isCorrect: true }
 
-  await chill(1000)
-  animateRippledCardFlipsToFront()
+  await _chill(1000)
+  _animateRippledCardFlipsToFront()
 }
 
-function insertCardAtDropIndexWithAutocorrection(card, index) {
-  const isCorrect = isAbsolutelyOrdered(app.timeline)
+function _insertCardAtDropIndexWithAutocorrection(card, index) {
+  const isCorrect = _isAbsolutelyOrdered(app.timeline)
   app.justDroppedInfo = { index: index, isCorrect }
-  animateRippledCardFlipsToBack()
+  _animateRippledCardFlipsToBack()
 
   if (isCorrect) {
-    chill(2000).then(() => animateRippledCardFlipsToFront())
+    _chill(2000).then(() => _animateRippledCardFlipsToFront())
   } else { // Animate the correction
     const indexAfter = app.timeline.findIndex(c => c.absoluteOrder > card.absoluteOrder)
     let newIndex = app.timeline.length
@@ -91,30 +115,11 @@ function insertCardAtDropIndexWithAutocorrection(card, index) {
       newIndex = app.justDroppedInfo.index < indexAfter ? indexAfter - 1 : indexAfter
     }
 
-    animateCardFromIndexToIndex(card, app.justDroppedInfo.index, newIndex)
+    _animateCardFromIndexToIndex(card, app.justDroppedInfo.index, newIndex)
   }
 }
 
-async function animateAutocorrectingMoveByOtherPlayer(card, index) {
-  console.log(`Inserting card ${card} at index ${index}`)
-  app.dropPlaceholderIndex = index
-  
-  await chill(200)
-
-  app.timelineTransitionsEnabled = false
-  app.dropPlaceholderIndex = null
-  app.timeline.splice(index, 0, card)
-  app.removedIndex = index
-
-  await chill(200)
-
-  app.timelineTransitionsEnabled = true
-  app.removedIndex = null
-
-  await chill(200)
-  insertCardAtDropIndexWithAutocorrection(card, index)
-}
-
+// ==================================== Vue ====================================
 var app = new Vue({
   el: '#vue-app',
   data: {
@@ -173,16 +178,16 @@ var app = new Vue({
       const index = this.dropPlaceholderIndex
       this.dropPlaceholderIndex = null
       socket.emit("card_placed", card.id, index)
-      insertCardAtDropIndexWithAutocorrection(card, index)
+      _insertCardAtDropIndexWithAutocorrection(card, index)
     },
     cardDraggedOver: function (event) {
       console.log("Dragged over")
       event.preventDefault()
       const xOffset = document.getElementById("timeline").scrollLeft
       const e = event || window.event
-      const dragX = e.pageX + xOffset - remToPixels(8)
-      const cardWidth = remToPixels(10)
-      const margin = remToPixels(1)
+      const dragX = e.pageX + xOffset - _remToPixels(8)
+      const cardWidth = _remToPixels(10)
+      const margin = _remToPixels(1)
       const index = dragX / (cardWidth + margin)
       this.dropPlaceholderIndex = Math.round(index)
     },
@@ -197,6 +202,7 @@ var app = new Vue({
   }
 })
 
+// ================================== Socket ==================================
 function connect() {
   socket = io()
 
@@ -212,7 +218,8 @@ function connect() {
     console.error("Connection dropped")
   })
 
-  // ================ Messages from the server ================
+  // =============== Messages from the server ================
+  //          (Each of these call a public function)
 
   // Receive a hand of cards to show to the user
   socket.on("deal_hand", (cards) => {

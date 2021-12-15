@@ -1,45 +1,89 @@
 var socket = null
 
-function remToPixels(rem) {    
+// ============================= Public Functions =============================
+//              (in response to messages sent from the server)
+
+function dealHand(cards) {
+  app.hand = cards
+}
+
+function dealCard(card) {
+  app.hand.push(card)
+}
+
+function overwriteTimeline(cards) {
+  app.timeline = cards
+}
+
+async function insertCard(card, index) {
+  console.log(`Inserting card ${card} at index ${index}`)
+  app.dropPlaceholderIndex = index
+  
+  await _chill(200)
+  
+  app.timelineTransitionsEnabled = false
+  app.dropPlaceholderIndex = null
+  app.timeline.splice(index, 0, card)
+  app.removedIndex = index
+  
+  await _chill(200)
+  
+  app.timelineTransitionsEnabled = true
+  app.removedIndex = null
+  
+  await _chill(200)
+  _insertCardAtDropIndexWithAutocorrection(card, index)
+}
+
+function overwritePlayers(players) {
+  app.players = players
+}
+
+function setCurrentTurn(username) {
+  app.currentTurn = username
+}
+
+// ============================ Private Functions =============================
+function _remToPixels(rem) {    
   return rem * parseFloat(getComputedStyle(document.documentElement).fontSize)
 }
 
-function isAbsolutelyOrdered(cards) {
-  if (cards.length < 2) return true;
-
-  for (var i = 1; i < cards.length; i++) {
-    if (cards[i].absoluteOrder < cards[i-1].absoluteOrder) {
-      return false;
+function _isAbsolutelyOrdered(cards) {
+  if (cards.length > 1) {
+    for (var i = 1; i < cards.length; i++) {
+      if (cards[i].absoluteOrder < cards[i-1].absoluteOrder) {
+        return false
+      }
     }
   }
 
-  return true;
+  return true
 }
 
-function chill(duration) { // Delay without blocking the main thread
+function _chill(duration) { // Delay without blocking the main thread
   return new Promise(resolve => setTimeout(resolve, duration))
 }
 
-function animateRippledCardFlipsToBack(fromIndex = 0) {
+function _animateRippledCardFlipsToBack(fromIndex = 0) {
   if (fromIndex >= app.timeline.length) return;
   app.flippedIndices.push(fromIndex)
-  chill(50).then(() => animateRippledCardFlipsToBack(fromIndex + 1))
+  _chill(50).then(() => _animateRippledCardFlipsToBack(fromIndex + 1))
 }
 
-function animateRippledCardFlipsToFront() {
+function _animateRippledCardFlipsToFront() {
   if (app.flippedIndices.length === 0) return;
   app.flippedIndices.splice(0, 1);
-  chill(50).then(() => animateRippledCardFlipsToFront())
+  _chill(50).then(() => _animateRippledCardFlipsToFront())
 }
 
-async function animateCardFromIndexToIndex(card, fromIndex, toIndex) {
-  await chill(2000)
+async function _animateCardFromIndexToIndex(card, fromIndex, toIndex) {
+  await _chill(2000)
   
   // Pull the incorrect card up & out of the timeline
   app.timelineTransitionsEnabled = true
   app.removedIndex = fromIndex
 
-  await chill(500)
+  await _chill(500)
 
   // Take the incorrect card out of the model without any visual change
   app.timelineTransitionsEnabled = false
@@ -48,35 +92,54 @@ async function animateCardFromIndexToIndex(card, fromIndex, toIndex) {
   app.removedIndex = null
   app.justDroppedInfo = null
   
-  await chill(100)
+  await _chill(100)
 
   // Make a space for the insertion point
   app.timelineTransitionsEnabled = true
   app.dropPlaceholderIndex = toIndex
   
-  await chill(500)
+  await _chill(500)
 
   // Add the card to the model in the correct place...
   app.timelineTransitionsEnabled = false
   app.dropPlaceholderIndex = null
   app.timeline.splice(toIndex, 0, card)
 
-  await chill(1)
+  await _chill(1)
 
   // ...using this hack to keep it out-of-frame (for now)
   app.removedIndex = toIndex
   
-  await chill(100)
+  await _chill(100)
 
   // Animate the card down into the correct position
   app.timelineTransitionsEnabled = true
   app.removedIndex = null
   app.justDroppedInfo = { index: toIndex, isCorrect: true }
 
-  await chill(1000)
-  animateRippledCardFlipsToFront()
+  await _chill(1000)
+  _animateRippledCardFlipsToFront()
 }
 
+function _insertCardAtDropIndexWithAutocorrection(card, index) {
+  const isCorrect = _isAbsolutelyOrdered(app.timeline)
+  app.justDroppedInfo = { index: index, isCorrect }
+  _animateRippledCardFlipsToBack()
+
+  if (isCorrect) {
+    _chill(2000).then(() => _animateRippledCardFlipsToFront())
+  } else { // Animate the correction
+    const indexAfter = app.timeline.findIndex(c => c.absoluteOrder > card.absoluteOrder)
+    let newIndex = app.timeline.length
+    if (indexAfter >= 0) {
+      newIndex = app.justDroppedInfo.index < indexAfter ? indexAfter - 1 : indexAfter
+    }
+
+    _animateCardFromIndexToIndex(card, app.justDroppedInfo.index, newIndex)
+  }
+}
+
+// =================================== Vue ====================================
 var app = new Vue({
   el: '#vue-app',
   data: {
@@ -132,33 +195,19 @@ var app = new Vue({
       this.timelineTransitionsEnabled = false
       this.hand.splice(cardIndex, 1)
       this.timeline.splice(this.dropPlaceholderIndex, 0, card)
-      const isCorrect = isAbsolutelyOrdered(this.timeline)
-      this.justDroppedInfo = { index: this.dropPlaceholderIndex, isCorrect }
+      const index = this.dropPlaceholderIndex
       this.dropPlaceholderIndex = null
-      animateRippledCardFlipsToBack()
-
-      socket.emit("card_placed", card.id, cardIndex)
-
-      if (isCorrect) {
-        chill(2000).then(() => animateRippledCardFlipsToFront())
-      } else { // Animate the correction
-        const indexAfter = this.timeline.findIndex(c => c.absoluteOrder > card.absoluteOrder)
-        let newIndex = this.timeline.length
-        if (indexAfter >= 0) {
-          newIndex = this.justDroppedInfo.index < indexAfter ? indexAfter - 1 : indexAfter
-        }
-
-        animateCardFromIndexToIndex(card, this.justDroppedInfo.index, newIndex)
-      }
+      socket.emit("card_placed", card.id, index)
+      _insertCardAtDropIndexWithAutocorrection(card, index)
     },
     cardDraggedOver: function (event) {
       console.log("Dragged over")
       event.preventDefault()
       const xOffset = document.getElementById("timeline").scrollLeft
       const e = event || window.event
-      const dragX = e.pageX + xOffset - remToPixels(8)
-      const cardWidth = remToPixels(10)
-      const margin = remToPixels(1)
+      const dragX = e.pageX + xOffset - _remToPixels(8)
+      const cardWidth = _remToPixels(10)
+      const margin = _remToPixels(1)
       const index = dragX / (cardWidth + margin)
       this.dropPlaceholderIndex = Math.round(index)
     },
@@ -168,11 +217,12 @@ var app = new Vue({
   },
   computed: {
     isMyTurn: function () {
-      return this.currentTurn === this.username
+      return this.currentTurn === this.username && this.username !== ""
     }
   }
 })
 
+// ================================== Socket ==================================
 function connect() {
   socket = io()
 
@@ -188,38 +238,30 @@ function connect() {
     console.error("Connection dropped")
   })
 
-  // ================ Messages from the server ================
+  // =============== Messages from the server ================
+  //          (Each of these call a public function)
 
-  // Receive a hand of cards to show to the user
   socket.on("deal_hand", (cards) => {
-    app.hand = cards
+    dealHand(cards)
   })
 
-  // Add a card to this player's hand
   socket.on("deal_card", (card) => {
-    app.hand.push(card)
+    dealCard(card)
   })
   
-  // Update the whole timeline without animation (e.g. if you need to load
-  // many cards at once).
   socket.on("overwrite_timeline", (cards) => {
-    app.timeline = cards
+    overwriteTimeline(cards)
   })
 
-  // Insert a card into the timeline (e.g. if another player has played
-  // their turn)
   socket.on("insert_card", (card, index) => {
-    console.log(`TODO: Inserting card ${card} at index ${index}`)
+    insertCard(card, index)
   })
 
-  // Update the list of players. For use when players are joining or a turn
-  // has been taken.
   socket.on("overwrite_players", (players) => {
-    app.players = players
+    overwritePlayers(players)
   })
   
-  // Set the current turn to the player with the received username.
   socket.on("set_current_turn", (username) => {
-    app.currentTurn = username
+    setCurrentTurn(username)
   })
 }

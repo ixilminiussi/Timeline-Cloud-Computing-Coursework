@@ -136,7 +136,7 @@ These are the socket messages the client will use to update the server.
 
 Called when the current player drops a card onto the timeline. The server should:
 * retrieve the information about the card
-* figure out whether it was placed in the correct position (see `isAbsolutelyOrdered` in _game.js_)
+* figure out whether it was placed in the correct position (see `_isAbsolutelyOrdered` in _game.js_)
 * Update all clients by emitting `insert_card`
 * If incorrect, send a replacement card with `deal_card`
 * Update the clients with the new player states

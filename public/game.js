@@ -79,8 +79,7 @@ async function animateCardFromIndexToIndex(card, fromIndex, toIndex) {
 
 function insertCardAtDropIndexWithAutocorrection(card, index) {
   const isCorrect = isAbsolutelyOrdered(app.timeline)
-  app.justDroppedInfo = { index: app.dropPlaceholderIndex, isCorrect }
-  app.dropPlaceholderIndex = null
+  app.justDroppedInfo = { index: index, isCorrect }
   animateRippledCardFlipsToBack()
 
   if (isCorrect) {
@@ -98,8 +97,6 @@ function insertCardAtDropIndexWithAutocorrection(card, index) {
 
 async function animateAutocorrectingMoveByOtherPlayer(card, index) {
   console.log(`Inserting card ${card} at index ${index}`)
-  
-  // Animate the drop by the other player
   app.dropPlaceholderIndex = index
   
   await chill(200)
@@ -115,7 +112,7 @@ async function animateAutocorrectingMoveByOtherPlayer(card, index) {
   app.removedIndex = null
 
   await chill(200)
-  insertCardAtDropIndexWithAutocorrection(card)
+  insertCardAtDropIndexWithAutocorrection(card, index)
 }
 
 var app = new Vue({
@@ -170,11 +167,13 @@ var app = new Vue({
       console.log("Dropped", card)
       event.preventDefault()
 
-      app.timelineTransitionsEnabled = false
-      app.hand.splice(cardIndex, 1)
-      app.timeline.splice(app.dropPlaceholderIndex, 0, card)
-      socket.emit("card_placed", card.id, app.dropPlaceholderIndex)
-      insertCardAtDropIndexWithAutocorrection(card)
+      this.timelineTransitionsEnabled = false
+      this.hand.splice(cardIndex, 1)
+      this.timeline.splice(this.dropPlaceholderIndex, 0, card)
+      const index = this.dropPlaceholderIndex
+      this.dropPlaceholderIndex = null
+      socket.emit("card_placed", card.id, index)
+      insertCardAtDropIndexWithAutocorrection(card, index)
     },
     cardDraggedOver: function (event) {
       console.log("Dragged over")

@@ -81,7 +81,11 @@
         <div class="mt-8 flex flex-row space-x-4">
           <div v-for="(card, index) in hand">
             <div :draggable="isMyTurn" @dragstart="cardDragStarted($event, index)"
-              class="h-56 w-40 flex items-center border-2 rounded-md border-gray-300">
+              class="h-56 w-40 flex items-center border-2 rounded-md border-gray-300 transition duration-300"
+              v-bind:class="{
+                'translate-y-[150pt]': undealtHandIndices.includes(index),
+                'opacity-0': undealtHandIndices.includes(index),
+              }">
               <span class="w-full p-4 text-center text-gray-400 text-3xl">{{card.frontValue}}</span>
             </div>
           </div>

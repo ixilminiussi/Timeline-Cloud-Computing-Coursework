@@ -5,6 +5,8 @@ var socket = null
 
 function dealHand(cards) {
   app.hand = cards
+  app.undealtHandIndices = cards.map((e,i) => i)
+  _animateHandIn()
 }
 
 function dealCard(card) {
@@ -139,6 +141,17 @@ function _insertCardAtDropIndexWithAutocorrection(card, index) {
   }
 }
 
+async function _animateHandIn() {
+  console.log("A")
+  if (!app.undealtHandIndices.length) {
+    return
+  }
+
+  await _chill(150)
+  app.undealtHandIndices.splice(0,1)
+  await _animateHandIn()
+}
+
 // =================================== Vue ====================================
 var app = new Vue({
   el: '#vue-app',
@@ -173,9 +186,10 @@ var app = new Vue({
       { frontValue: "Event Y", backValue: "1634", absoluteOrder: 10 },
       { frontValue: "Event Z", backValue: "2004", absoluteOrder: 18 },
     ],
-    justDroppedInfo: null, // { index: int, isCorrect: bool }
+    justDroppedInfo: null,  // { index: int, isCorrect: bool }
     flippedIndices: [],
-    removedIndex: null, // The index of the card that's pulled up out of the timeline
+    removedIndex: null,     // The index of the card that's pulled up out of the timeline
+    undealtHandIndices: [], // Indices of cards in the hand that are animated out
   },
   mounted: function () {
     connect()

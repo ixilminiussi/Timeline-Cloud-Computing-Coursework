@@ -66,16 +66,18 @@ function _chill(duration) { // Delay without blocking the main thread
   return new Promise(resolve => setTimeout(resolve, duration))
 }
 
-function _animateRippledCardFlipsToBack(fromIndex = 0) {
-  if (fromIndex >= app.timeline.length) return;
-  app.flippedIndices.push(fromIndex)
-  _chill(50).then(() => _animateRippledCardFlipsToBack(fromIndex + 1))
+async function _animateRippledCardFlipsToBack() {
+  for (var i = 0; i < app.timeline.length; i++) {
+    app.flippedIndices.push(i)
+    await _chill(50)
+  }
 }
 
-function _animateRippledCardFlipsToFront() {
-  if (app.flippedIndices.length === 0) return;
-  app.flippedIndices.splice(0, 1);
-  _chill(50).then(() => _animateRippledCardFlipsToFront())
+async function _animateRippledCardFlipsToFront() {
+  while (app.flippedIndices.length) {
+    app.flippedIndices.splice(0, 1);
+    await _chill(50)
+  }
 }
 
 async function _animateCardFromIndexToIndex(card, fromIndex, toIndex) {
@@ -142,14 +144,10 @@ function _insertCardAtDropIndexWithAutocorrection(card, index) {
 }
 
 async function _animateHandIn() {
-  console.log("A")
-  if (!app.undealtHandIndices.length) {
-    return
+  while (app.undealtHandIndices.length) {
+    await _chill(150)
+    app.undealtHandIndices.splice(0,1)
   }
-
-  await _chill(150)
-  app.undealtHandIndices.splice(0,1)
-  await _animateHandIn()
 }
 
 // =================================== Vue ====================================

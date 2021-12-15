@@ -3,27 +3,47 @@ var socket = null
 // ============================= Public Functions =============================
 //              (in response to messages sent from the server)
 
-async function animateAutocorrectingMoveByOtherPlayer(card, index) {
+function dealHand(cards) {
+  app.hand = cards
+}
+
+function dealCard(card) {
+  app.hand.push(card)
+}
+
+function overwriteTimeline(cards) {
+  app.timeline = cards
+}
+
+async function insertCard(card, index) {
   console.log(`Inserting card ${card} at index ${index}`)
   app.dropPlaceholderIndex = index
   
   await _chill(200)
-
+  
   app.timelineTransitionsEnabled = false
   app.dropPlaceholderIndex = null
   app.timeline.splice(index, 0, card)
   app.removedIndex = index
-
+  
   await _chill(200)
-
+  
   app.timelineTransitionsEnabled = true
   app.removedIndex = null
-
+  
   await _chill(200)
   _insertCardAtDropIndexWithAutocorrection(card, index)
 }
 
-// ============================= Private Functions =============================
+function overwritePlayers(players) {
+  app.players = players
+}
+
+function setCurrentTurn(username) {
+  app.currentTurn = username
+}
+
+// ============================ Private Functions =============================
 function _remToPixels(rem) {    
   return rem * parseFloat(getComputedStyle(document.documentElement).fontSize)
 }
@@ -119,7 +139,7 @@ function _insertCardAtDropIndexWithAutocorrection(card, index) {
   }
 }
 
-// ==================================== Vue ====================================
+// =================================== Vue ====================================
 var app = new Vue({
   el: '#vue-app',
   data: {
@@ -221,36 +241,27 @@ function connect() {
   // =============== Messages from the server ================
   //          (Each of these call a public function)
 
-  // Receive a hand of cards to show to the user
   socket.on("deal_hand", (cards) => {
-    app.hand = cards
+    dealHand(cards)
   })
 
-  // Add a card to this player's hand
   socket.on("deal_card", (card) => {
-    app.hand.push(card)
+    dealCard(card)
   })
   
-  // Update the whole timeline without animation (e.g. if you need to load
-  // many cards at once).
   socket.on("overwrite_timeline", (cards) => {
-    app.timeline = cards
+    overwriteTimeline(cards)
   })
 
-  // Insert a card into the timeline (e.g. if another player has played
-  // their turn)
   socket.on("insert_card", (card, index) => {
-    animateAutocorrectingMoveByOtherPlayer(card, index)
+    insertCard(card, index)
   })
 
-  // Update the list of players. For use when players are joining or a turn
-  // has been taken.
   socket.on("overwrite_players", (players) => {
-    app.players = players
+    overwritePlayers(players)
   })
   
-  // Set the current turn to the player with the received username.
   socket.on("set_current_turn", (username) => {
-    app.currentTurn = username
+    setCurrentTurn(username)
   })
 }

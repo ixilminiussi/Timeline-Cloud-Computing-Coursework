@@ -77,6 +77,28 @@ async function animateCardFromIndexToIndex(card, fromIndex, toIndex) {
   animateRippledCardFlipsToFront()
 }
 
+function insertCardAtDropIndexWithAutocorrection(card) {
+  app.timeline.splice(app.dropPlaceholderIndex, 0, card)
+  const isCorrect = isAbsolutelyOrdered(app.timeline)
+  app.justDroppedInfo = { index: app.dropPlaceholderIndex, isCorrect }
+  socket.emit("card_placed", card.id, app.dropPlaceholderIndex)
+  app.dropPlaceholderIndex = null
+  animateRippledCardFlipsToBack()
+
+
+  if (isCorrect) {
+    chill(2000).then(() => animateRippledCardFlipsToFront())
+  } else { // Animate the correction
+    const indexAfter = app.timeline.findIndex(c => c.absoluteOrder > card.absoluteOrder)
+    let newIndex = app.timeline.length
+    if (indexAfter >= 0) {
+      newIndex = app.justDroppedInfo.index < indexAfter ? indexAfter - 1 : indexAfter
+    }
+
+    animateCardFromIndexToIndex(card, app.justDroppedInfo.index, newIndex)
+  }
+}
+
 var app = new Vue({
   el: '#vue-app',
   data: {
@@ -129,27 +151,9 @@ var app = new Vue({
       console.log("Dropped", card)
       event.preventDefault()
 
-      this.timelineTransitionsEnabled = false
-      this.hand.splice(cardIndex, 1)
-      this.timeline.splice(this.dropPlaceholderIndex, 0, card)
-      const isCorrect = isAbsolutelyOrdered(this.timeline)
-      this.justDroppedInfo = { index: this.dropPlaceholderIndex, isCorrect }
-      this.dropPlaceholderIndex = null
-      animateRippledCardFlipsToBack()
-
-      socket.emit("card_placed", card.id, cardIndex)
-
-      if (isCorrect) {
-        chill(2000).then(() => animateRippledCardFlipsToFront())
-      } else { // Animate the correction
-        const indexAfter = this.timeline.findIndex(c => c.absoluteOrder > card.absoluteOrder)
-        let newIndex = this.timeline.length
-        if (indexAfter >= 0) {
-          newIndex = this.justDroppedInfo.index < indexAfter ? indexAfter - 1 : indexAfter
-        }
-
-        animateCardFromIndexToIndex(card, this.justDroppedInfo.index, newIndex)
-      }
+      app.timelineTransitionsEnabled = false
+      app.hand.splice(cardIndex, 1)
+      insertCardAtDropIndexWithAutocorrection(card)
     },
     cardDraggedOver: function (event) {
       console.log("Dragged over")

@@ -9,8 +9,11 @@ function dealHand(cards) {
   _animateHandIn()
 }
 
-function dealCard(card) {
+async function dealCard(card) {
   app.hand.push(card)
+  app.undealtHandIndices = [app.hand.length - 1]
+  await _chill(50)
+  app.undealtHandIndices = []
 }
 
 function overwriteTimeline(cards) {

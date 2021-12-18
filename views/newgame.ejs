@@ -9,6 +9,10 @@
 </head>
 
 <body>
+  <div id="account">
+    <%- include('login'); %>
+  </div>
+
   <div id="vue-app">
 
     <div class="max-w-2xl mx-auto py-24 text-gray-400">
@@ -91,5 +95,16 @@
   <!-- Application Javascript -->
   <script src="/static/newgame.js"></script>
 </body>
+
+<style>
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity .1s ease-in;
+  }
+  .fade-enter, .fade-leave-to {
+    transform: scale(-50px);
+    opacity: 0;
+  }
+</style>
+
 
 </html>

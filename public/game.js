@@ -198,6 +198,7 @@ var app = new Vue({
     undealtHandIndices: [], // Indices of cards in the hand that are animated out
     isDealingInNewCard: false,
     handTransitionsEnabled: true,
+    started: false, //Boolean describing if the game has started
   },
   mounted: function () {
     connect()

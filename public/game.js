@@ -246,11 +246,6 @@ var app = new Vue({
   }
 })
 
-// register modal component
-Vue.component("modal", {
-  template: "#modal-template"
-});
-
 // ================================== Socket ==================================
 function connect() {
   socket = io()

@@ -199,6 +199,7 @@ var app = new Vue({
     isDealingInNewCard: false,
     handTransitionsEnabled: true,
     started: false, //Boolean describing if the game has started
+    showModal: false,
   },
   mounted: function () {
     connect()
@@ -244,6 +245,11 @@ var app = new Vue({
     }
   }
 })
+
+// register modal component
+Vue.component("modal", {
+  template: "#modal-template"
+});
 
 // ================================== Socket ==================================
 function connect() {

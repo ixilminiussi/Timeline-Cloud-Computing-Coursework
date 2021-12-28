@@ -1,3 +1,4 @@
+const { chill } = require("../utility")
 const Player = require("./player")
 
 // Manages and coordinates a single game of Timeline
@@ -63,7 +64,7 @@ class Game {
     return this._players[0]
   }
 
-  cardPlaced(player, cardID, index) {
+  async cardPlaced(player, cardID, index) {
     const card = this._originalDeck.find(c => c.id === cardID)
     if (!card) {
       this._error("Card placed with invalid ID:", cardID)
@@ -79,6 +80,8 @@ class Game {
       .forEach(p => p.socket.emit("insert_card", card, index))
     
     player.removeCard(card)
+
+    await chill(2000)
 
     if (wasPlacedCorrectly) {
       this._log("Card placed correctly")

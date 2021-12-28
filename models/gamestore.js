@@ -74,6 +74,16 @@ class GameStore {
     player.game.start()
   }
 
+  cardPlacedViaSocket(socket, cardID, index) {
+    const player = this._allPlayers.get(socket)
+    if (!player) {
+      console.error("Cannot find player with socket")
+      return
+    }
+
+    player.game.cardPlaced(player, cardID, index)
+  }
+
   // PRIVATE
   _generateGameID() {
     const chars = GameStore.ID_VALUES

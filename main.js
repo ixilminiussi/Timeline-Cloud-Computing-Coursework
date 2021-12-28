@@ -82,6 +82,11 @@ io.on("connection", socket => {
     console.log("socket: start_game")
     gameStore.startGameViaSocket(socket)
   })
+
+  socket.on("card_placed", (cardID, index) => {
+    console.log("socket: card_placed")
+    gameStore.cardPlacedViaSocket(socket, cardID, index)
+  })
 })
 
 if (module === require.main) {

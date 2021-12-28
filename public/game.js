@@ -168,8 +168,8 @@ var app = new Vue({
   el: '#vue-app',
   data: {
     // Players and turns
-    username: "Jason",
-    currentTurn: "Jason",
+    username: "",
+    currentTurn: "",
     players: [],
 
     // Cards and timeline animations
@@ -188,6 +188,8 @@ var app = new Vue({
     connect()
     socket.emit("register_with_game", _getGameID())
     // TEMP
+    // const username = "" + Math.random().toString(36).slice(2, 6)
+    this.username = "Bob"
     _chill(100).then(() => socket.emit("register_username", "Bob"))
     _chill(400).then(() => socket.emit("start_game"))
   },
@@ -256,7 +258,7 @@ function connect() {
     dealHand(cards)
   })
 
-  socket.on("deal_card", (card) => {
+  socket.on("deal_replacement", (card) => {
     dealCard(card)
   })
   

@@ -5,19 +5,30 @@ class GameStore {
   static ID_VALUES = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ123456789".split("")
 
   constructor(a, b, c) {
-    this.games = []
+    this._games = []
   }
 
   // PUBLIC
   createGame(socket) {
     do { // Generate unique game ID
       var id = this._generateGameID()
-    } while (this.games.find(g => g.id === id))
+    } while (this._games.find(g => g.id === id))
 
     const game = new Game(id)
     game.creatorSocket = socket
-    this.games.push(game)
+    this._games.push(game)
     return game
+  }
+
+  updateDeckForGameWithCreatorSocket(socket, deckID) {
+    const game = this._games.find(g => g.creatorSocket === socket)
+    if (!game) {
+      console.error("Cannot find game with socket")
+      return
+    }
+
+    // TODO: confirm this deck ID is valid
+    game.selectedDeckID = deckID
   }
 
   // PRIVATE

@@ -49,8 +49,9 @@ io.on("connection", socket => {
   })
 
   socket.on("select_deck", deckID => {
-    console.log("socket: select_deck")
-    // TODO: update deck for this socket's game
+    console.log("socket: select_deck", deckID)
+
+    // TODO: update deck for this socket's game -- use GameStore.updateDeckForGameWithCreatorSocket
     console.error("select_deck is unimplemented")
   })
 

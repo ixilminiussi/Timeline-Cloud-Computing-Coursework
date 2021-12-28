@@ -7,6 +7,8 @@ class Game {
     this.creationTime = Date.now()
     this.creatorSocket = null
     this.players = []
+    this.selectedDeckID = null
+    this.deck = []
   }
 }
 

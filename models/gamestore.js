@@ -1,4 +1,5 @@
 const Game = require("./game")
+const Player = require("./player")
 
 // Manages and coordinates all the games active on the server
 class GameStore {
@@ -6,6 +7,7 @@ class GameStore {
 
   constructor(a, b, c) {
     this._games = []
+    this._allPlayers = new Map() // [Socket: Player]
   }
 
   // PUBLIC
@@ -29,6 +31,47 @@ class GameStore {
 
     // TODO: confirm this deck ID is valid
     game.selectedDeckID = deckID
+  }
+
+  registerSocketWithGame(socket, gameID) {
+    let game = this._games.find(g => g.id === gameID)
+    if (!game) {
+      console.error("Cannot find game with id", gameID, "- creating new one")
+      game = new Game(gameID) // Intentionally not setting creatorSocket here
+      this._games.push(game)
+    }
+    const player = new Player(socket)
+    game.registerPlayer(player)
+    this._allPlayers.set(socket, player)
+  }
+
+  registerUsernameForPlayerWithSocket(socket, username) {
+    const player = this._allPlayers.get(socket)
+    if (!player) {
+      console.error("Cannot find player with socket")
+      return
+    }
+
+    const migrationInfo = player.game.registerUsernameForPlayer(player, username)
+    if (migrationInfo) { // Username already exists for a player, assign socket to this player
+      this._allPlayers.delete(migrationInfo.oldSocket)
+      this._allPlayers.set(socket, migrationInfo.targetPlayer)
+    }
+  }
+
+  startGameViaSocket(socket) {
+    const player = this._allPlayers.get(socket)
+    if (!player) {
+      console.error("Cannot find player with socket")
+      return
+    }
+
+    if (player.game.adminPlayer() !== player) {
+      console.error("Player does not have authority to start game")
+      return
+    }
+
+    player.game.start()
   }
 
   // PRIVATE

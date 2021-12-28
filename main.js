@@ -68,8 +68,19 @@ io.on("connection", socket => {
     socket.emit("join_link", link)
   })
 
+  socket.on("register_with_game", gameID => {
+    console.log("socket: register_with_game", gameID)
+    gameStore.registerSocketWithGame(socket, gameID)
+  })
+
   socket.on("register_username", username => {
-    console.error("register_username is unimplemented")
+    console.log("socket: register_username", username)
+    gameStore.registerUsernameForPlayerWithSocket(socket, username)
+  })
+
+  socket.on("start_game", () => {
+    console.log("socket: start_game")
+    gameStore.startGameViaSocket(socket)
   })
 })
 

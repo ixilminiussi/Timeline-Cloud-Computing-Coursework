@@ -6,7 +6,7 @@ const { chill } = require("../utility")
 class Game {
   static ID_LENGTH = 6
   static MAX_PLAYERS = 5
-  static MAX_HAND_SIZE = 5
+  static MAX_HAND_SIZE = 2
 
   static STAGE_LOBBY = "lobby"
   static STAGE_PLAYING = "playing"
@@ -19,13 +19,13 @@ class Game {
     this.id = id
     this.creationTime = Date.now()  // TODO: remove unplayed games after time
     this.creatorSocket = null
-    this.selectedDeckID = null
+    this._selectedDeckID = null
     this._players = []
     this._deck = []
     this._originalDeck = []
     this._timeline = []
     this._stage = Game.STAGE_LOBBY
-    this.currentPlayerIndex = 0
+    this._currentPlayerIndex = 0
   }
 
   // PUBLIC
@@ -148,7 +148,7 @@ class Game {
       this._players.forEach(p => p.socket.emit("set_current_turn", null))
       this._players.forEach(p => p.socket.emit("game_over"))
     } else { // Update current turn
-      this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this._players.length
+      this._currentPlayerIndex = (this._currentPlayerIndex + 1) % this._players.length
       this._updateClientsWithCurrentTurn()
     }
   }
@@ -180,7 +180,7 @@ class Game {
     this._updateClientsWithPlayers()
 
     // Update current turn
-    this.currentPlayerIndex = 0
+    this._currentPlayerIndex = 0
     this._updateClientsWithCurrentTurn()
   }
 
@@ -195,7 +195,7 @@ class Game {
       return
     }
 
-    this.selectedDeckID = deckID
+    this._selectedDeckID = deckID
   }
 
   // PRIVATE
@@ -238,7 +238,7 @@ class Game {
   }
 
   _updateClientsWithCurrentTurn() {
-    const username = this._players[this.currentPlayerIndex].username
+    const username = this._players[this._currentPlayerIndex].username
     this._log("Updating current turn:", username)
     this._players.forEach(p => p.socket.emit("set_current_turn", username))
   }

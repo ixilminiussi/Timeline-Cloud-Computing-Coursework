@@ -42,7 +42,7 @@ io.on("connection", socket => {
     console.log("Dropped connection")
   })
 
-  // ===== Client-side API ======
+  // ========================== Client-side API ==========================
   socket.on("available_decks", () => {
     console.log("socket: available_decks")
     // TODO: send back available decks to the client
@@ -51,8 +51,7 @@ io.on("connection", socket => {
 
   socket.on("select_deck", deckID => {
     console.log("socket: select_deck", deckID)
-    // TODO: update deck for this socket's game -- use GameStore.updateDeckForGameWithCreatorSocket
-    console.error("select_deck is unimplemented")
+    gameStore.updateDeckForGameWithCreatorSocket(socket, deckID)
   })
 
   socket.on("create_game", () => {

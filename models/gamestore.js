@@ -44,8 +44,9 @@ class GameStore {
       this._games.push(game)
     }
     const player = new Player(socket)
-    game.registerPlayer(player)
-    this._allPlayers.set(socket, player)
+    if (game.registerPlayer(player)) {
+      this._allPlayers.set(socket, player)
+    }
   }
 
   registerUsernameForPlayerWithSocket(socket, username) {

@@ -5,7 +5,7 @@ const { chill } = require("../utility")
  */
 class Game {
   static ID_LENGTH = 6
-  static MAX_PLAYERS = 5 // TODO: enforce max players
+  static MAX_PLAYERS = 5
   static MAX_HAND_SIZE = 5
 
   static STAGE_LOBBY = "lobby"
@@ -26,9 +26,15 @@ class Game {
   }
 
   registerPlayer(player) {
+    if (this._players.length >= Game.MAX_PLAYERS) {
+      this._error("Max players reached, ignoring new player")
+      return false
+    }
+
     this._players.push(player)
     player.game = this
     this._updateClientsWithPlayers()
+    return true
   }
 
   registerUsernameForPlayer(player, username) {

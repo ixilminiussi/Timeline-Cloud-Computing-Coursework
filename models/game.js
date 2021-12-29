@@ -21,10 +21,11 @@ class Game {
     this._deck = []
     this._originalDeck = []
     this._timeline = []
-    this.stage = Game.STAGE_LOBBY // TODO: use stage to disable certain operations
+    this.stage = Game.STAGE_LOBBY
     this.currentPlayerIndex = 0
   }
 
+  // PUBLIC
   registerPlayer(player) {
     if (this._players.length >= Game.MAX_PLAYERS) {
       this._error("Max players reached, ignoring new player")
@@ -183,23 +184,6 @@ class Game {
     const username = this._players[this.currentPlayerIndex].username
     this._log("Updating current turn:", username)
     this._players.forEach(p => p.socket.emit("set_current_turn", username))
-  }
-
-  _updateAllPlayers() {
-    let state = { stage: this.stage }
-
-    switch (this.stage) {
-      case Game.STAGE_LOBBY:
-        state.players = this._players.map(p => ({
-          username: p.displayName(),
-          cardsRemaining: 0, // not used in the lobby stage
-        }))
-        break
-      default:
-        break
-    }
-
-    this._players.forEach(p => p.socket.emit("game_state", state))
   }
 
   _log(...args) {

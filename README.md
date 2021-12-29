@@ -57,6 +57,12 @@ Server listening on port 8080
 
 Open http://localhost:8080.
 
+## Counting Lines of Code
+
+```bash
+cloc --exclude-dir="node_modules" --include-ext="js,ejs,css" --not-match-f="main\.css" .
+```
+
 ## Server: Updating the Client
 
 These are the socket messages the server can use to update the client.

@@ -12,20 +12,29 @@ class Game {
   static STAGE_PLAYING = "playing"
   static STAGE_ENDED = "ended"
 
+  /**
+   * @param {string} id The unique ID of this game.
+   */
   constructor(id) {
     this.id = id
-    this.creationTime = Date.now()
+    this.creationTime = Date.now()  // TODO: remove unplayed games after time
     this.creatorSocket = null
     this.selectedDeckID = null
     this._players = []
     this._deck = []
     this._originalDeck = []
     this._timeline = []
-    this.stage = Game.STAGE_LOBBY
+    this._stage = Game.STAGE_LOBBY
     this.currentPlayerIndex = 0
   }
 
   // PUBLIC
+  /**
+   * Adds a player to the list and sets the inverse relationship on the player. If the
+   * game is full then the player will not be added.
+   * @param {Player} player The player to add to this game.
+   * @returns {boolean} `true` if there was room to add the player, `false` otherwise.
+   */
   registerPlayer(player) {
     if (this._players.length >= Game.MAX_PLAYERS) {
       this._error("Max players reached, ignoring new player")
@@ -38,6 +47,20 @@ class Game {
     return true
   }
 
+  /**
+   * @typedef {Object} MigrationInfo
+   * @property {Socket} oldSocket The socket the existing player used to use.
+   * @property {Player} targetPlayer The existing player that `player` was merged with.
+   */
+
+  /**
+   * Set the username for a player. If the username already exists in this game then
+   * the existing player will be merged with the new player.
+   * @param {Player} player The player requesting a username.
+   * @param {string} username The new username of the player.
+   * @returns {MigrationInfo|null} The migration info in the case of a username conflict,
+   *                               otherwise `null`.
+   */
   registerUsernameForPlayer(player, username) {
     const playerIndex = this._players.findIndex(p => p === player)
     if (playerIndex < 0) {
@@ -64,6 +87,9 @@ class Game {
     return migrationInfo
   }
 
+  /**
+   * @returns {Player|null} The admin player of this game, if one exists.
+   */
   adminPlayer() {
     if (!this._players.length) {
       return null
@@ -71,6 +97,13 @@ class Game {
     return this._players[0]
   }
 
+  /**
+   * Handles a turn being made during the game. Notifies the other clients,
+   * deals replacements if necessary, and moves to the next turn.
+   * @param {Player} player The player that made the move.
+   * @param {string} cardID The unique ID of the card that the player placed.
+   * @param {number} index The index in the timeline where the player placed the card.
+   */
   async cardPlaced(player, cardID, index) {
     const card = this._originalDeck.find(c => c.id === cardID)
     if (!card) {
@@ -114,9 +147,13 @@ class Game {
     this._updateClientsWithCurrentTurn()
   }
 
+  /**
+   * Starts the game. Updates the game stage, downloads the deck, and deals hands
+   * to players before starting turn-by-turn play.
+   */
   async start() {
     this._log("starting")
-    this.stage = Game.STAGE_PLAYING
+    this._stage = Game.STAGE_PLAYING
     this._originalDeck = await this._loadSelectedDeck()
     this._deck = [...this._originalDeck]
 
@@ -139,6 +176,20 @@ class Game {
     // Update current turn
     this.currentPlayerIndex = 0
     this._updateClientsWithCurrentTurn()
+  }
+
+  /**
+   * Updates the current deck the game is using. If the game is playing, nothing happens.
+   * @param {string} deckID The unique ID of the deck this game should use.
+   * Must be a valid deck ID.
+   */
+  selectDeckWithID(deckID) {
+    if (this._stage === Game.STAGE_PLAYING) {
+      this._error("Stage is playing, cannot change change deck")
+      return
+    }
+
+    this.selectedDeckID = deckID
   }
 
   // PRIVATE

@@ -4,7 +4,8 @@ require('dotenv').config()
 
 const Database = require("./database")
 const GameStore = require("./models/gamestore")
-const gameStore = new GameStore()
+const db = new Database()
+const gameStore = new GameStore(db)
 
 const express = require("express")
 const app = express()
@@ -50,7 +51,6 @@ io.on("connection", socket => {
 
   socket.on("select_deck", deckID => {
     console.log("socket: select_deck", deckID)
-
     // TODO: update deck for this socket's game -- use GameStore.updateDeckForGameWithCreatorSocket
     console.error("select_deck is unimplemented")
   })

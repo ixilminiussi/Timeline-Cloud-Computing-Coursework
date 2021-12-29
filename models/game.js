@@ -99,7 +99,7 @@ class Game {
 
   /**
    * Handles a turn being made during the game. Notifies the other clients,
-   * deals replacements if necessary, and moves to the next turn.
+   * deals replacements if necessary, and moves to the next turn (or ends the game).
    * @param {Player} player The player that made the move.
    * @param {string} cardID The unique ID of the card that the player placed.
    * @param {number} index The index in the timeline where the player placed the card.
@@ -121,7 +121,7 @@ class Game {
     
     player.removeCard(card)
 
-    await chill(2000)
+    await chill(2500)
 
     if (wasPlacedCorrectly) {
       this._log("Card placed correctly")
@@ -141,10 +141,16 @@ class Game {
     }
 
     this._updateClientsWithPlayers()
-
-    // Update current turn
-    this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this._players.length
-    this._updateClientsWithCurrentTurn()
+    
+    if (!player.cards.length) { // Game over
+      this._log(`${player.displayName()} has cleared hand, ending game`)
+      this._stage = Game.STAGE_ENDED
+      this._players.forEach(p => p.socket.emit("set_current_turn", null))
+      this._players.forEach(p => p.socket.emit("game_over"))
+    } else { // Update current turn
+      this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this._players.length
+      this._updateClientsWithCurrentTurn()
+    }
   }
 
   /**

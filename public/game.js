@@ -169,7 +169,7 @@ var app = new Vue({
   data: {
     // Players and turns
     username: "",
-    currentTurn: "",
+    currentTurn: null,
     players: [],
 
     // Cards and timeline animations
@@ -277,5 +277,10 @@ function connect() {
   
   socket.on("set_current_turn", (username) => {
     setCurrentTurn(username)
+  })
+
+  socket.on("game_over", () => {
+    console.log("socket: game_over unimplemented")
+    console.log(app.players)
   })
 }

@@ -128,6 +128,13 @@ Args:
 socket.on("set_current_turn", (username) => { /* ... */ })
 ```
 
+#### game_over
+
+Call this to make the client display the 'Game Over' screen, ranking players by number of cards remaining. Call `overwrite_players` beforehand to update the scores.
+
+```javascript
+socket.on("game_over", () => { /* ... */ })
+```
 ## Server: Listening for Client Updates
 
 These are the socket messages the client will use to update the server.

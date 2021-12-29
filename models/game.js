@@ -1,7 +1,8 @@
 const { chill } = require("../utility")
-const Player = require("./player")
 
-// Manages and coordinates a single game of Timeline
+/**
+ * Represents and manages a single game of Timeline.
+ */
 class Game {
   static ID_LENGTH = 6
   static MAX_PLAYERS = 5 // TODO: enforce max players
@@ -20,11 +21,10 @@ class Game {
     this._deck = []
     this._originalDeck = []
     this._timeline = []
-    this.stage = Game.STAGE_LOBBY
+    this.stage = Game.STAGE_LOBBY // TODO: use stage to disable certain operations
     this.currentPlayerIndex = 0
   }
 
-  // PUBLIC
   registerPlayer(player) {
     this._players.push(player)
     player.game = this

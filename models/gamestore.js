@@ -1,7 +1,10 @@
 const Game = require("./game")
 const Player = require("./player")
 
-// Manages and coordinates all the games active on the server
+/**
+ * Coordinates a collection of concurrent Timeline games and players. This
+ * class is the root of all game logic on the server.
+ */
 class GameStore {
   static ID_VALUES = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ123456789".split("")
 

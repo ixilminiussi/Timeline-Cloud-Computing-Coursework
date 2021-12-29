@@ -1,4 +1,7 @@
-// Represents a single unique player in a game of Timeline
+/**
+ * Represents a single player in a game of Timeline, whose username uniquely
+ * identifies them within their game.
+ */
 class Player {
   constructor(socket) {
     this.username = null

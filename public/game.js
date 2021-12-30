@@ -158,40 +158,25 @@ async function _animateHandIn() {
   }
 }
 
+function _getGameID() {
+  const pathComponents = window.location.pathname.split("/")
+  return pathComponents[pathComponents.length - 1]
+}
+
 // =================================== Vue ====================================
 var app = new Vue({
   el: '#vue-app',
   data: {
     // Players and turns
-    username: "Jason",
-    currentTurn: "Jason",
-    players: [
-      { username: "Jason", cardsRemaining: 4 },
-      { username: "Karl", cardsRemaining: 3 },
-      { username: "Beth", cardsRemaining: 5 },
-      { username: "Alice", cardsRemaining: 1 },
-    ],
+    username: "",
+    currentTurn: null,
+    players: [],
 
     // Cards and timeline animations
     dropPlaceholderIndex: null,
     timelineTransitionsEnabled: true,
-    timeline: [
-      { frontValue: "Event A", backValue: "1432", absoluteOrder: 1 },
-      { frontValue: "Event B", backValue: "1500", absoluteOrder: 3 },
-      { frontValue: "Event C", backValue: "1523", absoluteOrder: 5 },
-      { frontValue: "Event D", backValue: "1524", absoluteOrder: 7 },
-      { frontValue: "Event E", backValue: "1599", absoluteOrder: 9 },
-      { frontValue: "Event F", backValue: "1635", absoluteOrder: 11 },
-      { frontValue: "Event G", backValue: "1912", absoluteOrder: 13 },
-      { frontValue: "Event H", backValue: "1914", absoluteOrder: 15 },
-      { frontValue: "Event I", backValue: "1915", absoluteOrder: 17 },
-    ],
-    hand: [
-      { frontValue: "Event W", backValue: "1510", absoluteOrder: 4 },
-      { frontValue: "Event X", backValue: "1589", absoluteOrder: 8 },
-      { frontValue: "Event Y", backValue: "1634", absoluteOrder: 10 },
-      { frontValue: "Event Z", backValue: "2004", absoluteOrder: 18 },
-    ],
+    timeline: [],
+    hand: [],
     justDroppedInfo: null,  // { index: int, isCorrect: bool }
     flippedIndices: [],
     removedIndex: null,     // The index of the card that's pulled up out of the timeline
@@ -205,6 +190,7 @@ var app = new Vue({
   },
   mounted: function () {
     connect()
+    socket.emit("register_with_game", _getGameID())
     document.getElementById("usernameIn").focus()
   },
   methods: {
@@ -280,7 +266,7 @@ function connect() {
     dealHand(cards)
   })
 
-  socket.on("deal_card", (card) => {
+  socket.on("deal_replacement", (card) => {
     dealCard(card)
   })
   
@@ -298,5 +284,10 @@ function connect() {
   
   socket.on("set_current_turn", (username) => {
     setCurrentTurn(username)
+  })
+
+  socket.on("game_over", () => {
+    console.log("socket: game_over unimplemented")
+    console.log(app.players)
   })
 }

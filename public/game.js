@@ -185,7 +185,7 @@ var app = new Vue({
     handTransitionsEnabled: true,
     started: false, //Boolean describing if the game has started
     showModal: true,
-    joinLink: "http://localhost:8080/play/xyz123",
+    joinLink: window.location.href,
     copiedJoinLink: false,
   },
   mounted: function () {

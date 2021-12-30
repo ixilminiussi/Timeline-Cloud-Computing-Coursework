@@ -39,5 +39,3 @@ io.on("connection", socket => {
 if (module === require.main) {
   startServer()
 }
-
-module.exports = server

@@ -115,8 +115,8 @@ class GameStore {
   /**
    * Notify the game this socket belongs to that a player has made a move.
    * @param {Socket} socket The socket belonging to the player that made their move.
-   * @param {*} cardID The ID of the card that the player moved.
-   * @param {*} index The index in the timeline that the player inserted their card.
+   * @param {string} cardID The ID of the card that the player moved.
+   * @param {int} index The index in the timeline that the player inserted their card.
    */
   cardPlacedViaSocket(socket, cardID, index) {
     const player = this._allPlayers.get(socket)

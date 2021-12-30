@@ -20,7 +20,6 @@ let baseServerURL = ""
 
 app.get("/", (req, res) => {
   baseServerURL = req.protocol + '://' + req.get('host')
-  console.log({ baseServerURL })
   res.render("newgame", { version: process.version })
 })
 

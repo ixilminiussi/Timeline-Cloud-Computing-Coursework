@@ -187,12 +187,6 @@ var app = new Vue({
   mounted: function () {
     connect()
     socket.emit("register_with_game", _getGameID())
-    
-    // TEMP
-    const username = ("" + Math.random().toString(36).slice(2, 6)).toUpperCase()
-    this.username = username
-    _chill(100).then(() => socket.emit("register_username", username))
-    // _chill(400).then(() => socket.emit("start_game"))
   },
   methods: {
     cardDragStarted: function (event, cardIndex) {

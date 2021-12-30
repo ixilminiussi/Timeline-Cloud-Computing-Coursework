@@ -12,7 +12,6 @@ var app = new Vue({
     ],
     selectedDeckIndex: null,
     joinLink: "http://localhost:8080/play/xyz123",
-    copiedJoinLink: false,
   },
   mounted: function () {
     connect()
@@ -20,14 +19,6 @@ var app = new Vue({
   methods: {
     selectDeckAt: function (index) {
       this.selectedDeckIndex = index
-    },
-    copyJoinLink: function () {
-      if (this.joinLink) {
-        navigator.clipboard.writeText(this.joinLink)
-        this.copiedJoinLink = true
-        new Promise(resolve => setTimeout(resolve, 1000))
-          .then(() => this.copiedJoinLink = false)
-      }
     },
     openGameLink: function () {
       if (this.joinLink) {

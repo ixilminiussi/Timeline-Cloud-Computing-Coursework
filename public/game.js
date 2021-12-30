@@ -199,7 +199,9 @@ var app = new Vue({
     isDealingInNewCard: false,
     handTransitionsEnabled: true,
     started: false, //Boolean describing if the game has started
-    showModal: false,
+    showModal: true,
+    joinLink: "http://localhost:8080/play/xyz123",
+    copiedJoinLink: false,
   },
   mounted: function () {
     connect()
@@ -237,6 +239,14 @@ var app = new Vue({
     },
     cardDragLeft: function (event) {
       this.dropPlaceholderIndex = null
+    },
+    copyJoinLink: function () {
+      if (this.joinLink) {
+        navigator.clipboard.writeText(this.joinLink)
+        this.copiedJoinLink = true
+        new Promise(resolve => setTimeout(resolve, 1000))
+            .then(() => this.copiedJoinLink = false)
+      }
     },
   },
   computed: {

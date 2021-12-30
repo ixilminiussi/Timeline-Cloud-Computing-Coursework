@@ -60,7 +60,7 @@ Open http://localhost:8080.
 ## Counting Lines of Code
 
 ```bash
-cloc --exclude-dir="node_modules" --include-ext="js,ejs,css" --not-match-f="main\.css" .
+cloc --exclude-dir="node_modules" --include-ext="js,ejs" .
 ```
 
 ## Server: Updating the Client

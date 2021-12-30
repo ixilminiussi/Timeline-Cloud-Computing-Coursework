@@ -205,6 +205,7 @@ var app = new Vue({
   },
   mounted: function () {
     connect()
+    document.getElementById("usernameIn").focus()
   },
   methods: {
     cardDragStarted: function (event, cardIndex) {

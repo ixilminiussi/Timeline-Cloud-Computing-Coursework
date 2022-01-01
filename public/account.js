@@ -28,11 +28,25 @@ var user = new Vue({
         signup: function(username, password, email) {
 
         },
+        signout: function() {
+            this.me.username = '';
+            this.me.password = '';
+            this.me.email = '';
+            this.me.status = -1;
+        },
         createDeck: function() {
 
         },
         importDecks: function() {
 
+        },
+        toggleAccountForm: function() {
+            if (this.me.status == -1) {
+                this.me.status = 2;
+            }
+            if (this.me.status == 2) {
+                this.me.status = -1;
+            }
         },
         showLoginForm: function() {
             this.form.show = 0;

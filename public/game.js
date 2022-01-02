@@ -23,6 +23,7 @@ async function dealCard(card) {
 
 function overwriteTimeline(cards) {
   app.timeline = cards
+  app.started = true
 }
 
 async function insertCard(card, index) {
@@ -158,7 +159,7 @@ async function _animateHandIn() {
   }
 }
 
-function _getGameID() { 
+function _getGameID() {
   const pathComponents = window.location.pathname.split("/")
   return pathComponents[pathComponents.length - 1]
 }
@@ -183,12 +184,26 @@ var app = new Vue({
     undealtHandIndices: [], // Indices of cards in the hand that are animated out
     isDealingInNewCard: false,
     handTransitionsEnabled: true,
+    started: false, //Boolean describing if the game has started
+    showModal: true,
+    joinLink: window.location.href,
+    copiedJoinLink: false,
   },
   mounted: function () {
     connect()
     socket.emit("register_with_game", _getGameID())
+    document.getElementById("usernameIn").focus()
   },
   methods: {
+    usernameEntered: function () {
+      this.showModal = !this.showModal
+      console.log("Username Entered", this.username)
+      socket.emit("register_username", this.username)
+    },
+    startGame: function () {
+      console.log("Emitting start command...")
+      socket.emit("start_game")
+    },
     cardDragStarted: function (event, cardIndex) {
       console.log("Drag started", this.hand[cardIndex])
       this.timelineTransitionsEnabled = true
@@ -221,6 +236,14 @@ var app = new Vue({
     },
     cardDragLeft: function (event) {
       this.dropPlaceholderIndex = null
+    },
+    copyJoinLink: function () {
+      if (this.joinLink) {
+        navigator.clipboard.writeText(this.joinLink)
+        this.copiedJoinLink = true
+        new Promise(resolve => setTimeout(resolve, 1000))
+            .then(() => this.copiedJoinLink = false)
+      }
     },
   },
   computed: {

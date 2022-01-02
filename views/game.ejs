@@ -9,92 +9,14 @@
   <title>Timeline</title>
 </head>
 
-<body>
-  <div id="vue-app">
-    <div class="w-screen h-screen flex flex-col">
-      <!-- Player ticker -->
-      <div class="w-full py-3 border-b-2 border-gray-200">
-        <div class="flex justify-center space-x-6">
-          <div v-for="player in players">
-            <div class="text-gray-300 flex flex-col items-center" v-bind:class="{
-              'text-gray-400': player.username === currentTurn,
-            }">
-              <span>{{player.username}} ({{player.cardsRemaining}})</span>
-          </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- The area that shows the timeline -->
-      <div id="timeline" class="w-full flex-grow flex items-center overflow-x-scroll">
-        <div v-for="(card, index) in timeline" class="flex py-10" @drop="cardDropped" @dragover="cardDraggedOver"
-          @dragleave="cardDragLeft">
-          <div>
-            <div class="relative h-56 w-40 transform transition duration-200" v-bind:class="{
-              'translate-x-44': dropPlaceholderIndex !== null && dropPlaceholderIndex <= index,
-              'ml-32': index === 0,
-              'ml-2': index !== 0,
-              'mr-2': index !== (timeline.length - 1),
-              'mr-32': index === (timeline.length - 1),
-              'transition-none': !timelineTransitionsEnabled,
-              'opacity-0': index === removedIndex,
-              'translate-y-[-150pt]': index === removedIndex,
-            }">
-              <div
-                class="absolute w-full h-full flex items-center border-2 rounded-md border-gray-300 transform transition-transform flippable"
-                v-bind:class="{
-                'flipped': flippedIndices.includes(index),
-              }">
-                <span class="w-full p-4 text-center text-gray-400 text-3xl">{{card.frontValue}}</span>
-              </div>
-              <div
-                class="absolute w-full h-full flex items-center text-gray-400 border-2 rounded-md border-gray-300 transform transition-transform flippable"
-                v-bind:class="{ 
-                  'flipped': !flippedIndices.includes(index),
-                  'border-red-300': index === justDroppedInfo?.index && justDroppedInfo?.isCorrect === false,
-                  'bg-red-100': index === justDroppedInfo?.index && justDroppedInfo?.isCorrect === false,
-                  'text-red-600': index === justDroppedInfo?.index && justDroppedInfo?.isCorrect === false,
-                  'border-green-300': index === justDroppedInfo?.index && justDroppedInfo?.isCorrect === true,
-                  'bg-green-100': index === justDroppedInfo?.index && justDroppedInfo?.isCorrect === true,
-                  'text-green-600': index === justDroppedInfo?.index && justDroppedInfo?.isCorrect === true,
-                }">
-                <span class="w-full p-4 text-center text-3xl">{{card.backValue}}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="w-full py-4 bg-gray-50 flex flex-col items-center">
-        <!-- Current turn indicator -->
-        <div v-if="isMyTurn" class="inline-block mx-auto bg">
-          <div class="text-blue-500 text-lg font-medium justify-center flex items-center space-x-1">
-            <span class="">It's your turn</span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l4.293-4.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-            </svg>
-          </div>
-          <div class="text-gray-400 text-sm">Drag one of your cards into the Timeline, placing it in order.</div>
-        </div>
-
-        <!-- The player's hand -->
-        <div class="mt-8 flex flex-row space-x-4">
-          <div v-for="(card, index) in hand">
-            <div :draggable="isMyTurn" @dragstart="cardDragStarted($event, index)"
-              class="h-56 w-40 flex items-center border-2 rounded-md border-gray-300 transition duration-300"
-              v-bind:class="{
-                'translate-y-[150pt]': undealtHandIndices.includes(index),
-                'opacity-0': undealtHandIndices.includes(index),
-                'translate-x-[5.5rem]': isDealingInNewCard && !undealtHandIndices.includes(index),
-                'transition-none': !handTransitionsEnabled
-              }">
-              <span class="w-full p-4 text-center text-gray-400 text-3xl">{{card.frontValue}}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+<div id="vue-app">
+  <div v-if="!started">
+    <%- include('lobby') -%>
   </div>
+  <div v-if="started">
+    <%- include('play') -%>
+  </div>
+</div>
 
   <!-- SocketIO -->
   <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"
@@ -104,6 +26,5 @@
   <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
   <!-- Application Javascript -->
   <script src="/static/game.js"></script>
-</body>
 
 </html>

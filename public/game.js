@@ -194,6 +194,11 @@ var app = new Vue({
     document.getElementById("usernameIn").focus()
   },
   methods: {
+    usernameEntered: function () {
+      this.showModal = !this.showModal
+      console.log("Username Entered", this.username)
+      socket.emit("register_username", this.username)
+    },
     cardDragStarted: function (event, cardIndex) {
       console.log("Drag started", this.hand[cardIndex])
       this.timelineTransitionsEnabled = true

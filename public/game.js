@@ -23,6 +23,7 @@ async function dealCard(card) {
 
 function overwriteTimeline(cards) {
   app.timeline = cards
+  app.started = true
 }
 
 async function insertCard(card, index) {
@@ -198,6 +199,10 @@ var app = new Vue({
       this.showModal = !this.showModal
       console.log("Username Entered", this.username)
       socket.emit("register_username", this.username)
+    },
+    startGame: function () {
+      console.log("Emitting start command...")
+      socket.emit("start_game")
     },
     cardDragStarted: function (event, cardIndex) {
       console.log("Drag started", this.hand[cardIndex])

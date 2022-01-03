@@ -44,7 +44,8 @@
 
       <div class="mt-10">
         <!-- Open the game in a new tab -->
-        <button 
+        <button
+          v-if="selectedDeckIndex !== null"
           @click="openGameLink()"
           class="flex items-center text-blue-500 space-x-2 font-medium transition duration-100 hover:text-blue-600">
           <span>Go to Your Game</span>

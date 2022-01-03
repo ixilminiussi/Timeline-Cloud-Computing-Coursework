@@ -1,4 +1,4 @@
-const { CosmosClient, TimeSpan } = require("@azure/cosmos")
+const { CosmosClient } = require("@azure/cosmos")
 
 const endpoint = process.env.COSMOS_ENDPOINT
 const key = process.env.COSMOS_KEY
@@ -31,11 +31,13 @@ class Database {
     }
 
     this._log("Cache miss: downloading and returning playable decks")
-    const containerIDs = await this._getAllContainerIDs()
-    const decks = containerIDs.map(id => ({
-      id: id,
-      name: "Unknown",
-      cardContainer: id,
+    const db = await this._getDb()
+    const { container } = await db.containers.createIfNotExists({ id: "decks" })
+    const records = await container.items.readAll().fetchAll()
+    const decks = records.resources.map(d => ({ // Strip the CosmosDb properties
+      id: d.id,
+      name: d.name,
+      cardContainer: d.cardContainer,
     }))
 
     this._cache.decks = decks
@@ -51,11 +53,11 @@ class Database {
     const decks = await this.getPlayableDecks()
     const deck = decks.find(d => d.id === deckID)
     if (!deck) {
-      this._error("No deck available for id " + deckID)
+      this._error("No deck available for id", deckID)
       return []
     }
     
-    this._log("Cache miss: downloading cards for deck ", deckID)
+    this._log("Cache miss: downloading cards for deck", deckID)
     const db = await this._getDb()
     const { container } = await db.containers.createIfNotExists({ id: deck.cardContainer })
     const records = await container.items.readAll().fetchAll()
@@ -71,12 +73,6 @@ class Database {
   }
 
   // PRIVATE
-  async _getAllContainerIDs() {
-    const db = await this._getDb()
-    const containers = await db.containers.readAll().fetchAll()
-    return containers.resources.map(c => c.id)
-  }
-
   async _getDb() {
     if (this._db) {
       return this._db

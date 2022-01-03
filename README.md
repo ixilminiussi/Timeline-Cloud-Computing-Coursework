@@ -12,7 +12,7 @@ Install the packages into `node_modules/`
 npm install
 ```
 
-Set up access to CosmosDb ([full instructions](https://www.npmjs.com/package/@azure/cosmos)). Add the `.env` file from our Discord `#links` channel to the top-level folder (same folder as `package.js` is in). The format is:
+Set up access to CosmosDb ([full instructions](https://www.npmjs.com/package/@azure/cosmos)). Add the `.env` file from our Discord `#links` channel to the top-level folder (same folder as `package.json` is in). The format is:
 
 ```
 COSMOS_ENDPOINT = "https://your-account.documents.azure.com"

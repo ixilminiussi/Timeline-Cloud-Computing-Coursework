@@ -1,8 +1,9 @@
 var user = new Vue({
     el: '#account',
     data: {
-        me: { status: -1, username: '', password: '', email: '' }, // -1 - disconnected; 1 - connected
+        me: { status: -1, username: '', displayname: '', password: '', email: '' }, // -1 - disconnected; 1 - connected
         form: { show: -1, passwordInput: 'password' }, // -1 - nothing; 0 - show login form; 1 - show register form; 2 - show account applet (profile, disconnect)
+        change: { newdisplayname: '', newemail: '', oldPassword: '', newPassword: '', oldPasswordInput: 'password', newPasswordInput: 'password' }
     },
     mounted: function() {
         connect();
@@ -65,11 +66,27 @@ var user = new Vue({
         closeAccount: function() {
             this.me.status = -1;
         },
-        togglePassword: function() {
-            if (this.form.passwordInput == 'password') {
-                this.form.passwordInput = 'text';
-            } else {
-                this.form.passwordInput = 'password';
+        togglePassword: function(input) {
+            if (input == 'passwordInput') {
+                if (this.form.passwordInput == 'password') {
+                    this.form.passwordInput = 'text';
+                } else {
+                    this.form.passwordInput = 'password';
+                }
+            }
+            if (input == 'newPasswordInput') {
+                if (this.change.newPasswordInput == 'password') {
+                    this.change.newPasswordInput = 'text';
+                } else {
+                    this.change.newPasswordInput = 'password';
+                }
+            }
+            if (input == 'oldPasswordInput') {
+                if (this.change.oldPasswordInput == 'password') {
+                    this.change.oldPasswordInput = 'text';
+                } else {
+                    this.change.oldPasswordInput = 'password';
+                }
             }
         }
     }

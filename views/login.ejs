@@ -13,7 +13,7 @@
             <nav tabindex="0" class="border bg-white shadow-md invisible w-60 absolute right-0 mt-16 transition-all opacity-0 group-focus-within:visible group-focus-within:opacity-100 group-focus-within:translate-y-1">
                 <ul class="py-1">
                     <li>
-                        <a href="#" class="block px-4 py-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100">
+                        <a href="/accountsettings" class="block px-4 py-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100">
                             Account settings
                         </a>
                     </li>
@@ -29,7 +29,7 @@
     <p class="w-20 mt-3 mr-4 p-2 float-right leading-6 font-bold sm:text-xl sm:leading-7 text-gray-300">welcome,</p>
 </div>
 
-<transition name="fade">6 ..
+<transition name="fade">
     <div v-if="form.show == 0 || form.show == 1" class="absolute inset-0 flex z-10 min-h-screen items-center justify-center bg-black bg-opacity-30">
         <div id="loginForm" class="bg-white pr-16 pt-16 pb-10 pl-16 rounded shadow-2xl max-w-sm">
             <h2 v-if="form.show == 0" class="text-3xl text-center font-bold mb-10 text-blue-400">Login</h2>
@@ -45,7 +45,7 @@
                     <div class="relative flex">
                         <input v-model="me.password" :type="form.passwordInput" id="password" class="w-full border-2 border-gray-200 p-3 rounded outline-none focus:border-blue-500 laceholder-blueGray-300 text-blueGray-600 relative pr-12">
 
-                        <button class="z-10 h-full text-gray-500 leading-snug absolute bg-transparent rounded text-base items-center justify-center w-8 right-2 pr-3 py-1" @click="togglePassword()">
+                        <button class="z-10 h-full text-gray-500 leading-snug absolute bg-transparent rounded text-base items-center justify-center w-8 right-2 pr-3 py-1" @click="togglePassword('passwordInput')">
                                 <div v-if="form.passwordInput == 'password'">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor">

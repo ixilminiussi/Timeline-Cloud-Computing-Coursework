@@ -160,13 +160,14 @@ class Game {
    * to players before starting turn-by-turn play.
    */
   async start() {
-    this._log("starting")
+    this._log("Starting...")
     this._stage = Game.STAGE_PLAYING
     this._originalDeck = await this._loadSelectedDeck()
     this._deck = [...this._originalDeck]
 
     if (!this._deck.length) {
       this._error("No cards in deck, aborting game")
+      this._stage = Game.STAGE_LOBBY
       return
     }
 

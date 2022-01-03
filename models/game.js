@@ -6,7 +6,7 @@ const { chill } = require("../utility")
 class Game {
   static ID_LENGTH = 6
   static MAX_PLAYERS = 5
-  static MAX_HAND_SIZE = 2
+  static MAX_HAND_SIZE = 5
 
   static STAGE_LOBBY = "lobby"
   static STAGE_PLAYING = "playing"
@@ -14,9 +14,11 @@ class Game {
 
   /**
    * @param {string} id The unique ID of this game.
+   * @param {Database} db The database to retrieve cards from.
    */
-  constructor(id) {
+  constructor(id, db) {
     this.id = id
+    this._db = db
     this.creationTime = Date.now()  // TODO: remove unplayed games after time
     this.creatorSocket = null
     this._selectedDeckID = null
@@ -205,22 +207,7 @@ class Game {
   }
 
   async _loadSelectedDeck() {
-    // TODO: connect to DB
-    return [
-      { id: "a", frontValue: "Event A", backValue: "1432", absoluteOrder: 1 },
-      { id: "b", frontValue: "Event B", backValue: "1500", absoluteOrder: 3 },
-      { id: "c", frontValue: "Event C", backValue: "1523", absoluteOrder: 5 },
-      { id: "d", frontValue: "Event D", backValue: "1524", absoluteOrder: 7 },
-      { id: "e", frontValue: "Event E", backValue: "1599", absoluteOrder: 9 },
-      { id: "f", frontValue: "Event F", backValue: "1635", absoluteOrder: 11 },
-      { id: "g", frontValue: "Event G", backValue: "1912", absoluteOrder: 13 },
-      { id: "h", frontValue: "Event H", backValue: "1914", absoluteOrder: 15 },
-      { id: "i", frontValue: "Event I", backValue: "1915", absoluteOrder: 17 },
-      { id: "w", frontValue: "Event W", backValue: "1510", absoluteOrder: 4 },
-      { id: "x", frontValue: "Event X", backValue: "1589", absoluteOrder: 8 },
-      { id: "y", frontValue: "Event Y", backValue: "1634", absoluteOrder: 10 },
-      { id: "z", frontValue: "Event Z", backValue: "2004", absoluteOrder: 18 },
-    ]
+    return this._db.getCardsForDeckWithID(this._selectedDeckID)
   }
 
   _updateClientsWithPlayers() {

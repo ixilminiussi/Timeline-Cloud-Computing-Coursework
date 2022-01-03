@@ -16,6 +16,7 @@ var app = new Vue({
   methods: {
     selectDeckAt: function (index) {
       this.selectedDeckIndex = index
+      socket.emit("select_deck", this.decks[index].id)
     },
     copyJoinLink: function () {
       if (this.joinLink) {

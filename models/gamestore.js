@@ -28,7 +28,7 @@ class GameStore {
       var id = this._generateGameID()
     } while (this._games.find(g => g.id === id))
 
-    const game = new Game(id)
+    const game = new Game(id, this._db)
     game.creatorSocket = socket
     this._games.push(game)
     return game
@@ -60,7 +60,7 @@ class GameStore {
     let game = this._games.find(g => g.id === gameID)
     if (!game) {
       console.error("Cannot find game with id", gameID, "- creating new one")
-      game = new Game(gameID) // Intentionally not setting creatorSocket here
+      game = new Game(gameID, this._db) // Intentionally not setting creatorSocket here
       this._games.push(game)
     }
     const player = new Player(socket)

@@ -3,13 +3,7 @@ var socket = null
 var app = new Vue({
   el: '#vue-app',
   data: {
-    decks: [
-      "Computer Science History",
-      "Movies 1960-1990",
-      "Pop Songs 1980-2010",
-      "19th Century Geopolitical Conflicts",
-      "20th Century Scientists",
-    ],
+    decks: [],
     selectedDeckIndex: null,
     joinLink: "Loading...",
     copiedJoinLink: false,

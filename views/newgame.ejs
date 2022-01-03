@@ -29,14 +29,14 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span class="font-medium">{{deck}}</span>
+              <span class="font-medium">{{deck.name}}</span>
             </button>
             <!-- If this is an unselected deck -->
             <button v-else
               @click="selectDeckAt(index)"
               class="py-3 h-full w-full text-left px-3 flex flex-col rounded-lg border-2 border-gray-200 space-y-2 transition-transform duration-150 hover:scale-105">
               <div class="h-5 w-5 rounded-full border-2 border-gray-200"></div>
-              <span class="text-gray-500">{{deck}}</span>
+              <span class="text-gray-500">{{deck.name}}</span>
             </button>
           </div>
         </div>

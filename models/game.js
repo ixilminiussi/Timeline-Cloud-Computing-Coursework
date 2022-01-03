@@ -1,4 +1,4 @@
-const { chill } = require("../utility")
+const { chill, shuffle } = require("../utility")
 
 /**
  * Represents and manages a single game of Timeline.
@@ -207,7 +207,8 @@ class Game {
   }
 
   async _loadSelectedDeck() {
-    return this._db.getCardsForDeckWithID(this._selectedDeckID)
+    const cards = await this._db.getCardsForDeckWithID(this._selectedDeckID)
+    return shuffle(cards)
   }
 
   _updateClientsWithPlayers() {

@@ -12,7 +12,7 @@ class Database {
     try {
       this._client = new CosmosClient({ endpoint, key })
     } catch {
-      console.warn("[WARNING] Database client setup failed, make sure you have the correct keys in your .env file. See README.md for setup instructions.");
+      this._error("Database client setup failed, make sure you have the correct keys in your .env file. See README.md for setup instructions.");
       this._client = null
     }
 
@@ -26,9 +26,11 @@ class Database {
   // PUBLIC
   async getPlayableDecks() {
     if (this._cache.decks) {
+      this._log("Cache hit: returning playable decks")
       return this._cache.decks
     }
 
+    this._log("Cache miss: downloading and returning playable decks")
     const containerIDs = await this._getAllContainerIDs()
     const decks = containerIDs.map(id => ({
       id: id,
@@ -42,16 +44,18 @@ class Database {
 
   async getCardsForDeckWithID(deckID) {
     if (this._cache.cards.has(deckID)) {
+      this._log("Cache hit: returning cards for deck ", deckID)
       return this._cache.cards.get(deckID)
     }
 
     const decks = await this.getPlayableDecks()
     const deck = decks.find(d => d.id === deckID)
     if (!deck) {
-      console.warn("No deck available for id " + deckID)
+      this._error("No deck available for id " + deckID)
       return []
     }
-
+    
+    this._log("Cache miss: downloading cards for deck ", deckID)
     const db = await this._getDb()
     const { container } = await db.containers.createIfNotExists({ id: deck.cardContainer })
     const records = await container.items.readAll().fetchAll()
@@ -81,6 +85,14 @@ class Database {
     const { database } = await this._client.databases.createIfNotExists({ id: dbID })
     this._db = database
     return database
+  }
+
+  async _log(...args) {
+    console.log("[Database]", ...args)
+  }
+
+  async _error(...args) {
+    console.error("[Database - Error]", ...args)
   }
 }
 

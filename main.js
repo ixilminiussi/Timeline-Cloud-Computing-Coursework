@@ -42,10 +42,10 @@ io.on("connection", socket => {
   })
 
   // ========================== Client-side API ==========================
-  socket.on("available_decks", () => {
+  socket.on("available_decks", async () => {
     console.log("socket: available_decks")
-    // TODO: send back available decks to the client
-    console.error("available_decks is unimplemented")
+    const decks = await db.getPlayableDecks()
+    socket.emit("available_decks", decks)
   })
 
   socket.on("select_deck", deckID => {

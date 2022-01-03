@@ -169,22 +169,22 @@ var app = new Vue({
   el: '#vue-app',
   data: {
     // Players and turns
-    username: "",
-    currentTurn: null,
-    players: [],
+    username: "Admin",
+    currentTurn: "Admin",
+    players: JSON.parse(`[{"username":"Admin","cardsRemaining":5},{"username":"John","cardsRemaining":5}]`),
 
     // Cards and timeline animations
     dropPlaceholderIndex: null,
     timelineTransitionsEnabled: true,
-    timeline: [],
-    hand: [],
+    timeline: JSON.parse(`[{"id":"32","frontValue":"Saw","backValue":"28/07/2006","absoluteOrder":32}]`),
+    hand: JSON.parse(`[{"id":"12","frontValue":"The Exorcist","backValue":"16/03/1974","absoluteOrder":12},{"id":"4","frontValue":"Citizen Kane","backValue":"24/01/1942","absoluteOrder":4},{"id":"9","frontValue":"The Good, the Bad and the Ugly","backValue":"22/08/1968","absoluteOrder":9},{"id":"30","frontValue":"Finding Nemo","backValue":"10/10/2003","absoluteOrder":30},{"id":"46","frontValue":"Interstellar","backValue":"07/11/2014","absoluteOrder":46}]`),
     justDroppedInfo: null,  // { index: int, isCorrect: bool }
     flippedIndices: [],
     removedIndex: null,     // The index of the card that's pulled up out of the timeline
     undealtHandIndices: [], // Indices of cards in the hand that are animated out
     isDealingInNewCard: false,
     handTransitionsEnabled: true,
-    started: false, //Boolean describing if the game has started
+    started: true, //Boolean describing if the game has started
     showModal: true,
     joinLink: window.location.href,
     copiedJoinLink: false,

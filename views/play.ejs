@@ -60,7 +60,7 @@
         </div>
       </div>
 
-      <div class="w-full pt-4 pb-10 bg-gray-50 flex flex-col items-center" :style="background">
+      <div class="w-full pt-4 pb-10 bg-gray-50 flex flex-col items-center" :style="handBackground">
         <!-- Current turn indicator -->
         <div v-if="isMyTurn" class="inline-block mx-auto bg">
           <div class="text-blue-500 text-xl font-medium justify-center flex items-center space-x-1">
@@ -81,8 +81,8 @@
                 'translate-y-[150pt] opacity-0': undealtHandIndices.includes(index),
                 'translate-x-[5.5rem]': isDealingInNewCard && !undealtHandIndices.includes(index),
                 'transition-none': !handTransitionsEnabled,
-                'cursor-grab hover:scale-105 hover:shadow-lg hover:text-blue-500 hover:shadow-blue-500/50 hover:border-blue-500': isMyTurn,
-                'cursor-not-allowed': !isMyTurn,
+                'cursor-grab hover:scale-105 hover:shadow-lg hover:text-blue-500 hover:shadow-blue-500/50 hover:border-blue-500': canMove,
+                'cursor-not-allowed': !canMove,
                 'translate-x-20': handPlaceholderIndex !== null && handPlaceholderIndex <= index,
                 '-translate-x-20': handPlaceholderIndex !== null && handPlaceholderIndex > index,
               }"

@@ -52,6 +52,7 @@ function overwritePlayers(players) {
 
 function setCurrentTurn(username) {
   app.currentTurn = username
+  app.hasMovedThisTurn = false
 }
 
 // ============================ Private Functions =============================
@@ -232,6 +233,7 @@ function _onMouseUp(e) {
   app.dropPlaceholderIndex = null
   socket.emit("card_placed", card.id, index)
   _insertCardAtDropIndexWithAutocorrection(card, index)
+  app.hasMovedThisTurn = true
 
   // Re-enable hover effects
   _chill(10).then(() => { 
@@ -254,6 +256,7 @@ var app = new Vue({
     username: "Admin",
     currentTurn: "Admin",
     players: JSON.parse(`[{"username":"Admin","cardsRemaining":5},{"username":"John","cardsRemaining":5}]`),
+    hasMovedThisTurn: false,
 
     // Cards and timeline animations
     dropPlaceholderIndex: null,
@@ -302,9 +305,13 @@ var app = new Vue({
     isMyTurn: function () {
       return this.currentTurn === this.username && this.username !== ""
     },
-    background: function() {
+    handBackground: function () {
+      // From https://heropatterns.com with fgcolor=text-gray-100, bgcolor=text-gray-50
       return `background-color: #f8fafc;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cg fill='%23f1f5f9' fill-opacity='1'%3E%3Cpolygon fill-rule='evenodd' points='8 4 12 6 8 8 6 12 4 8 0 6 4 4 6 0 8 4'/%3E%3C/g%3E%3C/svg%3E");`
+    },
+    canMove: function() {
+      return this.username && this.username === this.currentTurn && !this.hasMovedThisTurn
     }
   }
 })

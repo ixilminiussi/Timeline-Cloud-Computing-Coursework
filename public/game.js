@@ -201,6 +201,7 @@ var app = new Vue({
     socket.emit("register_with_game", _getGameID())
 
     window.onmousedown = function(e) {
+      if (!app.isMyTurn) { return }
       const x = e.clientX
       const y = e.clientY
       let div = document.elementFromPoint(x, y)

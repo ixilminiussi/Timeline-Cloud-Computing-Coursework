@@ -81,12 +81,14 @@
         <div class="mt-8 flex flex-row space-x-4">
           <div v-for="(card, index) in hand">
             <div :id="'handCard-' + index"
-              class="h-56 w-40 flex items-center border-2 rounded-md border-gray-300 transition duration-300 bg-white shadow-md hover:scale-105 hover:shadow-lg cursor-move text-gray-400 hover:text-blue-500 hover:shadow-blue-500/50 hover:border-blue-500"
+              class="h-56 w-40 flex items-center border-2 rounded-md border-gray-300 transition duration-300 bg-white shadow-md text-gray-400 "
               v-bind:class="{
                 'translate-y-[150pt]': undealtHandIndices.includes(index),
                 'opacity-0': undealtHandIndices.includes(index),
                 'translate-x-[5.5rem]': isDealingInNewCard && !undealtHandIndices.includes(index),
-                'transition-none': !handTransitionsEnabled
+                'transition-none': !handTransitionsEnabled,
+                'cursor-grab hover:scale-105 hover:shadow-lg hover:text-blue-500 hover:shadow-blue-500/50 hover:border-blue-500': isMyTurn,
+                'cursor-not-allowed': !isMyTurn,
               }"
               v-bind:style="index === draggingCardIndex ? dragTransform : ``">
               <span class="w-full p-4 text-center text-2xl font-medium">{{card.frontValue}}</span>

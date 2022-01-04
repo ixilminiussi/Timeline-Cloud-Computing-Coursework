@@ -276,7 +276,8 @@ var app = new Vue({
   mounted: function () {
     connect()
     socket.emit("register_with_game", _getGameID())
-
+    document.getElementById("usernameIn").focus()
+    
     // For drag & drop handling
     window.onmousedown = _onMouseDown
     window.onmousemove = _onMouseMoved

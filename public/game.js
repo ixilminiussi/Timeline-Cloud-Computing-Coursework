@@ -164,8 +164,80 @@ function _getGameID() {
   return pathComponents[pathComponents.length - 1]
 }
 
-var draggingCardID = null
-var startPoint = null
+// Drag-and-drop interaction
+var _dragStartPoint = null
+
+function _onMouseDown(e) {
+  if (!app.isMyTurn) { return }
+  const x = e.clientX
+  const y = e.clientY
+  let div = document.elementFromPoint(x, y)
+  while (div && !div.id.startsWith("handCard")) {
+    div = div.parentElement
+  }
+
+  if (div) {
+    _dragStartPoint = { x, y }
+    app.handTransitionsEnabled = false
+    app.draggingCardIndex = parseInt(div.id.split("-")[1])
+    app.dragTransform = `transform: translate(0px, 0px);`
+  }
+}
+
+function _onMouseMoved(e) {
+  if (app.draggingCardIndex === null) { return }
+
+  const x = e.clientX
+  const y = e.clientY
+  const dx = x - _dragStartPoint.x
+  const dy = y - _dragStartPoint.y
+  app.dragTransform = `transform: translate(${dx}px, ${dy}px);`
+
+  const tlRect = document.getElementById("timeline").getBoundingClientRect()
+  const inTimeline = x > tlRect.left && x < tlRect.right && y > tlRect.top && y < tlRect.bottom
+  if (!inTimeline) { 
+    app.dropPlaceholderIndex = null
+    return 
+  }
+
+  const xOffset = document.getElementById("timeline").scrollLeft
+  const dragX = x + xOffset - _remToPixels(8)
+  const cardWidth = _remToPixels(10)
+  const margin = _remToPixels(1)
+  const index = dragX / (cardWidth + margin)
+  app.dropPlaceholderIndex = Math.round(index)
+}
+
+function _onMouseUp(e) {
+  const cardIndex = app.draggingCardIndex
+  if (cardIndex === null) { return }
+  app.draggingCardIndex = null
+  app.handTransitionsEnabled = true
+
+  const x = e.clientX
+  const y = e.clientY
+  const tlRect = document.getElementById("timeline").getBoundingClientRect()
+  const inTimeline = x > tlRect.left && x < tlRect.right && y > tlRect.top && y < tlRect.bottom
+  if (!inTimeline) { return }
+
+  const card = app.hand[cardIndex]
+
+  app.handTransitionsEnabled = false
+  app.handPlaceholderIndex = cardIndex
+  app.timelineTransitionsEnabled = false
+  app.hand.splice(cardIndex, 1)
+  app.timeline.splice(app.dropPlaceholderIndex, 0, card)
+  const index = app.dropPlaceholderIndex
+  app.dropPlaceholderIndex = null
+  socket.emit("card_placed", card.id, index)
+  _insertCardAtDropIndexWithAutocorrection(card, index)
+
+  // Re-enable hover effects
+  _chill(10).then(() => { 
+    app.handTransitionsEnabled = true
+    app.handPlaceholderIndex = null
+  })
+}
 
 // =================================== Vue ====================================
 var app = new Vue({
@@ -202,76 +274,9 @@ var app = new Vue({
     connect()
     socket.emit("register_with_game", _getGameID())
 
-    window.onmousedown = function(e) {
-      if (!app.isMyTurn) { return }
-      const x = e.clientX
-      const y = e.clientY
-      let div = document.elementFromPoint(x, y)
-      while (div && !div.id.startsWith("handCard")) {
-        div = div.parentElement
-      }
-
-      if (div) {
-        startPoint = { x, y }
-        app.handTransitionsEnabled = false
-        app.draggingCardIndex = parseInt(div.id.split("-")[1])
-        app.dragTransform = `transform: translate(0px, 0px);`
-      }
-    }
-
-    window.onmousemove = (e) => {
-      if (app.draggingCardIndex === null) { return }
-
-      const x = e.clientX
-      const y = e.clientY
-      const dx = x - startPoint.x
-      const dy = y - startPoint.y
-      app.dragTransform = `transform: translate(${dx}px, ${dy}px);`
-
-      const tlRect = document.getElementById("timeline").getBoundingClientRect()
-      const inTimeline = x > tlRect.left && x < tlRect.right && y > tlRect.top && y < tlRect.bottom
-      if (!inTimeline) { 
-        app.dropPlaceholderIndex = null
-        return 
-      }
-
-      const xOffset = document.getElementById("timeline").scrollLeft
-      const dragX = x + xOffset - _remToPixels(8)
-      const cardWidth = _remToPixels(10)
-      const margin = _remToPixels(1)
-      const index = dragX / (cardWidth + margin)
-      app.dropPlaceholderIndex = Math.round(index)
-    }
-
-    window.onmouseup = (e) => {
-      const cardIndex = app.draggingCardIndex
-      app.draggingCardIndex = null
-      app.handTransitionsEnabled = true
-
-      const x = e.clientX
-      const y = e.clientY
-      const tlRect = document.getElementById("timeline").getBoundingClientRect()
-      const inTimeline = x > tlRect.left && x < tlRect.right && y > tlRect.top && y < tlRect.bottom
-      if (!inTimeline) { return }
-
-      const card = app.hand[cardIndex]
-
-      app.handTransitionsEnabled = false
-      app.handPlaceholderIndex = cardIndex
-      app.timelineTransitionsEnabled = false
-      app.hand.splice(cardIndex, 1)
-      app.timeline.splice(app.dropPlaceholderIndex, 0, card)
-      const index = app.dropPlaceholderIndex
-      app.dropPlaceholderIndex = null
-      socket.emit("card_placed", card.id, index)
-      _insertCardAtDropIndexWithAutocorrection(card, index)
-
-      // Re-enable hover effects
-      _chill(10).then(() => { 
-        app.handTransitionsEnabled = true
-        app.handPlaceholderIndex = null
-      })
-    }
+    window.onmousedown = _onMouseDown
+    window.onmousemove = _onMouseMoved
+    window.onmouseup = _onMouseUp
   },
   methods: {
     usernameEntered: function () {

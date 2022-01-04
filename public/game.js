@@ -164,6 +164,9 @@ function _getGameID() {
   return pathComponents[pathComponents.length - 1]
 }
 
+var draggingCardID = null
+var startPoint = null
+
 // =================================== Vue ====================================
 var app = new Vue({
   el: '#vue-app',
@@ -188,11 +191,45 @@ var app = new Vue({
     showModal: true,
     joinLink: window.location.href,
     copiedJoinLink: false,
+
+    draggingCardIndex: null,
+    draggingCardTranslation: { dx: 0, dy: 0 },
+    dragTransform: "",
   },
   mounted: function () {
     connect()
     socket.emit("register_with_game", _getGameID())
-    document.getElementById("usernameIn").focus()
+
+    window.onmousedown = function(e) {
+      const x = e.clientX
+      const y = e.clientY
+      let div = document.elementFromPoint(x, y)
+      while (div && !div.id.startsWith("handCard")) {
+        div = div.parentElement
+      }
+
+      if (div) {
+        startPoint = { x, y }
+        app.handTransitionsEnabled = false
+        app.draggingCardIndex = parseInt(div.id.split("-")[1])
+        app.dragTransform = `transform: translate(0px, 0px);`
+      }
+    }
+
+    window.onmousemove = (e) => {
+      if (app.draggingCardIndex !== null) {
+        const x = e.clientX
+        const y = e.clientY
+        const dx = x - startPoint.x
+        const dy = y - startPoint.y
+        app.dragTransform = `transform: translate(${dx}px, ${dy}px);`
+      }
+    }
+
+    window.onmouseup = (e) => {
+      app.draggingCardIndex = null
+      app.handTransitionsEnabled = true
+    }
   },
   methods: {
     usernameEntered: function () {

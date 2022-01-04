@@ -260,21 +260,21 @@ var app = new Vue({
     timelineTransitionsEnabled: true,
     timeline: JSON.parse(`[{"id":"32","frontValue":"Saw","backValue":"28/07/2006","absoluteOrder":32},{"id":"32","frontValue":"Saw","backValue":"28/07/2006","absoluteOrder":32},{"id":"32","frontValue":"Saw","backValue":"28/07/2006","absoluteOrder":32},{"id":"32","frontValue":"Saw","backValue":"28/07/2006","absoluteOrder":32},{"id":"32","frontValue":"Saw","backValue":"28/07/2006","absoluteOrder":32},{"id":"32","frontValue":"Saw","backValue":"28/07/2006","absoluteOrder":32},{"id":"32","frontValue":"Saw","backValue":"28/07/2006","absoluteOrder":32},{"id":"32","frontValue":"Saw","backValue":"28/07/2006","absoluteOrder":32},{"id":"32","frontValue":"Saw","backValue":"28/07/2006","absoluteOrder":32},{"id":"32","frontValue":"Saw","backValue":"28/07/2006","absoluteOrder":32}]`),
     hand: JSON.parse(`[{"id":"12","frontValue":"The Exorcist","backValue":"16/03/1974","absoluteOrder":12},{"id":"4","frontValue":"Citizen Kane","backValue":"24/01/1942","absoluteOrder":4},{"id":"9","frontValue":"The Good, the Bad and the Ugly","backValue":"22/08/1968","absoluteOrder":9},{"id":"30","frontValue":"Finding Nemo","backValue":"10/10/2003","absoluteOrder":30},{"id":"46","frontValue":"Interstellar","backValue":"07/11/2014","absoluteOrder":46}]`),
-    justDroppedInfo: null,  // { index: int, isCorrect: bool }
+    justDroppedInfo: null,      // { index: int, isCorrect: bool }
     flippedIndices: [],
-    removedIndex: null,     // The index of the card that's pulled up out of the timeline
-    undealtHandIndices: [], // Indices of cards in the hand that are animated out
+    removedIndex: null,         // The index of the card that's pulled up out of the timeline
+    undealtHandIndices: [],     // Indices of cards in the hand that are animated out
     isDealingInNewCard: false,
     handTransitionsEnabled: true,
-    draggingCardIndex: null,
-    draggingCardTranslation: { dx: 0, dy: 0 },
-    dragTransform: "",
-    handPlaceholderIndex: null,
+    draggingCardIndex: null,    // Index of card in hand that's being dragged
+    dragTransform: "",          // CSS style (transform) of the card currently being dragged
+    handPlaceholderIndex: null, // Index of card that's just been dropped into timeline
   },
   mounted: function () {
     connect()
     socket.emit("register_with_game", _getGameID())
 
+    // For drag & drop handling
     window.onmousedown = _onMouseDown
     window.onmousemove = _onMouseMoved
     window.onmouseup = _onMouseUp

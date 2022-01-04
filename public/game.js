@@ -217,13 +217,24 @@ var app = new Vue({
     }
 
     window.onmousemove = (e) => {
-      if (app.draggingCardIndex !== null) {
-        const x = e.clientX
-        const y = e.clientY
-        const dx = x - startPoint.x
-        const dy = y - startPoint.y
-        app.dragTransform = `transform: translate(${dx}px, ${dy}px);`
-      }
+      if (app.draggingCardIndex === null) { return }
+
+      const x = e.clientX
+      const y = e.clientY
+      const dx = x - startPoint.x
+      const dy = y - startPoint.y
+      app.dragTransform = `transform: translate(${dx}px, ${dy}px);`
+
+      const tlRect = document.getElementById("timeline").getBoundingClientRect()
+      const inTimeline = x > tlRect.left && x < tlRect.right && y > tlRect.top && y < tlRect.bottom
+      if (!inTimeline) { return }
+
+      const xOffset = document.getElementById("timeline").scrollLeft
+      const dragX = x + xOffset - _remToPixels(8)
+      const cardWidth = _remToPixels(10)
+      const margin = _remToPixels(1)
+      const index = dragX / (cardWidth + margin)
+      this.dropPlaceholderIndex = Math.round(index)
     }
 
     window.onmouseup = (e) => {

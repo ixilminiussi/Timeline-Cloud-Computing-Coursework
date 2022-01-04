@@ -52,6 +52,7 @@ function overwritePlayers(players) {
 
 function setCurrentTurn(username) {
   app.currentTurn = username
+  app.hasMovedThisTurn = false
 }
 
 // ============================ Private Functions =============================
@@ -164,14 +165,98 @@ function _getGameID() {
   return pathComponents[pathComponents.length - 1]
 }
 
+// Drag-and-drop interaction
+var _dragStartPoint = null
+
+function _isPointInTimeline(x, y) {
+  const tlRect = document.getElementById("timeline").getBoundingClientRect()
+  return x > tlRect.left && x < tlRect.right && y > tlRect.top && y < tlRect.bottom
+}
+
+function _onMouseDown(e) {
+  if (!app.isMyTurn) { return }
+  const x = e.clientX
+  const y = e.clientY
+  let div = document.elementFromPoint(x, y)
+  while (div && !div.id.startsWith("handCard")) {
+    div = div.parentElement
+  }
+
+  if (div) {
+    _dragStartPoint = { x, y }
+    app.handTransitionsEnabled = false
+    app.draggingCardIndex = parseInt(div.id.split("-")[1])
+    app.dragTransform = `transform: translate(0px, 0px);`
+  }
+}
+
+function _onMouseMoved(e) {
+  if (app.draggingCardIndex === null) { return }
+
+  const x = e.clientX
+  const y = e.clientY
+  const dx = x - _dragStartPoint.x
+  const dy = y - _dragStartPoint.y
+  app.dragTransform = `transform: translate(${dx}px, ${dy}px);`
+
+  if (!_isPointInTimeline(x, y)) { 
+    app.dropPlaceholderIndex = null
+    return 
+  }
+
+  const xOffset = document.getElementById("timeline").scrollLeft
+  const dragX = x + xOffset - _remToPixels(8)
+  const cardWidth = _remToPixels(10)
+  const margin = _remToPixels(1)
+  const index = dragX / (cardWidth + margin)
+  app.dropPlaceholderIndex = Math.round(index)
+}
+
+function _onMouseUp(e) {
+  const cardIndex = app.draggingCardIndex
+  if (cardIndex === null) { return }
+  app.draggingCardIndex = null
+  app.handTransitionsEnabled = true
+
+  const x = e.clientX
+  const y = e.clientY
+  if (!_isPointInTimeline(x, y)) { return }
+
+  const card = app.hand[cardIndex]
+
+  app.handTransitionsEnabled = false
+  app.handPlaceholderIndex = cardIndex
+  app.timelineTransitionsEnabled = false
+  app.hand.splice(cardIndex, 1)
+  app.timeline.splice(app.dropPlaceholderIndex, 0, card)
+  const index = app.dropPlaceholderIndex
+  app.dropPlaceholderIndex = null
+  socket.emit("card_placed", card.id, index)
+  _insertCardAtDropIndexWithAutocorrection(card, index)
+  app.hasMovedThisTurn = true
+
+  // Re-enable hover effects
+  _chill(10).then(() => { 
+    app.handTransitionsEnabled = true
+    app.handPlaceholderIndex = null
+  })
+}
+
 // =================================== Vue ====================================
 var app = new Vue({
   el: '#vue-app',
   data: {
+    // Lobby
+    started: false, // Boolean describing if the game has started
+    showModal: true,
+    joinLink: window.location.href,
+    copiedJoinLink: false,
+
     // Players and turns
     username: "",
     currentTurn: null,
     players: [],
+    hasMovedThisTurn: false,
 
     // Cards and timeline animations
     dropPlaceholderIndex: null,
@@ -180,19 +265,23 @@ var app = new Vue({
     hand: [],
     justDroppedInfo: null,  // { index: int, isCorrect: bool }
     flippedIndices: [],
-    removedIndex: null,     // The index of the card that's pulled up out of the timeline
-    undealtHandIndices: [], // Indices of cards in the hand that are animated out
+    removedIndex: null,         // The index of the card that's pulled up out of the timeline
+    undealtHandIndices: [],     // Indices of cards in the hand that are animated out
     isDealingInNewCard: false,
     handTransitionsEnabled: true,
-    started: false, //Boolean describing if the game has started
-    showModal: true,
-    joinLink: window.location.href,
-    copiedJoinLink: false,
+    draggingCardIndex: null,    // Index of card in hand that's being dragged
+    dragTransform: "",          // CSS style (transform) of the card currently being dragged
+    handPlaceholderIndex: null, // Index of card that's just been dropped into timeline
   },
   mounted: function () {
     connect()
     socket.emit("register_with_game", _getGameID())
     document.getElementById("usernameIn").focus()
+
+    // For drag & drop handling
+    window.onmousedown = _onMouseDown
+    window.onmousemove = _onMouseMoved
+    window.onmouseup = _onMouseUp
   },
   methods: {
     usernameEntered: function () {
@@ -203,39 +292,6 @@ var app = new Vue({
     startGame: function () {
       console.log("Emitting start command...")
       socket.emit("start_game")
-    },
-    cardDragStarted: function (event, cardIndex) {
-      console.log("Drag started", this.hand[cardIndex])
-      this.timelineTransitionsEnabled = true
-      event.dataTransfer.setData("application/timeline", cardIndex)
-    },
-    cardDropped: function (event) {
-      const cardIndex = event.dataTransfer.getData("application/timeline")
-      const card = this.hand[cardIndex]
-      console.log("Dropped", card)
-      event.preventDefault()
-
-      this.timelineTransitionsEnabled = false
-      this.hand.splice(cardIndex, 1)
-      this.timeline.splice(this.dropPlaceholderIndex, 0, card)
-      const index = this.dropPlaceholderIndex
-      this.dropPlaceholderIndex = null
-      socket.emit("card_placed", card.id, index)
-      _insertCardAtDropIndexWithAutocorrection(card, index)
-    },
-    cardDraggedOver: function (event) {
-      console.log("Dragged over")
-      event.preventDefault()
-      const xOffset = document.getElementById("timeline").scrollLeft
-      const e = event || window.event
-      const dragX = e.pageX + xOffset - _remToPixels(8)
-      const cardWidth = _remToPixels(10)
-      const margin = _remToPixels(1)
-      const index = dragX / (cardWidth + margin)
-      this.dropPlaceholderIndex = Math.round(index)
-    },
-    cardDragLeft: function (event) {
-      this.dropPlaceholderIndex = null
     },
     copyJoinLink: function () {
       if (this.joinLink) {
@@ -249,6 +305,14 @@ var app = new Vue({
   computed: {
     isMyTurn: function () {
       return this.currentTurn === this.username && this.username !== ""
+    },
+    handBackground: function () {
+      // From https://heropatterns.com with fgcolor=text-gray-100, bgcolor=text-gray-50
+      return `background-color: #f8fafc;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cg fill='%23f1f5f9' fill-opacity='1'%3E%3Cpolygon fill-rule='evenodd' points='8 4 12 6 8 8 6 12 4 8 0 6 4 4 6 0 8 4'/%3E%3C/g%3E%3C/svg%3E");`
+    },
+    canMove: function() {
+      return this.username && this.username === this.currentTurn && !this.hasMovedThisTurn
     }
   }
 })

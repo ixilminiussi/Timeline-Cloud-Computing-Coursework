@@ -10,7 +10,7 @@ var user = new Vue({
 
         // Allows for closing the login form with keypress
         window.addEventListener('keydown', (e) => {
-            if (e.key == 'Escape') {
+            if (e.key === 'Escape') {
                 this.closeLoginForm();
             }
         });
@@ -42,10 +42,10 @@ var user = new Vue({
 
         },
         toggleAccountForm: function() {
-            if (this.me.status == -1) {
+            if (this.me.status === -1) {
                 this.me.status = 2;
             }
-            if (this.me.status == 2) {
+            if (this.me.status === 2) {
                 this.me.status = -1;
             }
         },
@@ -59,7 +59,7 @@ var user = new Vue({
             this.form.show = -1;
         },
         openAccount: function() {
-            if (this.me.status == -1) {
+            if (this.me.status === -1) {
                 this.status = 0;
             }
         },
@@ -67,22 +67,22 @@ var user = new Vue({
             this.me.status = -1;
         },
         togglePassword: function(input) {
-            if (input == 'passwordInput') {
-                if (this.form.passwordInput == 'password') {
+            if (input === 'passwordInput') {
+                if (this.form.passwordInput === 'password') {
                     this.form.passwordInput = 'text';
                 } else {
                     this.form.passwordInput = 'password';
                 }
             }
-            if (input == 'newPasswordInput') {
-                if (this.change.newPasswordInput == 'password') {
+            if (input === 'newPasswordInput') {
+                if (this.change.newPasswordInput === 'password') {
                     this.change.newPasswordInput = 'text';
                 } else {
                     this.change.newPasswordInput = 'password';
                 }
             }
-            if (input == 'oldPasswordInput') {
-                if (this.change.oldPasswordInput == 'password') {
+            if (input === 'oldPasswordInput') {
+                if (this.change.oldPasswordInput === 'password') {
                     this.change.oldPasswordInput = 'text';
                 } else {
                     this.change.oldPasswordInput = 'password';

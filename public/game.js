@@ -229,7 +229,10 @@ var app = new Vue({
 
       const tlRect = document.getElementById("timeline").getBoundingClientRect()
       const inTimeline = x > tlRect.left && x < tlRect.right && y > tlRect.top && y < tlRect.bottom
-      if (!inTimeline) { return }
+      if (!inTimeline) { 
+        app.dropPlaceholderIndex = null
+        return 
+      }
 
       const xOffset = document.getElementById("timeline").scrollLeft
       const dragX = x + xOffset - _remToPixels(8)
@@ -260,6 +263,9 @@ var app = new Vue({
       app.dropPlaceholderIndex = null
       socket.emit("card_placed", card.id, index)
       _insertCardAtDropIndexWithAutocorrection(card, index)
+
+      // Re-enable hover effects
+      _chill(10).then(() => app.handTransitionsEnabled = true)
     }
   },
   methods: {
@@ -271,39 +277,6 @@ var app = new Vue({
     startGame: function () {
       console.log("Emitting start command...")
       socket.emit("start_game")
-    },
-    cardDragStarted: function (event, cardIndex) {
-      console.log("Drag started", this.hand[cardIndex])
-      this.timelineTransitionsEnabled = true
-      event.dataTransfer.setData("application/timeline", cardIndex)
-    },
-    cardDropped: function (event) {
-      const cardIndex = event.dataTransfer.getData("application/timeline")
-      const card = this.hand[cardIndex]
-      console.log("Dropped", card)
-      event.preventDefault()
-
-      this.timelineTransitionsEnabled = false
-      this.hand.splice(cardIndex, 1)
-      this.timeline.splice(this.dropPlaceholderIndex, 0, card)
-      const index = this.dropPlaceholderIndex
-      this.dropPlaceholderIndex = null
-      socket.emit("card_placed", card.id, index)
-      _insertCardAtDropIndexWithAutocorrection(card, index)
-    },
-    cardDraggedOver: function (event) {
-      console.log("Dragged over")
-      event.preventDefault()
-      const xOffset = document.getElementById("timeline").scrollLeft
-      const e = event || window.event
-      const dragX = e.pageX + xOffset - _remToPixels(8)
-      const cardWidth = _remToPixels(10)
-      const margin = _remToPixels(1)
-      const index = dragX / (cardWidth + margin)
-      this.dropPlaceholderIndex = Math.round(index)
-    },
-    cardDragLeft: function (event) {
-      this.dropPlaceholderIndex = null
     },
     copyJoinLink: function () {
       if (this.joinLink) {

@@ -27,8 +27,7 @@
 
       <!-- The area that shows the timeline -->
       <div id="timeline" class="w-full flex-grow flex items-center overflow-x-scroll">
-        <div v-for="(card, index) in timeline" class="flex py-10" @drop="cardDropped" @dragover="cardDraggedOver"
-          @dragleave="cardDragLeft">
+        <div v-for="(card, index) in timeline" class="flex py-10">
           <div>
             <div class="relative h-56 w-40 transform transition duration-200" v-bind:class="{
               'translate-x-44': dropPlaceholderIndex !== null && dropPlaceholderIndex <= index,
@@ -89,6 +88,8 @@
                 'transition-none': !handTransitionsEnabled,
                 'cursor-grab hover:scale-105 hover:shadow-lg hover:text-blue-500 hover:shadow-blue-500/50 hover:border-blue-500': isMyTurn,
                 'cursor-not-allowed': !isMyTurn,
+                'translate-x-20': handPlaceholderIndex !== null && handPlaceholderIndex <= index,
+                '-translate-x-20': handPlaceholderIndex !== null && handPlaceholderIndex > index,
               }"
               v-bind:style="index === draggingCardIndex ? dragTransform : ``">
               <span class="w-full p-4 text-center text-2xl font-medium">{{card.frontValue}}</span>

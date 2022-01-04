@@ -196,6 +196,7 @@ var app = new Vue({
     draggingCardIndex: null,
     draggingCardTranslation: { dx: 0, dy: 0 },
     dragTransform: "",
+    handPlaceholderIndex: null,
   },
   mounted: function () {
     connect()
@@ -256,6 +257,7 @@ var app = new Vue({
       const card = app.hand[cardIndex]
 
       app.handTransitionsEnabled = false
+      app.handPlaceholderIndex = cardIndex
       app.timelineTransitionsEnabled = false
       app.hand.splice(cardIndex, 1)
       app.timeline.splice(app.dropPlaceholderIndex, 0, card)
@@ -265,7 +267,10 @@ var app = new Vue({
       _insertCardAtDropIndexWithAutocorrection(card, index)
 
       // Re-enable hover effects
-      _chill(10).then(() => app.handTransitionsEnabled = true)
+      _chill(10).then(() => { 
+        app.handTransitionsEnabled = true
+        app.handPlaceholderIndex = null
+      })
     }
   },
   methods: {

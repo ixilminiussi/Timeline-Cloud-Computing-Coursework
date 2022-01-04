@@ -16,8 +16,9 @@
       <div class="w-full py-3 border-b-2 border-gray-200">
         <div class="flex justify-center space-x-6">
           <div v-for="player in players">
-            <div class="text-gray-300 flex flex-col items-center" v-bind:class="{
+            <div class=" flex flex-col items-center" v-bind:class="{
               'text-gray-400': player.username === currentTurn,
+              'text-gray-300': player.username !== currentTurn,
             }">
               <span>{{player.username}} ({{player.cardsRemaining}})</span>
             </div>

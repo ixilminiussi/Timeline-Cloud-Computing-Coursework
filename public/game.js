@@ -171,6 +171,12 @@ var startPoint = null
 var app = new Vue({
   el: '#vue-app',
   data: {
+    // Lobby
+    started: true, // Boolean describing if the game has started
+    showModal: true,
+    joinLink: window.location.href,
+    copiedJoinLink: false,
+
     // Players and turns
     username: "Admin",
     currentTurn: "Admin",
@@ -179,7 +185,7 @@ var app = new Vue({
     // Cards and timeline animations
     dropPlaceholderIndex: null,
     timelineTransitionsEnabled: true,
-    timeline: JSON.parse(`[{"id":"32","frontValue":"Saw","backValue":"28/07/2006","absoluteOrder":32}]`),
+    timeline: JSON.parse(`[{"id":"32","frontValue":"Saw","backValue":"28/07/2006","absoluteOrder":32},{"id":"32","frontValue":"Saw","backValue":"28/07/2006","absoluteOrder":32},{"id":"32","frontValue":"Saw","backValue":"28/07/2006","absoluteOrder":32},{"id":"32","frontValue":"Saw","backValue":"28/07/2006","absoluteOrder":32},{"id":"32","frontValue":"Saw","backValue":"28/07/2006","absoluteOrder":32},{"id":"32","frontValue":"Saw","backValue":"28/07/2006","absoluteOrder":32},{"id":"32","frontValue":"Saw","backValue":"28/07/2006","absoluteOrder":32},{"id":"32","frontValue":"Saw","backValue":"28/07/2006","absoluteOrder":32},{"id":"32","frontValue":"Saw","backValue":"28/07/2006","absoluteOrder":32},{"id":"32","frontValue":"Saw","backValue":"28/07/2006","absoluteOrder":32}]`),
     hand: JSON.parse(`[{"id":"12","frontValue":"The Exorcist","backValue":"16/03/1974","absoluteOrder":12},{"id":"4","frontValue":"Citizen Kane","backValue":"24/01/1942","absoluteOrder":4},{"id":"9","frontValue":"The Good, the Bad and the Ugly","backValue":"22/08/1968","absoluteOrder":9},{"id":"30","frontValue":"Finding Nemo","backValue":"10/10/2003","absoluteOrder":30},{"id":"46","frontValue":"Interstellar","backValue":"07/11/2014","absoluteOrder":46}]`),
     justDroppedInfo: null,  // { index: int, isCorrect: bool }
     flippedIndices: [],
@@ -187,11 +193,6 @@ var app = new Vue({
     undealtHandIndices: [], // Indices of cards in the hand that are animated out
     isDealingInNewCard: false,
     handTransitionsEnabled: true,
-    started: true, //Boolean describing if the game has started
-    showModal: true,
-    joinLink: window.location.href,
-    copiedJoinLink: false,
-
     draggingCardIndex: null,
     draggingCardTranslation: { dx: 0, dy: 0 },
     dragTransform: "",
@@ -235,12 +236,30 @@ var app = new Vue({
       const cardWidth = _remToPixels(10)
       const margin = _remToPixels(1)
       const index = dragX / (cardWidth + margin)
-      this.dropPlaceholderIndex = Math.round(index)
+      app.dropPlaceholderIndex = Math.round(index)
     }
 
     window.onmouseup = (e) => {
+      const cardIndex = app.draggingCardIndex
       app.draggingCardIndex = null
       app.handTransitionsEnabled = true
+
+      const x = e.clientX
+      const y = e.clientY
+      const tlRect = document.getElementById("timeline").getBoundingClientRect()
+      const inTimeline = x > tlRect.left && x < tlRect.right && y > tlRect.top && y < tlRect.bottom
+      if (!inTimeline) { return }
+
+      const card = app.hand[cardIndex]
+
+      app.handTransitionsEnabled = false
+      app.timelineTransitionsEnabled = false
+      app.hand.splice(cardIndex, 1)
+      app.timeline.splice(app.dropPlaceholderIndex, 0, card)
+      const index = app.dropPlaceholderIndex
+      app.dropPlaceholderIndex = null
+      socket.emit("card_placed", card.id, index)
+      _insertCardAtDropIndexWithAutocorrection(card, index)
     }
   },
   methods: {

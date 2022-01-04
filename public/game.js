@@ -167,6 +167,11 @@ function _getGameID() {
 // Drag-and-drop interaction
 var _dragStartPoint = null
 
+function _isPointInTimeline(x, y) {
+  const tlRect = document.getElementById("timeline").getBoundingClientRect()
+  return x > tlRect.left && x < tlRect.right && y > tlRect.top && y < tlRect.bottom
+}
+
 function _onMouseDown(e) {
   if (!app.isMyTurn) { return }
   const x = e.clientX
@@ -193,9 +198,7 @@ function _onMouseMoved(e) {
   const dy = y - _dragStartPoint.y
   app.dragTransform = `transform: translate(${dx}px, ${dy}px);`
 
-  const tlRect = document.getElementById("timeline").getBoundingClientRect()
-  const inTimeline = x > tlRect.left && x < tlRect.right && y > tlRect.top && y < tlRect.bottom
-  if (!inTimeline) { 
+  if (!_isPointInTimeline(x, y)) { 
     app.dropPlaceholderIndex = null
     return 
   }
@@ -216,9 +219,7 @@ function _onMouseUp(e) {
 
   const x = e.clientX
   const y = e.clientY
-  const tlRect = document.getElementById("timeline").getBoundingClientRect()
-  const inTimeline = x > tlRect.left && x < tlRect.right && y > tlRect.top && y < tlRect.bottom
-  if (!inTimeline) { return }
+  if (!_isPointInTimeline(x, y)) { return }
 
   const card = app.hand[cardIndex]
 

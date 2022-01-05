@@ -6,7 +6,7 @@ var user = new Vue({
         change: { newdisplayname: '', newemail: '', oldPassword: '', newPassword: '', oldPasswordInput: 'password', newPasswordInput: 'password' }
     },
     mounted: function() {
-        connect();
+        //connect();
 
         // Allows for closing the login form with keypress
         window.addEventListener('keydown', (e) => {

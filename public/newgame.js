@@ -18,12 +18,6 @@ var app = new Vue({
       this.selectedDeckIndex = index
       socket.emit("select_deck", this.decks[index].id)
     },
-    mounted: function () {
-      connect()
-    },
-    selectDeckAt: function (index) {
-      this.selectedDeckIndex = index
-    },
     copyJoinLink: function () {
       if (this.joinLink) {
         navigator.clipboard.writeText(this.joinLink)

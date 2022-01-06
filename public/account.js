@@ -6,8 +6,6 @@ var user = new Vue({
         change: { newdisplayname: '', newemail: '', oldPassword: '', newPassword: '', oldPasswordInput: 'password', newPasswordInput: 'password' }
     },
     mounted: function() {
-        //connect();
-
         // Allows for closing the login form with keypress
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
@@ -17,7 +15,7 @@ var user = new Vue({
 
         // Allows for closing the login form by clicking outside
         window.addEventListener('mousedown', (e) => {
-            if (this.form.show != -1 && !document.getElementById('loginForm').contains(e.target)) {
+            if (this.form.show !== -1 && !document.getElementById('loginForm').contains(e.target)) {
                 this.closeLoginForm();
             }
         });

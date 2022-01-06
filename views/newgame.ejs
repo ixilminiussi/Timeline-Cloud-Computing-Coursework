@@ -2,46 +2,44 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="/static/main.css" rel="stylesheet">
-    <title>Timeline</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="/static/main.css" rel="stylesheet">
+  <title>Timeline</title>
 </head>
 
 <body>
-    <div id="account">
-        <%- include('login'); %>
-    </div>
+  <div id="account">
+    <%- include('login'); %>
+  </div>
 
-    <div id="vue-app">
+  <div id="vue-app">
+    <div class="max-w-2xl mx-auto py-24 text-gray-400">
+        <h1 class="font-bold text-4xl">
+            <span class="text-blue-500">Timeline</span> &mdash; Configure New Game
+        </h1>
 
-        <div class="max-w-2xl mx-auto py-24 text-gray-400">
-            <h1 class="font-bold text-4xl">
-                <span class="text-blue-500">Timeline</span> &mdash; Configure New Game
-            </h1>
-
-            <div class="mt-12">
-                Which deck would you like to play?
-
-                <!-- Deck selection grid -->
-                <div class="mt-4 grid grid-cols-3 gap-3">
-                    <div v-for="(deck, index) in decks">
-                        <!-- If this is the selected deck -->
-                        <button v-if="index === selectedDeckIndex" class="py-3 px-3 h-full w-full text-left flex flex-col rounded-lg bg-blue-500 text-white space-y-2 transition-transform duration-150 hover:scale-105 ">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span class="font-medium">{{deck.name}}</span>
-            </button>
-                        <!-- If this is an unselected deck -->
-                        <button v-else @click="selectDeckAt(index)" class="py-3 h-full w-full text-left px-3 flex flex-col rounded-lg border-2 border-gray-200 space-y-2 transition-transform duration-150 hover:scale-105">
-              <div class="h-5 w-5 rounded-full border-2 border-gray-200"></div>
-              <span class="text-gray-500">{{deck.name}}</span>
-            </button>
-                    </div>
-                </div>
+        <div class="mt-12">
+          Which deck would you like to play?
+          <!-- Deck selection grid -->
+          <div class="mt-4 grid grid-cols-3 gap-3">
+            <div v-for="(deck, index) in decks">
+              <!-- If this is the selected deck -->
+              <button v-if="index === selectedDeckIndex" class="py-3 px-3 h-full w-full text-left flex flex-col rounded-lg bg-blue-500 text-white space-y-2 transition-transform duration-150 hover:scale-105 ">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span class="font-medium">{{deck.name}}</span>
+              </button>
+              <!-- If this is an unselected deck -->
+              <button v-else @click="selectDeckAt(index)" class="py-3 h-full w-full text-left px-3 flex flex-col rounded-lg border-2 border-gray-200 space-y-2 transition-transform duration-150 hover:scale-105">
+                <div class="h-5 w-5 rounded-full border-2 border-gray-200"></div>
+                <span class="text-gray-500">{{deck.name}}</span>
+              </button>
             </div>
+          </div>
+      </div>
 
       <div class="mt-10">
         <!-- Open the game in a new tab -->
@@ -70,13 +68,13 @@
 <style>
     .fade-enter-active,
     .fade-leave-active {
-        transition: opacity .1s ease-in;
+      transition: opacity .1s ease-in;
     }
     
     .fade-enter,
     .fade-leave-to {
-        transform: scale(-50px);
-        opacity: 0;
+      transform: scale(-50px);
+      opacity: 0;
     }
 </style>
 

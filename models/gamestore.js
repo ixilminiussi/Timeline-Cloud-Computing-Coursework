@@ -51,7 +51,7 @@ class GameStore {
   }
 
   /**
-   * Adds a new player to a game using this socket.
+   * Adds a new player to a game using this socket
    * @param {Socket} socket The socket the new player is using.
    * @param {string} gameID The unique ID of the game that the player should
    * be added to. If this game does not already exist, it will be created.
@@ -66,6 +66,21 @@ class GameStore {
     const player = new Player(socket)
     if (game.registerPlayer(player)) {
       this._allPlayers.set(socket, player)
+    }
+  }
+
+  /**
+   * Removes a player from his game using his socket
+   * @param {Socket} socket The socket the player was using
+   * @param {string} gameID The unique ID of the game the player wants to leave
+   */
+  removeSocketFromGame(socket, gameID) {
+    let game = this._games.find(g => g.id === gameID)
+    if (!game) {
+      console.error("Cannot find game with id", gameID, "- ignoring")
+    } else {
+      game.removePlayer(socket)
+      this._allPlayers.delete(socket)
     }
   }
 
@@ -109,6 +124,26 @@ class GameStore {
       return
     }
 
+    player.game.start()
+  }
+
+  /**
+   * Retart the game that this socket is an admin player in.
+   * @param {Socket} socket The socket belonging to the admin player of the game.
+   * If this socket does not belong to the admin player, nothing happens.
+   */
+  restartGameViaSocket(socket) {
+    const player = this._allPlayers.get(socket)
+    if (!player) {
+      console.error("Cannot find player with socket")
+      return
+    }
+  
+    if (player.game.adminPlayer() !== player) {
+      console.error("Player does not have authority to start game")
+      return
+    }
+  
     player.game.start()
   }
 

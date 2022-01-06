@@ -302,6 +302,10 @@ var app = new Vue({
       console.log("Emitting start command...")
       socket.emit("start_game")
     },
+    restartGame: function() {
+      console.log("Emitting restart command...")
+      socket.emit("restart_game")
+    },
     copyJoinLink: function () {
       if (this.joinLink) {
         navigator.clipboard.writeText(this.joinLink)
@@ -310,6 +314,9 @@ var app = new Vue({
             .then(() => this.copiedJoinLink = false)
       }
     },
+    leaveGame: function() {
+      socket.emit("leave_game", _getGameID())
+    }
   },
   computed: {
     isMyTurn: function () {
@@ -344,6 +351,14 @@ function connect() {
 
   // =============== Messages from the server ================
   //          (Each of these call a public function)
+
+  socket.on("reset", () => {
+    app.showAll = false
+    app.ended = false
+    app.stats.timelineLength = 0
+    app.stats.correctlyPlaced = 0
+    app.stats.incorrectlyPlaced = 0
+  })
 
   socket.on("deal_hand", (cards) => {
     dealHand(cards)

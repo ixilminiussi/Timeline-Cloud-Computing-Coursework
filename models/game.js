@@ -54,6 +54,16 @@ class Game {
   }
 
   /**
+   * Removes player from the list
+   * @param {Socket} socket
+   */
+  removePlayer(socket) {
+    const playerIndex = this._players.findIndex(p => p.socket === socket)
+    this._players.splice(playerIndex, 1)
+    this._updateClientsWithPlayers()
+  }
+
+  /**
    * @typedef {Object} MigrationInfo
    * @property {Socket} oldSocket The socket the existing player used to use.
    * @property {Player} targetPlayer The existing player that `player` was merged with.
@@ -177,6 +187,13 @@ class Game {
       this._stage = Game.STAGE_LOBBY
       return
     }
+
+    // Reset certain values (in case of restart)
+    this._players.forEach(p => p.socket.emit("reset"))
+    this.creationTime = Date.now()
+    this._timeline = []
+    this._correctlyPlaced = 0
+    this._incorrectlyPlaced = 0
 
     // Place down starting card
     this._timeline = [this._deck.shift()]

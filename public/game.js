@@ -144,7 +144,7 @@ function _insertCardAtDropIndexWithAutocorrection(card, index) {
     _chill(2000).then(() => _animateRippledCardFlipsToFront())
   } else { // Animate the correction
     const indexAfter = app.timeline.findIndex(c => c.absoluteOrder > card.absoluteOrder)
-    let newIndex = app.timeline.length
+    let newIndex = app.timeline.length - 1
     if (indexAfter >= 0) {
       newIndex = app.justDroppedInfo.index < indexAfter ? indexAfter - 1 : indexAfter
     }

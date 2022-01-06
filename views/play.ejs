@@ -11,49 +11,55 @@
 
 <body>
   <div class="max-w-screen min-h-screen flex" id="vue-app">
-    <div class="min-h-screen w-full flex flex-col">
+    <div class="w-screen h-screen flex flex-col">
       <!-- Player ticker -->
       <div class="w-full py-3 border-b-2 border-gray-200">
         <div class="flex justify-center space-x-6">
           <div v-for="player in players">
-            <div class="text-gray-300 flex flex-col items-center" v-bind:class="{
+            <div class=" flex flex-col items-center" v-bind:class="{
               'text-gray-400': player.username === currentTurn,
-              'text-gray-300': player.username !== currentTurn,}">
-
+              'text-gray-300': player.username !== currentTurn,
+            }">
               <span>{{player.username}} ({{player.cardsRemaining}})</span>
             </div>
           </div>
         </div>
       </div>
 
+      <!-- The area that shows the timeline -->
       <div id="timeline" class="w-full flex-grow flex items-center overflow-x-scroll">
-        <div v-for="(card, index) in timeline" class="flex py-10" @drop="cardDropped"
-          @dragover="cardDraggedOver" @dragleave="cardDragLeft">
+        <div v-for="(card, index) in timeline" class="flex py-10">
           <div>
             <div class="relative h-56 w-40 transform transition duration-200" v-bind:class="{
-                'translate-x-44': dropPlaceholderIndex !== null && dropPlaceholderIndex <= index,
-                'ml-32': index === 0,
-                'ml-2': index !== 0,
-                'mr-2': index !== (timeline.length - 1),
-                'mr-32': index === (timeline.length - 1),
-                'transition-none': !timelineTransitionsEnabled,
-                'translate-y-[-150pt] opacity-0': index === removedIndex,}">
-              <div class="absolute w-full h-full flex items-center border-2 rounded-md border-gray-300 transform transition-transform flippable"
-                v-bind:class="{'flipped': flippedIndices.includes(index),}">
-                <span class="w-full p-4 text-center text-gray-400 text-3xl">{{card.frontValue}}<span
-                    v-if="showAll" class="text-blue-400"><br>{{card.backValue}}</span></span>
-                  </div>
-                    <div class="absolute w-full h-full flex items-center text-gray-400 border-2 rounded-md border-gray-300 transform transition-transform flippable"
-                        v-bind:class="{ 
-                        'flipped': !flippedIndices.includes(index),
-                        'border-red-300 bg-red-100 text-red-600': index === justDroppedInfo?.index && justDroppedInfo?.isCorrect === false,
-                        'border-green-300 bg-green-100 text-green-600': index === justDroppedInfo?.index && justDroppedInfo?.isCorrect === true,}">
-                      <span class="w-full p-4 text-center text-3xl">{{card.backValue}}</span>
-                    </div>
-                  </div>
-                </div>
+              'translate-x-44': dropPlaceholderIndex !== null && dropPlaceholderIndex <= index,
+              'ml-32': index === 0,
+              'ml-2': index !== 0,
+              'mr-2': index !== (timeline.length - 1),
+              'mr-32': index === (timeline.length - 1),
+              'transition-none': !timelineTransitionsEnabled,
+              'translate-y-[-150pt] opacity-0': index === removedIndex,
+            }">
+              <div
+                class="absolute w-full h-full flex items-center border-2 rounded-md border-gray-300 transform transition-transform flippable"
+                v-bind:class="{
+                'flipped': flippedIndices.includes(index),
+              }">
+                <span class="w-full p-4 text-center text-gray-400 text-2xl font-medium">{{card.frontValue}}<span
+                  v-if="showAll" class="text-blue-400"><br>{{card.backValue}}</span></span>
+              </div>
+              <div
+                class="absolute w-full h-full flex items-center text-gray-400 border-2 rounded-md border-gray-300 transform transition-transform flippable"
+                v-bind:class="{ 
+                  'flipped': !flippedIndices.includes(index),
+                  'border-red-300 bg-red-100 text-red-600': index === justDroppedInfo?.index && justDroppedInfo?.isCorrect === false,
+                  'border-green-300 bg-green-100 text-green-600': index === justDroppedInfo?.index && justDroppedInfo?.isCorrect === true,
+                }">
+                <span class="w-full p-4 text-center text-2xl">{{card.backValue}}</span>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
 
       <div class="w-full pt-4 pb-10 bg-gray-50 flex flex-col items-center" :style="handBackground">
         <!-- Current turn indicator -->
@@ -85,47 +91,50 @@
               <span class="w-full p-4 text-center text-2xl font-medium">{{card.frontValue}}<span
                 v-if="showAll" class="text-blue-400"><br>{{card.backValue}}</span></span>
             </div>
+          </div>
         </div>
-        <!-- Sidebar for gameover screen -->
-        <transition class="transform duration-300">
-            <div v-if="ended" class="min-h-screen fixed right-0 bg-white flex-1 p-10 py-5 text-gray-400 border-l-2 border-gray-200">
-                <div class="whitespace-nowrap space-y-10">
-                    <h1 class="font-bold px-7 text-center text-4xl">
-                        <span class="text-blue-500">game over!</span>
-                    </h1>
-                    <div>
-                        <p class="text-center text-lg">
-                            <span class="font-extrabold text-blue-400">Winner : <span class="font-semibold text-gray-400">
-                                    {{stats.winner}} </span></span>
-                        </p>
-                        <div v-for="player in players" class="text-center text-lg font-semibold text-gray-400">
-                            <br><span v-if="player.cardsRemaining > 0"> {{player.username}} ({{player.cardsRemaining}})
-                            </span>
-                        </div>
-                    </div>
-                    <p class="text-sm italic">
-                        <span class="font-bold text-blue-400">correctly <span class="font-semibold text-gray-400">placed
-                                cards <span class="font-semibold text-blue-400">: </span><span
-                                    class="text-lg font-bold text-blue-400">{{stats.correctlyPlaced}}</span></span></span>
-                        <br><span class="font-bold text-blue-400">incorrectly <span
-                                class="font-semibold text-gray-400">placed cards <span
-                                    class="font-semibold text-blue-400">: </span><span
-                                    class="text-lg font-bold text-blue-400">{{stats.incorrectlyPlaced}}</span></span></span>
-                        <br><span class="font-bold text-gray-400">timeline <span
-                                class="font-semibold text-blue-400">length : <span
-                                    class="text-lg font-bold text-blue-400">{{stats.timelineLength}}</span></span></span>
-                    </p>
-                    <div>
-                        <button @click="restart()"
-                            class="block w-full p-3 rounded bg-blue-400 hover:bg-blue-300 transition duration-100 hover:text-blue-800">Play-again</button>
-                        <a href="/">
-                            <button class="block p-3 w-full transition duration-100 text-blue-600 hover:text-blue-800 font-bold text-sm">exit lobby</button>
-                        </a>
-                    </div>
-                </div>
+      </div>
+      <!-- Sidebar for gameover screen -->
+      <transition class="transform duration-300">
+        <div v-if="ended" class="min-h-screen fixed right-0 bg-white flex-1 p-10 py-5 text-gray-400 border-l-2 border-gray-200">
+          <div class="whitespace-nowrap space-y-10">
+            <h1 class="font-bold px-7 text-center text-4xl">
+              <span class="text-blue-500">game over!</span>
+            </h1>
+            <div>
+              <p class="text-center text-lg">
+                <span class="font-extrabold text-blue-400">Winner : <span class="font-semibold text-gray-400">
+                    {{stats.winner}} </span></span>
+              </p>
+              <div v-for="player in players" class="text-center text-lg font-semibold text-gray-400">
+                <br><span v-if="player.cardsRemaining > 0"> {{player.username}} ({{player.cardsRemaining}})
+                </span>
+              </div>
             </div>
-        </transition>
+            <p class="text-sm italic">
+              <span class="font-bold text-blue-400">correctly <span class="font-semibold text-gray-400">placed
+                  cards <span class="font-semibold text-blue-400">: </span><span
+                      class="text-lg font-bold text-blue-400">{{stats.correctlyPlaced}}</span></span></span>
+              <br><span class="font-bold text-blue-400">incorrectly <span
+                  class="font-semibold text-gray-400">placed cards <span
+                      class="font-semibold text-blue-400">: </span><span
+                      class="text-lg font-bold text-blue-400">{{stats.incorrectlyPlaced}}</span></span></span>
+              <br><span class="font-bold text-gray-400">timeline <span
+                  class="font-semibold text-blue-400">length : <span
+                      class="text-lg font-bold text-blue-400">{{stats.timelineLength}}</span></span></span>
+            </p>
+            <div>
+              <button @click="restart()"
+                  class="block w-full p-3 rounded bg-blue-400 hover:bg-blue-300 transition duration-100 hover:text-blue-800">Play-again</button>
+              <a href="/">
+                <button class="block p-3 w-full transition duration-100 text-blue-600 hover:text-blue-800 font-bold text-sm">exit lobby</button>
+              </a>
+            </div>
+          </div>
+        </div>
+      </transition>
     </div>
+  </div>
 
 </body>
 

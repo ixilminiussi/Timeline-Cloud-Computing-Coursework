@@ -2,7 +2,7 @@
  * Represents a single player in a game of Timeline, whose username uniquely
  * identifies them within their game.
  */
-class Player {
+ class Player {
   /**
    * @param {Socket} socket The socket belonging to this player's client.
    */

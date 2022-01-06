@@ -18,49 +18,33 @@ var app = new Vue({
       this.selectedDeckIndex = index
       socket.emit("select_deck", this.decks[index].id)
     },
-    mounted: function() {
-      connect()
-      socket.emit("available_decks")
-      socket.emit("create_game")
-    },
-    methods: {
-      selectDeckAt: function(index) {
-        this.selectedDeckIndex = index
-      },
-      mounted: function() {
-        connect()
-      },
-      selectDeckAt: function(index) {
-        this.selectedDeckIndex = index
-      },
-      copyJoinLink: function() {
-        if (this.joinLink) {
-          navigator.clipboard.writeText(this.joinLink)
-          this.copiedJoinLink = true
-          new Promise(resolve => setTimeout(resolve, 1000))
-            .then(() => this.copiedJoinLink = false)
-        }
-      },
-      openGameLink: function() {
-        if (this.joinLink) {
-          window.open(this.joinLink)
-        }
+    copyJoinLink: function () {
+      if (this.joinLink) {
+        navigator.clipboard.writeText(this.joinLink)
+        this.copiedJoinLink = true
+        new Promise(resolve => setTimeout(resolve, 1000))
+          .then(() => this.copiedJoinLink = false)
       }
-    }
+    },
+    openGameLink: function () {
+      if (this.joinLink) {
+        window.open(this.joinLink)
+      }
+    },
   }
-});
+})
 
 function connect() {
   socket = io();
-  socket.on('connect', function() {
+  socket.on('connect', function () {
 
-  });
+  })
 
-  socket.on('connect_error', function(message) {
+  socket.on('connect_error', function (message) {
     console.error("Connection failed", message)
-  });
+  })
 
-  socket.on('disconnect', function() {
+  socket.on('disconnect', function () {
     console.error("Connection dropped")
   })
 

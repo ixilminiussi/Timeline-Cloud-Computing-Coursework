@@ -12,7 +12,6 @@ class Game {
   static STAGE_PLAYING = "playing"
   static STAGE_ENDED = "ended"
 
-
   /**
    * @param {string} id The unique ID of this game.
    * @param {Database} db The database to retrieve cards from.
@@ -29,7 +28,7 @@ class Game {
     this._timeline = []
     this._stage = Game.STAGE_LOBBY
     this._currentPlayerIndex = 0
-    
+
     // Used for stats on end screen
     this._correctlyPlaced = 0
     this._incorrectlyPlaced = 0
@@ -131,8 +130,8 @@ class Game {
     await chill(2500)
 
     if (wasPlacedCorrectly) {
-      this._log("Card placed correctly")
       this._correctlyPlaced += 1
+      this._log("Card placed correctly")
       this._timeline.splice(index, 0, card)
     } else {
       this._incorrectlyPlaced += 1

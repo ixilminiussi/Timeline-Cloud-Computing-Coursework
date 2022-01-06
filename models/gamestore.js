@@ -140,4 +140,3 @@ class GameStore {
 }
 
 module.exports = GameStore
-

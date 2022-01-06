@@ -209,7 +209,7 @@ function _onMouseMoved(e) {
   const cardWidth = _remToPixels(10)
   const margin = _remToPixels(1)
   const index = dragX / (cardWidth + margin)
-  app.dropPlaceholderIndex = Math.round(index)
+  app.dropPlaceholderIndex = Math.min(Math.round(index), app.timeline.length)
 }
 
 function _onMouseUp(e) {

@@ -12,3 +12,13 @@
 .flipped {
   transform: rotateY(180deg);
 }
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity .1s ease-in;
+}
+
+.fade-enter,
+.fade-leave-to {
+  transform: scale(-50px);
+  opacity: 0;
+}

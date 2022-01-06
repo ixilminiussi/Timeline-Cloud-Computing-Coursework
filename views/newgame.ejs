@@ -5,10 +5,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="/static/main.css" rel="stylesheet">
+  <link href="/static/animations.css" rel="stylesheet">
   <title>Timeline</title>
 </head>
 
 <body>
+  <div id="account">
+    <%- include('login'); %>
+  </div>
+
   <div id="vue-app">
 
     <div class="max-w-2xl mx-auto py-24 text-gray-400">
@@ -65,6 +70,7 @@
   <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
   <!-- Application Javascript -->
   <script src="/static/newgame.js"></script>
+  <script src="/static/account.js"></script>
 </body>
 
 </html>

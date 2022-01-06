@@ -30,9 +30,9 @@ var app = new Vue({
       if (this.joinLink) {
         window.open(this.joinLink)
       }
-    },
+    }
   }
-})
+});
 
 function connect() {
   socket = io();

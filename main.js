@@ -20,15 +20,15 @@ let baseServerURL = ""
 
 app.get("/", (req, res) => {
   baseServerURL = req.protocol + '://' + req.get('host')
-  res.render("newgame", { version: process.version })
+  res.render("newgame", {version: process.version})
 })
 
 app.get("/play/:code", (req, res) => {
-  res.render("game", { version: process.version })
+  res.render("game", {version: process.version})
 })
 
 app.get("/accountsettings", (req, res) => {
-  res.render("accountsettings", { version: process.version })
+  res.render("accountsettings", {version: process.version})
 })
 
 function startServer() {
@@ -102,7 +102,7 @@ io.on("connection", socket => {
 })
 
 if (module === require.main) {
-    startServer()
+  startServer()
 }
 
 module.exports = server

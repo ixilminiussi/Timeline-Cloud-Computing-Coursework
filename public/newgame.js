@@ -30,19 +30,19 @@ var app = new Vue({
       if (this.joinLink) {
         window.open(this.joinLink)
       }
-    },
+    }
   }
-})
+});
 
 function connect() {
   socket = io();
   socket.on('connect', function () {
 
-  })
+  });
 
   socket.on('connect_error', function (message) {
     console.error("Connection failed", message)
-  })
+  });
 
   socket.on('disconnect', function () {
     console.error("Connection dropped")

@@ -53,6 +53,11 @@ io.on("connection", socket => {
     gameStore.updateDeckForGameWithCreatorSocket(socket, deckID)
   })
 
+  socket.on("hand_size", handSize => {
+    console.log("socket: hand_size", handSize, typeof handSize)
+    gameStore.updateHandSizeForGameWithSocket(socket, handSize)
+  })
+
   socket.on("create_game", () => {
     console.log("socket: create_game")
     if (!baseServerURL) {

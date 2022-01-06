@@ -12,6 +12,7 @@ class Game {
   static STAGE_PLAYING = "playing"
   static STAGE_ENDED = "ended"
 
+
   /**
    * @param {string} id The unique ID of this game.
    */
@@ -26,6 +27,10 @@ class Game {
     this._timeline = []
     this._stage = Game.STAGE_LOBBY
     this._currentPlayerIndex = 0
+    
+    // Used for stats on end screen
+    this._correctlyPlaced = 0
+    this._incorrectlyPlaced = 0
   }
 
   // PUBLIC
@@ -125,8 +130,10 @@ class Game {
 
     if (wasPlacedCorrectly) {
       this._log("Card placed correctly")
+      this._correctlyPlaced += 1
       this._timeline.splice(index, 0, card)
     } else {
+      this._incorrectlyPlaced += 1
       this._log(`Card placed incorrectly, dealing replacement to ${player.displayName()}`)
       const correctIndex = this._correctInsertionIndex(card, this._timeline)
       this._timeline.splice(correctIndex, 0, card)
@@ -146,7 +153,8 @@ class Game {
       this._log(`${player.displayName()} has cleared hand, ending game`)
       this._stage = Game.STAGE_ENDED
       this._players.forEach(p => p.socket.emit("set_current_turn", null))
-      this._players.forEach(p => p.socket.emit("game_over"))
+      var name = player.username
+      this._players.forEach(p => p.socket.emit("game_over", this._correctlyPlaced, this._incorrectlyPlaced, name))
     } else { // Update current turn
       this._currentPlayerIndex = (this._currentPlayerIndex + 1) % this._players.length
       this._updateClientsWithCurrentTurn()

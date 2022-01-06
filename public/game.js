@@ -4,300 +4,312 @@ var socket = null
 //              (in response to messages sent from the server)
 
 function dealHand(cards) {
-  app.hand = cards
-  app.undealtHandIndices = cards.map((e,i) => i)
-  _animateHandIn()
+    app.hand = cards
+    app.undealtHandIndices = cards.map((e, i) => i)
+    _animateHandIn()
 }
 
 async function dealCard(card) {
-  app.hand.push(card)
-  app.handTransitionsEnabled = false
-  app.isDealingInNewCard = true
-  app.undealtHandIndices = [app.hand.length - 1]
-  await _chill(50)
-  
-  app.handTransitionsEnabled = true
-  app.isDealingInNewCard = false
-  app.undealtHandIndices = []
+    app.hand.push(card)
+    app.handTransitionsEnabled = false
+    app.isDealingInNewCard = true
+    app.undealtHandIndices = [app.hand.length - 1]
+    await _chill(50)
+
+    app.handTransitionsEnabled = true
+    app.isDealingInNewCard = false
+    app.undealtHandIndices = []
 }
 
 function overwriteTimeline(cards) {
-  app.timeline = cards
-  app.started = true
+    app.timeline = cards
+    app.started = true
 }
 
 async function insertCard(card, index) {
-  console.log(`Inserting card ${card} at index ${index}`)
-  app.dropPlaceholderIndex = index
-  
-  await _chill(200)
-  
-  app.timelineTransitionsEnabled = false
-  app.dropPlaceholderIndex = null
-  app.timeline.splice(index, 0, card)
-  app.removedIndex = index
-  
-  await _chill(200)
-  
-  app.timelineTransitionsEnabled = true
-  app.removedIndex = null
-  
-  await _chill(200)
-  _insertCardAtDropIndexWithAutocorrection(card, index)
+    console.log(`Inserting card ${card} at index ${index}`)
+    app.dropPlaceholderIndex = index
+
+    await _chill(200)
+
+    app.timelineTransitionsEnabled = false
+    app.dropPlaceholderIndex = null
+    app.timeline.splice(index, 0, card)
+    app.removedIndex = index
+
+    await _chill(200)
+
+    app.timelineTransitionsEnabled = true
+    app.removedIndex = null
+
+    await _chill(200)
+    _insertCardAtDropIndexWithAutocorrection(card, index)
 }
 
 function overwritePlayers(players) {
-  app.players = players
+    app.players = players
 }
 
 function setCurrentTurn(username) {
-  app.currentTurn = username
+    app.currentTurn = username
 }
 
 // ============================ Private Functions =============================
-function _remToPixels(rem) {    
-  return rem * parseFloat(getComputedStyle(document.documentElement).fontSize)
+function _remToPixels(rem) {
+    return rem * parseFloat(getComputedStyle(document.documentElement).fontSize)
 }
 
 function _isAbsolutelyOrdered(cards) {
-  if (cards.length > 1) {
-    for (var i = 1; i < cards.length; i++) {
-      if (cards[i].absoluteOrder < cards[i-1].absoluteOrder) {
-        return false
-      }
+    if (cards.length > 1) {
+        for (var i = 1; i < cards.length; i++) {
+            if (cards[i].absoluteOrder < cards[i - 1].absoluteOrder) {
+                return false
+            }
+        }
     }
-  }
 
-  return true
+    return true
 }
 
 function _chill(duration) { // Delay without blocking the main thread
-  return new Promise(resolve => setTimeout(resolve, duration))
+    return new Promise(resolve => setTimeout(resolve, duration))
 }
 
 async function _animateRippledCardFlipsToBack() {
-  for (var i = 0; i < app.timeline.length; i++) {
-    app.flippedIndices.push(i)
-    await _chill(50)
-  }
+    for (var i = 0; i < app.timeline.length; i++) {
+        app.flippedIndices.push(i)
+        await _chill(50)
+    }
 }
 
 async function _animateRippledCardFlipsToFront() {
-  while (app.flippedIndices.length) {
-    app.flippedIndices.splice(0, 1);
-    await _chill(50)
-  }
+    while (app.flippedIndices.length) {
+        app.flippedIndices.splice(0, 1);
+        await _chill(50)
+    }
 }
 
 async function _animateCardFromIndexToIndex(card, fromIndex, toIndex) {
-  await _chill(2000)
-  
-  // Pull the incorrect card up & out of the timeline
-  app.timelineTransitionsEnabled = true
-  app.removedIndex = fromIndex
+    await _chill(2000)
 
-  await _chill(500)
+    // Pull the incorrect card up & out of the timeline
+    app.timelineTransitionsEnabled = true
+    app.removedIndex = fromIndex
 
-  // Take the incorrect card out of the model without any visual change
-  app.timelineTransitionsEnabled = false
-  app.timeline.splice(fromIndex, 1)
-  app.dropPlaceholderIndex = app.removedIndex
-  app.removedIndex = null
-  app.justDroppedInfo = null
-  
-  await _chill(100)
+    await _chill(500)
 
-  // Make a space for the insertion point
-  app.timelineTransitionsEnabled = true
-  app.dropPlaceholderIndex = toIndex
-  
-  await _chill(500)
+    // Take the incorrect card out of the model without any visual change
+    app.timelineTransitionsEnabled = false
+    app.timeline.splice(fromIndex, 1)
+    app.dropPlaceholderIndex = app.removedIndex
+    app.removedIndex = null
+    app.justDroppedInfo = null
 
-  // Add the card to the model in the correct place...
-  app.timelineTransitionsEnabled = false
-  app.dropPlaceholderIndex = null
-  app.timeline.splice(toIndex, 0, card)
+    await _chill(100)
 
-  await _chill(1)
+    // Make a space for the insertion point
+    app.timelineTransitionsEnabled = true
+    app.dropPlaceholderIndex = toIndex
 
-  // ...using this hack to keep it out-of-frame (for now)
-  app.removedIndex = toIndex
-  
-  await _chill(100)
+    await _chill(500)
 
-  // Animate the card down into the correct position
-  app.timelineTransitionsEnabled = true
-  app.removedIndex = null
-  app.justDroppedInfo = { index: toIndex, isCorrect: true }
+    // Add the card to the model in the correct place...
+    app.timelineTransitionsEnabled = false
+    app.dropPlaceholderIndex = null
+    app.timeline.splice(toIndex, 0, card)
 
-  await _chill(1000)
-  _animateRippledCardFlipsToFront()
+    await _chill(1)
+
+    // ...using this hack to keep it out-of-frame (for now)
+    app.removedIndex = toIndex
+
+    await _chill(100)
+
+    // Animate the card down into the correct position
+    app.timelineTransitionsEnabled = true
+    app.removedIndex = null
+    app.justDroppedInfo = { index: toIndex, isCorrect: true }
+
+    await _chill(1000)
+    _animateRippledCardFlipsToFront()
 }
 
 function _insertCardAtDropIndexWithAutocorrection(card, index) {
-  const isCorrect = _isAbsolutelyOrdered(app.timeline)
-  app.justDroppedInfo = { index: index, isCorrect }
-  _animateRippledCardFlipsToBack()
+    const isCorrect = _isAbsolutelyOrdered(app.timeline)
+    app.justDroppedInfo = { index: index, isCorrect }
+    _animateRippledCardFlipsToBack()
 
-  if (isCorrect) {
-    _chill(2000).then(() => _animateRippledCardFlipsToFront())
-  } else { // Animate the correction
-    const indexAfter = app.timeline.findIndex(c => c.absoluteOrder > card.absoluteOrder)
-    let newIndex = app.timeline.length
-    if (indexAfter >= 0) {
-      newIndex = app.justDroppedInfo.index < indexAfter ? indexAfter - 1 : indexAfter
+    if (isCorrect) {
+        _chill(2000).then(() => _animateRippledCardFlipsToFront())
+    } else { // Animate the correction
+        const indexAfter = app.timeline.findIndex(c => c.absoluteOrder > card.absoluteOrder)
+        let newIndex = app.timeline.length
+        if (indexAfter >= 0) {
+            newIndex = app.justDroppedInfo.index < indexAfter ? indexAfter - 1 : indexAfter
+        }
+
+        _animateCardFromIndexToIndex(card, app.justDroppedInfo.index, newIndex)
     }
-
-    _animateCardFromIndexToIndex(card, app.justDroppedInfo.index, newIndex)
-  }
 }
 
 async function _animateHandIn() {
-  while (app.undealtHandIndices.length) {
-    await _chill(150)
-    app.undealtHandIndices.splice(0,1)
-  }
+    while (app.undealtHandIndices.length) {
+        await _chill(150)
+        app.undealtHandIndices.splice(0, 1)
+    }
 }
 
 function _getGameID() {
-  const pathComponents = window.location.pathname.split("/")
-  return pathComponents[pathComponents.length - 1]
+    const pathComponents = window.location.pathname.split("/")
+    return pathComponents[pathComponents.length - 1]
 }
 
 // =================================== Vue ====================================
 var app = new Vue({
-  el: '#vue-app',
-  data: {
-    // Players and turns
-    username: "",
-    currentTurn: null,
-    players: [],
+    el: '#vue-app',
+    data: {
+        // Players and turns
+        username: "",
+        currentTurn: null,
+        players: [],
 
-    // Cards and timeline animations
-    dropPlaceholderIndex: null,
-    timelineTransitionsEnabled: true,
-    timeline: [],
-    hand: [],
-    justDroppedInfo: null,  // { index: int, isCorrect: bool }
-    flippedIndices: [],
-    removedIndex: null,     // The index of the card that's pulled up out of the timeline
-    undealtHandIndices: [], // Indices of cards in the hand that are animated out
-    isDealingInNewCard: false,
-    handTransitionsEnabled: true,
-    started: false, //Boolean describing if the game has started
-    showModal: true,
-    joinLink: window.location.href,
-    copiedJoinLink: false,
-  },
-  mounted: function () {
-    connect()
-    socket.emit("register_with_game", _getGameID())
-    document.getElementById("usernameIn").focus()
-  },
-  methods: {
-    usernameEntered: function () {
-      this.showModal = !this.showModal
-      console.log("Username Entered", this.username)
-      socket.emit("register_username", this.username)
+        // Cards and timeline animations
+        dropPlaceholderIndex: null,
+        timelineTransitionsEnabled: true,
+        timeline: [],
+        hand: [],
+        justDroppedInfo: null, // { index: int, isCorrect: bool }
+        flippedIndices: [],
+        removedIndex: null, // The index of the card that's pulled up out of the timeline
+        undealtHandIndices: [], // Indices of cards in the hand that are animated out
+        isDealingInNewCard: false,
+        handTransitionsEnabled: true,
+        started: false, //Boolean describing if the game has started
+        ended: false, //If ended, shows endscreen elements
+        showModal: true,
+        joinLink: window.location.href,
+        copiedJoinLink: false,
+        showAll: false, // If true, shows both the date and event of all cards on screen
+        stats: {
+            timelineLength: 0,
+            correctlyPlaced: 0,
+            incorrectlyPlaced: 0
+        }
     },
-    startGame: function () {
-      console.log("Emitting start command...")
-      socket.emit("start_game")
+    mounted: function() {
+        connect()
+        socket.emit("register_with_game", _getGameID())
+        document.getElementById("usernameIn").focus()
     },
-    cardDragStarted: function (event, cardIndex) {
-      console.log("Drag started", this.hand[cardIndex])
-      this.timelineTransitionsEnabled = true
-      event.dataTransfer.setData("application/timeline", cardIndex)
-    },
-    cardDropped: function (event) {
-      const cardIndex = event.dataTransfer.getData("application/timeline")
-      const card = this.hand[cardIndex]
-      console.log("Dropped", card)
-      event.preventDefault()
+    methods: {
+        usernameEntered: function() {
+            this.showModal = !this.showModal
+            console.log("Username Entered", this.username)
+            socket.emit("register_username", this.username)
+        },
+        startGame: function() {
+            console.log("Emitting start command...")
+            socket.emit("start_game")
+        },
+        cardDragStarted: function(event, cardIndex) {
+            console.log("Drag started", this.hand[cardIndex])
+            this.timelineTransitionsEnabled = true
+            event.dataTransfer.setData("application/timeline", cardIndex)
+        },
+        cardDropped: function(event) {
+            const cardIndex = event.dataTransfer.getData("application/timeline")
+            const card = this.hand[cardIndex]
+            console.log("Dropped", card)
+            event.preventDefault()
 
-      this.timelineTransitionsEnabled = false
-      this.hand.splice(cardIndex, 1)
-      this.timeline.splice(this.dropPlaceholderIndex, 0, card)
-      const index = this.dropPlaceholderIndex
-      this.dropPlaceholderIndex = null
-      socket.emit("card_placed", card.id, index)
-      _insertCardAtDropIndexWithAutocorrection(card, index)
+            this.timelineTransitionsEnabled = false
+            this.hand.splice(cardIndex, 1)
+            this.timeline.splice(this.dropPlaceholderIndex, 0, card)
+            const index = this.dropPlaceholderIndex
+            this.dropPlaceholderIndex = null
+            socket.emit("card_placed", card.id, index)
+            _insertCardAtDropIndexWithAutocorrection(card, index)
+        },
+        cardDraggedOver: function(event) {
+            console.log("Dragged over")
+            event.preventDefault()
+            const xOffset = document.getElementById("timeline").scrollLeft
+            const e = event || window.event
+            const dragX = e.pageX + xOffset - _remToPixels(8)
+            const cardWidth = _remToPixels(10)
+            const margin = _remToPixels(1)
+            const index = dragX / (cardWidth + margin)
+            this.dropPlaceholderIndex = Math.round(index)
+        },
+        cardDragLeft: function(event) {
+            this.dropPlaceholderIndex = null
+        },
+        copyJoinLink: function() {
+            if (this.joinLink) {
+                navigator.clipboard.writeText(this.joinLink)
+                this.copiedJoinLink = true
+                new Promise(resolve => setTimeout(resolve, 1000))
+                    .then(() => this.copiedJoinLink = false)
+            }
+        },
     },
-    cardDraggedOver: function (event) {
-      console.log("Dragged over")
-      event.preventDefault()
-      const xOffset = document.getElementById("timeline").scrollLeft
-      const e = event || window.event
-      const dragX = e.pageX + xOffset - _remToPixels(8)
-      const cardWidth = _remToPixels(10)
-      const margin = _remToPixels(1)
-      const index = dragX / (cardWidth + margin)
-      this.dropPlaceholderIndex = Math.round(index)
-    },
-    cardDragLeft: function (event) {
-      this.dropPlaceholderIndex = null
-    },
-    copyJoinLink: function () {
-      if (this.joinLink) {
-        navigator.clipboard.writeText(this.joinLink)
-        this.copiedJoinLink = true
-        new Promise(resolve => setTimeout(resolve, 1000))
-            .then(() => this.copiedJoinLink = false)
-      }
-    },
-  },
-  computed: {
-    isMyTurn: function () {
-      return this.currentTurn === this.username && this.username !== ""
+    computed: {
+        isMyTurn: function() {
+            return this.currentTurn === this.username && this.username !== ""
+        }
     }
-  }
 })
 
 // ================================== Socket ==================================
 function connect() {
-  socket = io()
+    socket = io()
 
-  socket.on("connect", function () {
-    console.log("Connected")
-  })
+    socket.on("connect", function() {
+        console.log("Connected")
+    })
 
-  socket.on("connect_error", function (message) {
-    console.error("Connection failed", message)
-  })
+    socket.on("connect_error", function(message) {
+        console.error("Connection failed", message)
+    })
 
-  socket.on("disconnect", function () {
-    console.error("Connection dropped")
-  })
+    socket.on("disconnect", function() {
+        console.error("Connection dropped")
+    })
 
-  // =============== Messages from the server ================
-  //          (Each of these call a public function)
+    // =============== Messages from the server ================
+    //          (Each of these call a public function)
 
-  socket.on("deal_hand", (cards) => {
-    dealHand(cards)
-  })
+    socket.on("deal_hand", (cards) => {
+        dealHand(cards)
+    })
 
-  socket.on("deal_replacement", (card) => {
-    dealCard(card)
-  })
-  
-  socket.on("overwrite_timeline", (cards) => {
-    overwriteTimeline(cards)
-  })
+    socket.on("deal_replacement", (card) => {
+        dealCard(card)
+    })
 
-  socket.on("insert_card", (card, index) => {
-    insertCard(card, index)
-  })
+    socket.on("overwrite_timeline", (cards) => {
+        overwriteTimeline(cards)
+    })
 
-  socket.on("overwrite_players", (players) => {
-    overwritePlayers(players)
-  })
-  
-  socket.on("set_current_turn", (username) => {
-    setCurrentTurn(username)
-  })
+    socket.on("insert_card", (card, index) => {
+        insertCard(card, index)
+    })
 
-  socket.on("game_over", () => {
-    console.log("socket: game_over unimplemented")
-    console.log(app.players)
-  })
+    socket.on("overwrite_players", (players) => {
+        overwritePlayers(players)
+    })
+
+    socket.on("set_current_turn", (username) => {
+        setCurrentTurn(username)
+    })
+
+    socket.on("game_over", (correctlyPlaced, incorrectlyPlaced, winner) => { // shows winner, shows timeline and user cards, shows button to start again, shows button to change deck, shows button to create new game
+        app.showAll = true
+        app.ended = true
+        app.stats.timelineLength = correctlyPlaced + incorrectlyPlaced
+        app.stats.correctlyPlaced = correctlyPlaced
+        app.stats.incorrectlyPlaced = incorrectlyPlaced
+        app.stats.winner = winner
+        console.log(app.players)
+    })
 }

@@ -174,7 +174,7 @@ function _isPointInTimeline(x, y) {
 }
 
 function _onMouseDown(e) {
-  if (!app.isMyTurn) { return }
+  if (!app.canMove) { return }
   const x = e.clientX
   const y = e.clientY
   let div = document.elementFromPoint(x, y)
@@ -240,6 +240,13 @@ function _onMouseUp(e) {
     app.handTransitionsEnabled = true
     app.handPlaceholderIndex = null
   })
+
+  // If this is the only player, let them make another move after revealing the answer
+  if (app.players.length === 1) {
+    _chill(3500).then(() => {
+      app.hasMovedThisTurn = false
+    })
+  }
 }
 
 // =================================== Vue ====================================

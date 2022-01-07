@@ -144,7 +144,7 @@ function _insertCardAtDropIndexWithAutocorrection(card, index) {
     _chill(2000).then(() => _animateRippledCardFlipsToFront())
   } else { // Animate the correction
     const indexAfter = app.timeline.findIndex(c => c.absoluteOrder > card.absoluteOrder)
-    let newIndex = app.timeline.length
+    let newIndex = app.timeline.length - 1
     if (indexAfter >= 0) {
       newIndex = app.justDroppedInfo.index < indexAfter ? indexAfter - 1 : indexAfter
     }
@@ -174,7 +174,7 @@ function _isPointInTimeline(x, y) {
 }
 
 function _onMouseDown(e) {
-  if (!app.isMyTurn) { return }
+  if (!app.canMove) { return }
   const x = e.clientX
   const y = e.clientY
   let div = document.elementFromPoint(x, y)
@@ -209,7 +209,7 @@ function _onMouseMoved(e) {
   const cardWidth = _remToPixels(10)
   const margin = _remToPixels(1)
   const index = dragX / (cardWidth + margin)
-  app.dropPlaceholderIndex = Math.round(index)
+  app.dropPlaceholderIndex = Math.min(Math.round(index), app.timeline.length)
 }
 
 function _onMouseUp(e) {
@@ -240,6 +240,13 @@ function _onMouseUp(e) {
     app.handTransitionsEnabled = true
     app.handPlaceholderIndex = null
   })
+
+  // If this is the only player, let them make another move after revealing the answer
+  if (app.players.length === 1) {
+    _chill(3500).then(() => {
+      app.hasMovedThisTurn = false
+    })
+  }
 }
 
 // =================================== Vue ====================================

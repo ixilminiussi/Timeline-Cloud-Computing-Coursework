@@ -44,6 +44,14 @@
               <span class="text-gray-500">{{deck.name}}</span>
             </button>
           </div>
+          <button
+              @click="showCreateDeckForm()"
+              class="py-3 h-full w-full px-3 flex flex-col rounded-lg border-2 border-amber-200 space-y-2 transition-transform duration-150 hover:scale-105">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 stroke-amber-300" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span class="text-amber-500 italic">Add new Deck</span>
+          </button>
         </div>
       </div>
 

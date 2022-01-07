@@ -27,6 +27,9 @@ var app = new Vue({
           .then(() => this.copiedJoinLink = false)
       }
     },
+    showCreateDeckForm: function() {
+      user.form.show = 3;
+    },
     openGameLink: function () {
       if (this.joinLink) {
         window.open(this.joinLink)

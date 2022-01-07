@@ -2,21 +2,21 @@ var user = new Vue({
     el: '#account',
     data: {
         me: { status: -1, username: '', displayname: '', password: '', email: '' }, // -1 - disconnected; 1 - connected
-        form: { show: -1, passwordInput: 'password' }, // -1 - nothing; 0 - show login form; 1 - show register form; 2 - show account applet (profile, disconnect)
+        form: { show: -1, passwordInput: 'password' }, // -1 - nothing; 0 - show login form; 1 - show register form; 2 - show account applet (profile, disconnect); 3 - show create deck window;
         change: { newdisplayname: '', newemail: '', oldPassword: '', newPassword: '', oldPasswordInput: 'password', newPasswordInput: 'password' }
     },
     mounted: function() {
         // Allows for closing the login form with keypress
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                this.closeLoginForm();
+                this.closeForm();
             }
         });
 
         // Allows for closing the login form by clicking outside
         window.addEventListener('mousedown', (e) => {
-            if (this.form.show !== -1 && !document.getElementById('loginForm').contains(e.target)) {
-                this.closeLoginForm();
+            if (this.form.show !== -1 && !document.getElementById('form').contains(e.target)) {
+                this.closeForm();
             }
         });
     },
@@ -53,7 +53,7 @@ var user = new Vue({
         showSignupForm: function() {
             this.form.show = 1;
         },
-        closeLoginForm: function() {
+        closeForm: function() {
             this.form.show = -1;
         },
         openAccount: function() {

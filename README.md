@@ -177,6 +177,17 @@ Args:
 socket.emit("select_deck", id)
 ```
 
+#### hand_size
+
+Called when the client wants to set the number of cards that should be dealt to each player when a game starts.
+
+Args:
+* `handSize` (`Number`): The number of cards that should be dealt to each player.
+
+```javascript
+socket.emit("hand_size", handSize)
+```
+
 #### create_game
 
 Called when the client wants to make a new game (when a player loads the `newgame` view).

@@ -7,6 +7,7 @@ var app = new Vue({
     selectedDeckIndex: null,
     joinLink: "Loading...",
     copiedJoinLink: false,
+    handSize: 5,
   },
   mounted: function () {
     connect()
@@ -30,7 +31,10 @@ var app = new Vue({
       if (this.joinLink) {
         window.open(this.joinLink)
       }
-    }
+    },
+    handSizeChanged: function () {
+      socket.emit("hand_size", this.handSize)
+    },
   }
 });
 

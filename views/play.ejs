@@ -88,7 +88,7 @@
                 '-translate-x-20': handPlaceholderIndex !== null && handPlaceholderIndex > index,
               }"
               v-bind:style="index === draggingCardIndex ? dragTransform : ``">
-              <span class="w-full p-4 text-center text-2xl font-medium">{{card.frontValue}}<span
+              <span class="w-full p-4 text-center text-2xl font-medium select-none">{{card.frontValue}}<span
                 v-if="showAll" class="text-blue-400"><br>{{card.backValue}}</span></span>
             </div>
           </div>

@@ -6,7 +6,7 @@ const { chill, shuffle } = require("../utility")
 class Game {
   static ID_LENGTH = 6
   static MAX_PLAYERS = 5
-  static MAX_HAND_SIZE = 5
+  static DEFAULT_HAND_SIZE = 5
 
   static STAGE_LOBBY = "lobby"
   static STAGE_PLAYING = "playing"
@@ -22,6 +22,7 @@ class Game {
     this.creationTime = Date.now()  // TODO: remove unplayed games after time
     this.creatorSocket = null
     this._selectedDeckID = null
+    this._selectedHandSize = Game.DEFAULT_HAND_SIZE
     this._players = []
     this._deck = []
     this._originalDeck = []
@@ -202,7 +203,7 @@ class Game {
     // Deal hands
     const availableCards = this._deck.length
     const nPlayers = this._players.length
-    const handSize = Math.min(Math.floor(availableCards / nPlayers), Game.MAX_HAND_SIZE)
+    const handSize = Math.min(Math.floor(availableCards / nPlayers), this._selectedHandSize)
     this._players.forEach(p => p.setCards(this._deck.splice(0, handSize)))
     this._updateClientsWithPlayers()
 
@@ -223,6 +224,19 @@ class Game {
     }
 
     this._selectedDeckID = deckID
+  }
+
+  /**
+   * Updates the hand size the game will use. If the game is playing, nothing happens.
+   * @param {number} handSize The number of cards that should be dealt to each player.
+   */
+   selectHandSize(handSize) {
+    if (this._stage === Game.STAGE_PLAYING) {
+      this._error("Stage is playing, cannot change change hand size")
+      return
+    }
+
+    this._selectedHandSize = handSize
   }
 
   // PRIVATE

@@ -72,6 +72,34 @@ class Database {
     return cards
   }
 
+  async signUp(username, password, email){
+    const db = await this._getDb()
+    const { container } = await db.containers.createIfNotExists({ id: "users" })
+    const records = await container.items.readAll().fetchAll()
+    const users = records.resources.map(u => ({ // Strip the CosmosDb properties
+      username: u.id,
+      password: u.password,
+      screenName: u.screenName,
+      deckIDs: u.deckIDs
+    }))
+
+    users.forEach(user =>  {
+      if (user.username === username){
+        this._log("Username already exists:", username)
+        return 0
+      }
+    })
+
+    await container.items.create({
+      id: username,
+      password: password,
+      screenName: username,
+      deckIDs: []
+    });
+
+    return 1
+  }
+
   // PRIVATE
   async _getDb() {
     if (this._db) {

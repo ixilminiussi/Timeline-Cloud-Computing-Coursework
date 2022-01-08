@@ -22,10 +22,12 @@ var user = new Vue({
     },
     methods: {
         login: function(username, password) {
-
+            console.log("Attempting login, Username in: ", username, " , Password in: ", password)
+            socket.emit("player_login", username, password)
         },
         signup: function(username, password, email) {
-
+            console.log("Sign-up, Username in: ", username, " , Password in: ", password, " , Email in: ", email)
+            socket.emit("player_signup", username, password, email)
         },
         signout: function() {
             this.me.username = '';

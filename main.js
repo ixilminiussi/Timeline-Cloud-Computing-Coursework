@@ -94,6 +94,17 @@ io.on("connection", socket => {
     console.log("socket: card_placed")
     gameStore.cardPlacedViaSocket(socket, cardID, index)
   })
+
+  socket.on("player_login", (username, password) => {
+    console.log("socket: player_login", username, password)
+    //Call to db check
+  })
+
+  socket.on("player_signup", async (username, password, email) => {
+    console.log("socket: player_signup", username, password, email)
+    const res = await db.signUp(username, password, email)
+    console.log("Sign-up result: ", res)
+  })
 })
 
 if (module === require.main) {

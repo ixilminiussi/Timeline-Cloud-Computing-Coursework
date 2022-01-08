@@ -28,7 +28,12 @@ var app = new Vue({
       }
     },
     showCreateDeckForm: function() {
-      user.form.show = 3;
+      if (user.me.status == -1) {
+        user.form.show = 0;
+      }
+      if (user.me.status == 1) {
+        user.form.show = 3;
+      }
     },
     openGameLink: function () {
       if (this.joinLink) {

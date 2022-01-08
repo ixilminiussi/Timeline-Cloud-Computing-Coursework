@@ -2,8 +2,9 @@ var user = new Vue({
     el: '#account',
     data: {
         me: { status: -1, username: '', displayname: '', password: '', email: '' }, // -1 - disconnected; 1 - connected
-        form: { show: -1, passwordInput: 'password' }, // -1 - nothing; 0 - show login form; 1 - show register form; 2 - show account applet (profile, disconnect); 3 - show create deck window;
-        change: { newdisplayname: '', newemail: '', oldPassword: '', newPassword: '', oldPasswordInput: 'password', newPasswordInput: 'password' }
+        form: { show: 3, passwordInput: 'password' }, // -1 - nothing; 0 - show login form; 1 - show register form; 2 - show account applet (profile, disconnect); 3 - show create deck window;
+        change: { newdisplayname: '', newemail: '', oldPassword: '', newPassword: '', oldPasswordInput: 'password', newPasswordInput: 'password' },
+        file: { selectedFile: null }
     },
     mounted: function() {
         // Allows for closing the login form with keypress
@@ -86,6 +87,9 @@ var user = new Vue({
                     this.change.oldPasswordInput = 'password';
                 }
             }
+        },
+        changeFile: function(event) {
+            this.file.selectedFile = event.target.files[0];
         }
     }
 });

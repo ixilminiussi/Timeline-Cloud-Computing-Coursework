@@ -89,30 +89,42 @@
 <transition name="fade">
     <div v-if="form.show === 3" class="absolute inset-0 flex z-10 min-h-screen items-center justify-center bg-black bg-opacity-30">
       <div id="form" class="flex flex-row bg-white px-5 py-10 rounded-lg shadow-3xl">
-        <div class="basis-1/4 pr-6">
+        <div class="self-center p-2 border-4 border-gray-300 rounded-md border-dotted relative hover:border-gray-400 transition-all duration-300">
           <p class="text-lg font-bold text-gray-500 text-center italic">example file</p>
-          <p class="whitespace-nowrap text-xs text-gray-500 italic leading-3 p-2 bg-gray-200 rounded">
-            <br>{
-            <br>&emsp;name: discoveries,
-            <br>&emsp;cards: [
-            <br>&emsp;&emsp;{
-            <br>&emsp;&emsp;&emsp;frontValue: fire,
-            <br>&emsp;&emsp;&emsp;backValue: 1.7M BC
-            <br>&emsp;&emsp;},
-            <br>&emsp;&emsp;{
-            <br>&emsp;&emsp;&emsp;frontValue: america,
-            <br>&emsp;&emsp;&emsp;backValue: 1492
-            <br>&emsp;&emsp;},          
-            <br>&emsp;&emsp;{
-            <br>&emsp;&emsp;&emsp;frontValue: gravity,
-            <br>&emsp;&emsp;&emsp;backValue: 1642
-            <br>&emsp;&emsp;}
-            <br>&emsp;]
-            <br>},
+          <p class="whitespace-nowrap font-mono text-xs text-gray-500 italic leading-3 p-2 bg-gray-200 rounded">
+            <br />{ 
+            <br />&emsp;"name": "discoveries", 
+            <br />&emsp;"cards": [ 
+            <br />&emsp;&emsp;{ 
+            <br />&emsp;&emsp;&emsp;"frontValue": "fire", 
+            <br />&emsp;&emsp;&emsp;"backValue": "1.7M BC" 
+            <br />&emsp;&emsp;}, 
+            <br />&emsp;&emsp;{ 
+            <br />&emsp;&emsp;&emsp;"frontValue": "america", 
+            <br />&emsp;&emsp;&emsp;"backValue": "1492" 
+            <br />&emsp;&emsp;}, 
+            <br />&emsp;&emsp;{ 
+            <br />&emsp;&emsp;&emsp;"frontValue": "gravity", 
+            <br />&emsp;&emsp;&emsp;"backValue": "1642" 
+            <br />&emsp;&emsp;} 
+            <br />&emsp;] 
+            <br />}
           </p>
+          <p class="text-sm font-normal text-gray-400 text-right mt-2">*hover for file rules</p>
+          <div class="absolute inset-0 w-full h-full opacity-0 hover:opacity-100 transition-all duration-300" for="rules">
+            <div class="h-full p-2 bg-gray-100 rounded">
+              <p class="text-lg font-bold text-gray-500 text-center italic">formatting rules</p>
+              <ul class="list-disc ml-6 text-sm text-gray-500">
+                <li>file must be in valid json form</li>
+                <li>frontValue determines the shown label (i.e. event name)</li>
+                <li>backValue determines the hidden label (i.e. event date)</li>
+                <span class="font-bold text-center italic leading-3"><br>The order is determined by the written order, not the backValue</span>
+              </ul>
+            </div>
+          </div>
         </div>
-        <div class="basis-3/4 grid auto-rows-auto">
-          <div class="relative flex h-52 flex-shrink justify-center items-center bg-gray-100 hover:bg-gray-200 hover:scale-100 text-gray-500 font-bold rounded-md border-4 border-gray-300 transition-all duration-100">
+        <div class="basis-3/4 grid ml-4 auto-rows-auto">
+          <div class="relative flex h-6 flex-shrink justify-center items-center bg-gray-100 hover:bg-gray-200 hover:scale-100 text-gray-500 font-bold rounded-md border-4 border-gray-300 transition-all duration-100">
             <div class="absolute">
               <div v-if="file.selectedFile === null" class="flex flex-col items-center">
                 <i class="fa fa-folder-open fa-4x text-blue-700"></i>

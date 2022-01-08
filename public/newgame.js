@@ -4,6 +4,7 @@ var app = new Vue({
   el: '#vue-app',
   data: {
     decks: [],
+    customDecks: [],
     selectedDeckIndex: null,
     joinLink: "Loading...",
     copiedJoinLink: false,

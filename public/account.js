@@ -96,9 +96,7 @@ var user = new Vue({
             }
         },
         getCookies: function(str){
-            // Get name followed by anything except a semicolon
             let cookieString = RegExp(str+"=[^;]+").exec(document.cookie);
-            // Return everything after the equal sign, or an empty string if the cookie name not found
             return decodeURIComponent(!!cookieString ? cookieString.toString().replace(/^[^=]+./,"") : "");
         },
         getUserInfoCookies: function(){

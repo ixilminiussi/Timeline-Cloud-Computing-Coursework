@@ -1,9 +1,9 @@
 var user = new Vue({
     el: '#account',
     data: {
-        me: { status: 0, username: '', displayname: '', password: '', email: '' }, // 0 - Not logged in; 1 - Logged in
-        form: { show: 0, passwordInput: 'password' }, // 0 - nothing; 1 - show login form; 2 - show register form;
-        change: { newdisplayname: '', newemail: '', oldPassword: '', newPassword: '', oldPasswordInput: 'password', newPasswordInput: 'password' }
+        me: { status: 0, username: '', displayname: '', password: ''}, // 0 - Not logged in; 1 - Logged in
+        form: { show: 0, passwordInput: 'password', error: ''}, // 0 - nothing; 1 - show login form; 2 - show register form;
+        change: { newdisplayname: '', oldPassword: '', newPassword: '', oldPasswordInput: 'password', newPasswordInput: 'password' }
     },
     mounted: function() {
         // Allows for closing the login form with keypress
@@ -21,20 +21,22 @@ var user = new Vue({
         });
 
         //Check cookie for log in session data
-        this.getUserInfoCookie();
+        this.getUserInfoCookies();
     },
     methods: {
         login: function(username, password) {
             socket.emit("player_login", username, password)
         },
-        signup: function(username, password, email) {
-            socket.emit("player_signup", username, password, email)
+        signup: function(username, password) {
+            socket.emit("player_signup", username, password)
         },
         signout: function() {
-            this.me.username = '';
-            this.me.password = '';
-            this.me.email = '';
-            this.me.status = 0;
+            this.me.username = ''
+            this.me.password = ''
+            this.me.displayname = ''
+            this.me.status = 0
+            this.deleteAllCookies()
+            console.log("Cookies after delete: " + document.cookie)
         },
         createDeck: function() {
 
@@ -93,19 +95,35 @@ var user = new Vue({
                 }
             }
         },
-        getCookie: function(str){
+        getCookies: function(str){
             // Get name followed by anything except a semicolon
             let cookieString = RegExp(str+"=[^;]+").exec(document.cookie);
             // Return everything after the equal sign, or an empty string if the cookie name not found
             return decodeURIComponent(!!cookieString ? cookieString.toString().replace(/^[^=]+./,"") : "");
         },
-        getUserInfoCookie: function(){
+        getUserInfoCookies: function(){
             console.log("Cookie returned: " + document.cookie)
             if(document.cookie.indexOf("username") !== -1){
-                this.me.username = this.getCookie("username")
-                this.me.displayname = this.getCookie("screenName")
+                this.me.username = this.getCookies("username")
+                this.me.displayname = this.getCookies("screenName")
                 this.me.status = 1
             }
+        },
+        deleteAllCookies: function(){
+            let cookies = document.cookie.split(";");
+
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i];
+                let eqPos = cookie.indexOf("=");
+                let name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            }
+        },
+        displayError: function(error) {
+            console.log("Error returned: " + error)
+            this.form.error = error
+            new Promise(resolve => setTimeout(resolve, 5000))
+              .then(() => this.form.error = '')
         }
     }
 });

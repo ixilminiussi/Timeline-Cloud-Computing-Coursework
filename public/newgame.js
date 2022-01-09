@@ -64,11 +64,16 @@ function connect() {
 
   socket.on("update_cookie", data => {
     console.log("socket: update_cookie", data)
-    user.me = { status: 1, username: data.id, displayname: data.screenName, password: '', email: ''}
+    user.me = { status: 1, username: data.id, displayname: data.screenName, password: ''}
     user.form.show = 0;
     document.cookie = "username=" + data.id
     document.cookie = "screenName=" + data.screenName
     document.cookie = "deckIDs=" + data.deckIDs
     console.log("Cookie set: ", document.cookie)
+  });
+
+  socket.on("login_error", error => {
+    console.log("socket: login_error", error)
+    user.displayError(error)
   });
 }

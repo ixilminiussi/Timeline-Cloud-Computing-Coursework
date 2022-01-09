@@ -95,16 +95,29 @@ io.on("connection", socket => {
     gameStore.cardPlacedViaSocket(socket, cardID, index)
   })
 
-  socket.on("player_login", (username, password) => {
+  socket.on("player_login", async (username, password) => {
     console.log("socket: player_login", username, password)
-    //Call to db check
+    const res = await db.login(username, password)
+    console.log("Login result: ", res)
+
+    if (res.error === '') {
+      socket.emit("update_cookie", {
+        id: res.id,
+        screenName: res.screenName,
+        deckIDs: res.deckIDs
+      })
+    } else {
+      socket.emit("login_error", res.error)
+    }
   })
 
-  socket.on("player_signup", async (username, password, email) => {
-    console.log("socket: player_signup", username, password, email)
-    const res = await db.signUp(username, password, email)
+  socket.on("player_signup", async (username, password) => {
+    console.log("socket: player_signup", username, password)
+    const res = await db.signUp(username, password)
     console.log("Sign-up result: ", res)
-    if(res !== 0){
+    if(res === 0){
+      socket.emit("login_error", "Username already exists.")
+    } else {
       socket.emit("update_cookie", res)
     }
   })

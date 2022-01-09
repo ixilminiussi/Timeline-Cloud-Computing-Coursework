@@ -50,15 +50,25 @@ function connect() {
 
   socket.on('disconnect', function () {
     console.error("Connection dropped")
-  })
+  });
 
   socket.on("join_link", link => {
     console.log("socket: join_link", link)
     app.joinLink = link
-  })
+  });
 
   socket.on("available_decks", decks => {
     console.log("socket: available_decks", decks)
     app.decks = decks
-  })
+  });
+
+  socket.on("update_cookie", data => {
+    console.log("socket: update_cookie", data)
+    user.me = { status: 1, username: data.id, displayname: data.screenName, password: '', email: ''}
+    user.form.show = 0;
+    document.cookie = "username=" + data.id
+    document.cookie = "screenName=" + data.screenName
+    document.cookie = "deckIDs=" + data.deckIDs
+    console.log("Cookie set: ", document.cookie)
+  });
 }

@@ -83,12 +83,18 @@ class Database {
       deckIDs: u.deckIDs
     }))
 
+    let userExists = false
+
     users.forEach(user =>  {
       if (user.username === username){
         this._log("Username already exists:", username)
-        return 0
+        userExists = true
       }
     })
+
+    if(userExists){
+      return 0
+    }
 
     await container.items.create({
       id: username,
@@ -97,8 +103,10 @@ class Database {
       deckIDs: []
     });
 
-    return 1
+    return {id: username, screenName: username, deckIDs: []}
   }
+
+
 
   // PRIVATE
   async _getDb() {

@@ -104,6 +104,9 @@ io.on("connection", socket => {
     console.log("socket: player_signup", username, password, email)
     const res = await db.signUp(username, password, email)
     console.log("Sign-up result: ", res)
+    if(res !== 0){
+      socket.emit("update_cookie", res)
+    }
   })
 })
 

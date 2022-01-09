@@ -1,8 +1,8 @@
 var user = new Vue({
     el: '#account',
     data: {
-        me: { status: -1, username: '', displayname: '', password: '', email: '' }, // -1 - disconnected; 1 - connected
-        form: { show: -1, passwordInput: 'password' }, // -1 - nothing; 0 - show login form; 1 - show register form; 2 - show account applet (profile, disconnect)
+        me: { status: 0, username: '', displayname: '', password: '', email: '' }, // 0 - Not logged in; 1 - Logged in
+        form: { show: 0, passwordInput: 'password' }, // 0 - nothing; 1 - show login form; 2 - show register form;
         change: { newdisplayname: '', newemail: '', oldPassword: '', newPassword: '', oldPasswordInput: 'password', newPasswordInput: 'password' }
     },
     mounted: function() {
@@ -15,25 +15,26 @@ var user = new Vue({
 
         // Allows for closing the login form by clicking outside
         window.addEventListener('mousedown', (e) => {
-            if (this.form.show !== -1 && !document.getElementById('loginForm').contains(e.target)) {
+            if (this.form.show !== 0 && !document.getElementById('loginForm').contains(e.target)) {
                 this.closeLoginForm();
             }
         });
+
+        //Check cookie for log in session data
+        this.getUserInfoCookie();
     },
     methods: {
         login: function(username, password) {
-            console.log("Attempting login, Username in: ", username, " , Password in: ", password)
             socket.emit("player_login", username, password)
         },
         signup: function(username, password, email) {
-            console.log("Sign-up, Username in: ", username, " , Password in: ", password, " , Email in: ", email)
             socket.emit("player_signup", username, password, email)
         },
         signout: function() {
             this.me.username = '';
             this.me.password = '';
             this.me.email = '';
-            this.me.status = -1;
+            this.me.status = 0;
         },
         createDeck: function() {
 
@@ -42,29 +43,32 @@ var user = new Vue({
 
         },
         toggleAccountForm: function() {
-            if (this.me.status === -1) {
-                this.me.status = 2;
-            }
-            if (this.me.status === 2) {
-                this.me.status = -1;
-            }
+            //Old status codes
+            // if (this.me.status === -1) {
+            //     this.me.status = 2;
+            // }
+            // if (this.me.status === 2) {
+            //     this.me.status = -1;
+            // }
         },
         showLoginForm: function() {
-            this.form.show = 0;
-        },
-        showSignupForm: function() {
             this.form.show = 1;
         },
+        showSignupForm: function() {
+            this.form.show = 2;
+        },
         closeLoginForm: function() {
-            this.form.show = -1;
+            this.form.show = 0;
         },
         openAccount: function() {
-            if (this.me.status === -1) {
-                this.status = 0;
-            }
+            //Old status codes
+            // if (this.me.status === -1) {
+            //     this.status = 0;
+            // }
         },
         closeAccount: function() {
-            this.me.status = -1;
+            //Old status codes
+            // this.me.status = -1;
         },
         togglePassword: function(input) {
             if (input === 'passwordInput') {
@@ -87,6 +91,20 @@ var user = new Vue({
                 } else {
                     this.change.oldPasswordInput = 'password';
                 }
+            }
+        },
+        getCookie: function(str){
+            // Get name followed by anything except a semicolon
+            let cookieString = RegExp(str+"=[^;]+").exec(document.cookie);
+            // Return everything after the equal sign, or an empty string if the cookie name not found
+            return decodeURIComponent(!!cookieString ? cookieString.toString().replace(/^[^=]+./,"") : "");
+        },
+        getUserInfoCookie: function(){
+            console.log("Cookie returned: " + document.cookie)
+            if(document.cookie.indexOf("username") !== -1){
+                this.me.username = this.getCookie("username")
+                this.me.displayname = this.getCookie("screenName")
+                this.me.status = 1
             }
         }
     }

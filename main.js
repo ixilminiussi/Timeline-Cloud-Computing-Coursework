@@ -8,6 +8,7 @@ const db = new Database()
 const gameStore = new GameStore(db)
 
 const express = require("express")
+const { emit } = require('process')
 const app = express()
 
 const server = require("http").Server(app)
@@ -93,6 +94,44 @@ io.on("connection", socket => {
   socket.on("card_placed", (cardID, index) => {
     console.log("socket: card_placed")
     gameStore.cardPlacedViaSocket(socket, cardID, index)
+  })
+
+  socket.on("create_deck", (json, user) => {
+    console.log("socket: create_deck", user.username)
+
+    var deckJson
+    var cardJson
+
+    if (json.name === null) {
+      socket.emit("error", "json missing 'name' field")
+      return
+    }
+
+    deckJson = { name: json.name }
+
+    if (json.cards === null) {
+      socket.emit("error", "json missing 'cards' array")
+      return
+    }
+
+    cardJson.cards = []
+
+    var i = 0
+    while (json.cards[i] != null) { // iterating through cards
+
+      if (json.cards[i].backValue === null) {
+        socket.emit("error", "json missing 'backValue' in card index ", i)
+      }
+      if (json.cards[i].frontValue === null) {
+        socket.emit("error", "json missing 'frontValue' in card index ", i)
+      }
+
+      cardJson.cards.push({ "backValue": json.cards[i].backValue, "frontValue": json.cards[i].frontValue })
+
+      i ++
+    }
+
+    console.log(cardJson)
   })
 })
 

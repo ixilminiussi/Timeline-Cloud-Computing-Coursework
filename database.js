@@ -23,7 +23,6 @@ class Database {
     }
   }
 
-  // PUBLIC
   async getPlayableDecks() {
     if (this._cache.decks) {
       this._log("Cache hit: returning playable decks")
@@ -42,6 +41,17 @@ class Database {
 
     this._cache.decks = decks
     return decks
+  }
+
+  async getDecksForUser(username) {
+    this._log("Downlaoding and returning user generate decks")
+    const { container } = await db.containers.createIfNotExists({ id: "users" })
+    const records = await container.items.readAll().fetchAll()
+    const decks = records.resources.map(d => ({ // Strip the CosmosDb properties
+      id: d.id,
+      name: d.name,
+      cardContainer: d.cardContainer,
+    }))
   }
 
   async getCardsForDeckWithID(deckID) {

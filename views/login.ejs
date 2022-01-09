@@ -124,7 +124,7 @@
           </div>
         </div>
         <div class="basis-3/4 grid ml-4 auto-rows-auto">
-          <div class="relative flex h-6 flex-shrink justify-center items-center bg-gray-100 hover:bg-gray-200 hover:scale-100 text-gray-500 font-bold rounded-md border-4 border-gray-300 transition-all duration-100">
+          <div class="relative flex h-64 flex-shrink justify-center items-center bg-gray-100 hover:bg-gray-200 hover:scale-100 text-gray-500 font-bold rounded-md border-4 border-gray-300 transition-all duration-100">
             <div class="absolute">
               <div v-if="file.selectedFile === null" class="flex flex-col items-center">
                 <i class="fa fa-folder-open fa-4x text-blue-700"></i>
@@ -149,7 +149,7 @@
             <button class="cursor-not-allowed mt-2 p-3 rounded-md bg-blue-300 text-blue-800" disabled>Upload</button>
           </div>
           <div v-else class="grid place-items-end">
-            <button class="mt-2 p-3 rounded-md bg-blue-400 hover:bg-blue-300 hover:scale-105 hover:text-blue-800 transition-all duration-100">Upload</button>
+            <button @click="createDeck()" class="mt-2 p-3 rounded-md bg-blue-400 hover:bg-blue-300 hover:scale-105 hover:text-blue-800 transition-all duration-100">Upload</button>
           </div>
         </div>
       </div>

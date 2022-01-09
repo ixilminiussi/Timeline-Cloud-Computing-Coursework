@@ -44,6 +44,9 @@ var app = new Vue({
     handSizeChanged: function () {
       socket.emit("hand_size", this.handSize)
     },
+    createDeck: function() {
+      user.createDeck();
+    }
   }
 });
 
@@ -69,5 +72,9 @@ function connect() {
   socket.on("available_decks", decks => {
     console.log("socket: available_decks", decks)
     app.decks = decks
+  })
+
+  socket.on("error", message => {
+    alert(message)
   })
 }

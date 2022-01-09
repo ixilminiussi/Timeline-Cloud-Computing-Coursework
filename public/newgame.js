@@ -74,6 +74,11 @@ function connect() {
     app.decks = decks
   })
 
+  socket.on("available_custom_decks", decks => {
+    console.log("socket: available_custom_dekcs", dekcs)
+    app.customDecks = decks
+  })
+
   socket.on("error", message => {
     alert(message)
   })

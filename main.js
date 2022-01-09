@@ -47,10 +47,16 @@ io.on("connection", socket => {
   })
 
   // ========================== Client-side API ==========================
-  socket.on("available_decks", async () => {
+  socket.on("available_decks", async (user) => {
     console.log("socket: available_decks")
     const decks = await db.getPlayableDecks()
     socket.emit("available_decks", decks)
+
+    if (user != null) {
+      console.log("socket: available_custom_decks")
+      const decks = await db.getDecksForUser(user)
+      socket.emit("available_custom_decks", decks)
+    }
   })
 
   socket.on("select_deck", deckID => {
@@ -107,7 +113,8 @@ io.on("connection", socket => {
       return
     }
 
-    deckJson = { name: json.name }
+    deckJson = { "name": json.name }
+    cardJson = { "name": json.name }
 
     if (json.cards === null) {
       socket.emit("error", "json missing 'cards' array")
@@ -126,7 +133,7 @@ io.on("connection", socket => {
         socket.emit("error", "json missing 'frontValue' in card index ", i)
       }
 
-      cardJson.cards.push({ "backValue": json.cards[i].backValue, "frontValue": json.cards[i].frontValue })
+      cardJson.cards.push({ "id":i, "backValue": json.cards[i].backValue, "frontValue": json.cards[i].frontValue, "absoluteOrder": i })
 
       i ++
     }

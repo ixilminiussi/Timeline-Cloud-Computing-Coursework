@@ -3,7 +3,7 @@ var user = new Vue({
     data: {
         me: { status: 0, username: '', displayname: '', password: ''}, // 0 - Not logged in; 1 - Logged in
         form: { show: 0, passwordInput: 'password', error: ''}, // 0 - nothing; 1 - show login form; 2 - show register form;
-        change: { newdisplayname: '', oldPassword: '', newPassword: '', oldPasswordInput: 'password', newPasswordInput: 'password' },
+        change: {oldPasswordInput: 'password', newPasswordInput: 'password' },
         accountChanges: {tempDisplayname: '', oldPassword: '', newPassword: ''}
     },
     mounted: function() {

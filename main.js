@@ -118,6 +118,16 @@ io.on("connection", socket => {
       socket.emit("login_error", err)
     }
   })
+
+  socket.on("account_update", async (data) => {
+    console.log("socket: account_update", data)
+    try {
+      await db.updateAccount(data.username, data.screenName, data.oldPassword, data.newPassword)
+    }
+    catch (err) {
+      console.log(err)
+    }
+  })
 })
 
 if (module === require.main) {

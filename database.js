@@ -150,6 +150,29 @@ class Database {
     return await bcrypt.compare(password, hash);
   }
 
+  async updateAccount(username, screenName, oldPassword, newPassword){
+    if(newPassword === ''){
+      const db = await this._getDb()
+      const { container } = await db.containers.createIfNotExists({ id: "users" })
+      const querySpec = {
+        query: "SELECT * from c WHERE c.id=@username",
+        parameters: [
+          { name: "@username", value: username }
+        ]
+      }
+      const { resources: items } = await container.items.query(querySpec).fetchAll();
+
+      let currentPassword = items[0].password
+      let currentDecks = items[0].decks
+
+      const createdItem = {id: username, password: currentPassword, screenName: screenName, decks: currentDecks}
+
+      const { id, category } = createdItem
+
+      await container.item(id, category).replace(createdItem);
+    }
+  }
+
   // PRIVATE
   async _getDb() {
     if (this._db) {

@@ -3,7 +3,8 @@ var user = new Vue({
     data: {
         me: { status: 0, username: '', displayname: '', password: ''}, // 0 - Not logged in; 1 - Logged in
         form: { show: 0, passwordInput: 'password', error: ''}, // 0 - nothing; 1 - show login form; 2 - show register form;
-        change: { newdisplayname: '', oldPassword: '', newPassword: '', oldPasswordInput: 'password', newPasswordInput: 'password' }
+        change: { newdisplayname: '', oldPassword: '', newPassword: '', oldPasswordInput: 'password', newPasswordInput: 'password' },
+        accountChanges: {tempDisplayname: '', oldPassword: '', newPassword: ''}
     },
     mounted: function() {
         // Allows for closing the login form with keypress
@@ -95,6 +96,7 @@ var user = new Vue({
                 }
             }
         },
+        //Remember to reference in the report
         getCookies: function(str){
             let cookieString = RegExp(str+"=[^;]+").exec(document.cookie);
             return decodeURIComponent(!!cookieString ? cookieString.toString().replace(/^[^=]+./,"") : "");
@@ -104,9 +106,11 @@ var user = new Vue({
             if(document.cookie.indexOf("username") !== -1){
                 this.me.username = this.getCookies("username")
                 this.me.displayname = this.getCookies("screenName")
+                this.accountChanges.tempDisplayname = this.getCookies("screenName")
                 this.me.status = 1
             }
         },
+        //Remember to reference in the report
         deleteAllCookies: function(){
             let cookies = document.cookie.split(";");
 
@@ -122,6 +126,20 @@ var user = new Vue({
             this.form.error = error
             new Promise(resolve => setTimeout(resolve, 5000))
               .then(() => this.form.error = '')
+        },
+        submitChanges: function (){
+            if(this.accountChanges.newPassword === ''){
+                this.me.displayname = this.accountChanges.tempDisplayname
+                document.cookie = "screenName=" + this.accountChanges.tempDisplayname
+                socket.emit("account_update", {
+                    username: this.me.username,
+                    screenName: this.me.displayname,
+                    oldPassword: '',
+                    newPassword: ''
+                });
+            }
+
+
         }
     }
 });

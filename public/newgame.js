@@ -65,7 +65,7 @@ function connect() {
   socket.on("update_cookie", data => {
     console.log("socket: update_cookie", data)
     user.me = { status: 1, username: data.id, displayname: data.screenName, password: ''}
-    user.form.show = 0;
+    user.form.show = 0
     document.cookie = "username=" + data.id
     document.cookie = "screenName=" + data.screenName
     document.cookie = "decks=" + data.decks

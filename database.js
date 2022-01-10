@@ -78,7 +78,10 @@ class Database {
     const db = await this._getDb()
     const { container } = await db.containers.createIfNotExists({ id: "users" })
     const querySpec = {
-      query: "SELECT * from c WHERE c.id='" + username + "'"
+      query: "SELECT * from c WHERE c.id=@username",
+      parameters: [
+        { name: "@username", value: username }
+      ]
     }
     const { resources: items } = await container.items.query(querySpec).fetchAll();
 
@@ -93,14 +96,17 @@ class Database {
 
     if (!passwordCorrect) throw "Password incorrect."
 
-    return {id: username, screenName: items[0].screenName, deckIDs: items[0].deckIDs}
+    return {id: username, screenName: items[0].screenName, decks: items[0].decks}
   }
 
   async signUp(username, password){
     const db = await this._getDb()
     const { container } = await db.containers.createIfNotExists({ id: "users" })
     const querySpec = {
-      query: "SELECT * from c WHERE c.id='" + username + "'"
+      query: "SELECT * from c WHERE c.id=@username",
+      parameters: [
+        { name: "@username", value: username }
+      ]
     }
     const { resources: items } = await container.items.query(querySpec).fetchAll();
 
@@ -114,16 +120,14 @@ class Database {
           id: username,
           password: hash,
           screenName: username,
-          deckIDs: []
+          decks: []
         })
         console.log("Sign-Up Hashed Password: " + hash);
       });
     });
 
-    return {id: username, screenName: username, deckIDs: []};
+    return {id: username, screenName: username, decks: []};
   }
-
-
 
   // PRIVATE
   async _getDb() {

@@ -143,26 +143,6 @@ class GameStore {
   }
 
   /**
-   * Retart the game that this socket is an admin player in.
-   * @param {Socket} socket The socket belonging to the admin player of the game.
-   * If this socket does not belong to the admin player, nothing happens.
-   */
-  restartGameViaSocket(socket) {
-    const player = this._allPlayers.get(socket)
-    if (!player) {
-      console.error("Cannot find player with socket")
-      return
-    }
-  
-    if (player.game.adminPlayer() !== player) {
-      console.error("Player does not have authority to start game")
-      return
-    }
-  
-    player.game.start()
-  }
-
-  /**
    * Notify the game this socket belongs to that a player has made a move.
    * @param {Socket} socket The socket belonging to the player that made their move.
    * @param {string} cardID The ID of the card that the player moved.

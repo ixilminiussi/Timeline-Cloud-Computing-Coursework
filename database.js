@@ -89,27 +89,33 @@ class Database {
     // Creates the card container 
 
     const db = await this._getDb()
-    const { cardContainer } = await db.containers.createIfNotExists({ id: "cards" }) 
-    const { resource: createdDeck } = await cardContainer.items.create(cardsJson);
-    this._log(`\r\nCreated new deck: $ createdDeck.id}`);
-
-    deckJson.cardContainer = createdDeck.id
+    {
+      const { container } = await db.containers.createIfNotExists({ id: "cards" }) 
+      const { resource: createdDeck } = await container.items.create(cardsJson);
+      this._log("created new deck ", createdDeck.id);
+  
+      deckJson.cardContainer = createdDeck.id
+    }
 
     // Updates the user with pointer to card container
 
-    const { userContainer } = await db.containers.createIfNotExists({ id: "users" })
+    const { container } = await db.containers.createIfNotExists({ id: "users" })
     const querySpec = {
       query: "SELECT * FROM c WHERE c.id='"+user.username+"'"
     }
     
-    const { resources: users } = await userContainer.items.query(querySpec).fetchAll();
+    const { resources: users } = await container.items.query(querySpec).fetchAll();
 
-    if (users[0] === null) {
+    if (users <= 0) {
       this._error("found no user under name " + user.username)
     } else {
       users[0].deckIDs.push(deckJson)
 
-      const { resource: updatedUser } = await userContainer.item(users[0].id).replace(users[0].deckIDs)
+      const { id } = users[0]
+
+      const { resource: updatedUser } = await container.item(id, id).replace(users[0])
+
+      this.log(updatedUser)
 
       return users[0].deckIDs
     }

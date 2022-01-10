@@ -12,7 +12,7 @@ var app = new Vue({
   },
   mounted: function () {
     connect()
-    socket.emit("available_decks")
+    socket.emit("available_decks", user.me)
     socket.emit("create_game")
   },
   methods: {
@@ -75,7 +75,7 @@ function connect() {
   })
 
   socket.on("available_custom_decks", decks => {
-    console.log("socket: available_custom_dekcs", dekcs)
+    console.log("socket: available_custom_dekcs", decks)
     app.customDecks = decks
   })
 

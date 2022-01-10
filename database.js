@@ -82,7 +82,7 @@ class Database {
 
       if (deck.name === deckJson.name) {
         this._error("deck of that name already exists ", deckJson.name)
-        return
+        return ""
       }
     })
 
@@ -111,11 +111,11 @@ class Database {
     } else {
       users[0].deckIDs.push(deckJson)
 
-      const { id } = users[0]
+      const { id, key } = users[0]
 
-      const { resource: updatedUser } = await container.item(id, id).replace(users[0])
+      const { resource: updatedUser } = await container.item(id, key).replace(users[0])
 
-      this.log(updatedUser)
+      this._log(updatedUser)
 
       return users[0].deckIDs
     }

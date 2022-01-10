@@ -31,7 +31,6 @@ class Game {
 
     // Used for stats on end screen
     this._correctlyPlaced = 0
-    this._incorrectlyPlaced = 0
   }
 
   // PUBLIC
@@ -144,7 +143,6 @@ class Game {
       this._log("Card placed correctly")
       this._timeline.splice(index, 0, card)
     } else {
-      this._incorrectlyPlaced += 1
       this._log(`Card placed incorrectly, dealing replacement to ${player.displayName()}`)
       const correctIndex = this._correctInsertionIndex(card, this._timeline)
       this._timeline.splice(correctIndex, 0, card)
@@ -165,7 +163,8 @@ class Game {
       this._stage = Game.STAGE_ENDED
       this._players.forEach(p => p.socket.emit("set_current_turn", null))
       var name = player.username
-      this._players.forEach(p => p.socket.emit("game_over", this._correctlyPlaced, this._incorrectlyPlaced, name))
+      this._updateClientsWithPlayers()
+      this._players.forEach(p => p.socket.emit("game_over", this._correctlyPlaced, name))
     } else { // Update current turn
       this._currentPlayerIndex = (this._currentPlayerIndex + 1) % this._players.length
       this._updateClientsWithCurrentTurn()
@@ -193,7 +192,6 @@ class Game {
     this.creationTime = Date.now()
     this._timeline = []
     this._correctlyPlaced = 0
-    this._incorrectlyPlaced = 0
 
     // Place down starting card
     this._timeline = [this._deck.shift()]

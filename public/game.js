@@ -23,7 +23,7 @@ async function dealCard(card) {
 
 function overwriteTimeline(cards) {
   app.timeline = cards
-  app.started = true
+  app.state = "playing"
 }
 
 async function insertCard(card, index) {
@@ -247,8 +247,7 @@ var app = new Vue({
   el: '#vue-app',
   data: {
     // Lobby
-    started: false, // Boolean describing if the game has started
-    ended: false,
+    state: "lobby", // lobby, playing, ended
     showModal: true,
     joinLink: window.location.href,
     copiedJoinLink: false,
@@ -276,11 +275,8 @@ var app = new Vue({
 
     //statistics for players
     showAll: false, // If true, shows both the date and event of all cards on screen
-    stats: {
-      timelineLength: 0,
-      correctlyPlaced: 0,
-      incorrectlyPlaced: 0
-    }
+    correctlyPlaced: 0,
+    winner: ""
   },
   mounted: function () {
     connect()
@@ -354,10 +350,9 @@ function connect() {
 
   socket.on("reset", () => {
     app.showAll = false
-    app.ended = false
-    app.stats.timelineLength = 0
-    app.stats.correctlyPlaced = 0
-    app.stats.incorrectlyPlaced = 0
+    app.state = "playing"
+    app.correctlyPlaced = 0
+    app.winner = ""
   })
 
   socket.on("deal_hand", (cards) => {
@@ -384,13 +379,11 @@ function connect() {
     setCurrentTurn(username)
   })
 
-  socket.on("game_over", (correctlyPlaced, incorrectlyPlaced, winner) => { // shows winner, shows timeline and user cards, shows button to start again, shows button to change deck, shows button to create new game
+  socket.on("game_over", (correctlyPlaced, winner) => { // shows winner, shows timeline and user cards, shows button to start again, shows button to change deck, shows button to create new game
     app.showAll = true
-    app.ended = true
-    app.stats.timelineLength = correctlyPlaced + incorrectlyPlaced
-    app.stats.correctlyPlaced = correctlyPlaced
-    app.stats.incorrectlyPlaced = incorrectlyPlaced
-    app.stats.winner = winner
+    app.state = "ended"
+    app.correctlyPlaced = correctlyPlaced
+    app.winner = winner
     console.log(app.players)
   })
 }

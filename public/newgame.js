@@ -76,4 +76,9 @@ function connect() {
     console.log("socket: login_error", error)
     user.displayError(error)
   });
+
+  socket.on("account_update_success", function() {
+    console.log("socket: account_update_success")
+    user.displaySuccess()
+  });
 }

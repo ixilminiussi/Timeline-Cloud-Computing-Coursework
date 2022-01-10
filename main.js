@@ -123,9 +123,10 @@ io.on("connection", socket => {
     console.log("socket: account_update", data)
     try {
       await db.updateAccount(data.username, data.screenName, data.oldPassword, data.newPassword)
+      socket.emit("account_update_success")
     }
     catch (err) {
-      console.log(err)
+      socket.emit("login_error", err)
     }
   })
 })

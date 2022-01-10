@@ -2,7 +2,7 @@ var user = new Vue({
     el: '#account',
     data: {
         me: { status: 0, username: '', displayname: '', password: ''}, // 0 - Not logged in; 1 - Logged in
-        form: { show: 0, passwordInput: 'password', error: ''}, // 0 - nothing; 1 - show login form; 2 - show register form;
+        form: { show: 0, passwordInput: 'password', error: '', successMsg: false}, // 0 - nothing; 1 - show login form; 2 - show register form;
         change: {oldPasswordInput: 'password', newPasswordInput: 'password' },
         accountChanges: {tempDisplayname: '', oldPassword: '', newPassword: ''}
     },
@@ -35,6 +35,7 @@ var user = new Vue({
             this.me.username = ''
             this.me.password = ''
             this.me.displayname = ''
+            this.accountChanges.tempDisplayname = ''
             this.me.status = 0
             this.deleteAllCookies()
             console.log("Cookies after delete: " + document.cookie)
@@ -128,18 +129,31 @@ var user = new Vue({
               .then(() => this.form.error = '')
         },
         submitChanges: function (){
+            console.log("Submitting Changes")
+            this.me.displayname = this.accountChanges.tempDisplayname
+            document.cookie = "screenName=" + this.accountChanges.tempDisplayname
             if(this.accountChanges.newPassword === ''){
-                this.me.displayname = this.accountChanges.tempDisplayname
-                document.cookie = "screenName=" + this.accountChanges.tempDisplayname
                 socket.emit("account_update", {
                     username: this.me.username,
                     screenName: this.me.displayname,
                     oldPassword: '',
                     newPassword: ''
                 });
+            } else {
+                socket.emit("account_update", {
+                    username: this.me.username,
+                    screenName: this.me.displayname,
+                    oldPassword: this.accountChanges.oldPassword,
+                    newPassword: this.accountChanges.newPassword
+                });
             }
-
-
+        } ,
+        displaySuccess: function () {
+            console.log("Update Succeeded")
+            this.form.successMsg = true
+            this.form.error = ''
+            new Promise(resolve => setTimeout(resolve, 5000))
+              .then(() => this.form.successMsg = false)
         }
     }
 });

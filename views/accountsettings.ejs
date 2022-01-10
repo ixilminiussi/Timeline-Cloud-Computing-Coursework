@@ -88,10 +88,12 @@
                 </input>
               </div>
               <p class="font-light text-gray-400">* required to apply changes</p>
+              <div v-if="form.error === 'Old password incorrect.'" class="text-red-600">Password incorrect.</div>
             </div>
             <button @click="submitChanges()"
                     class="p-2 rounded bg-blue-400 hover:bg-blue-300 transition duration-100 text-white">Submit changes
             </button>
+            <div v-if="form.successMsg === true" class="text-green-600">Updated successfully!</div>
           </div>
         </div>
       </div>

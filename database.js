@@ -151,25 +151,37 @@ class Database {
   }
 
   async updateAccount(username, screenName, oldPassword, newPassword){
+    const db = await this._getDb()
+    const { container } = await db.containers.createIfNotExists({ id: "users" })
+    const querySpec = {
+      query: "SELECT * from c WHERE c.id=@username",
+      parameters: [
+        { name: "@username", value: username }
+      ]
+    }
+    const { resources: items } = await container.items.query(querySpec).fetchAll();
+
+    let currentPassword = items[0].password
+    let currentDecks = items[0].decks
+
     if(newPassword === ''){
-      const db = await this._getDb()
-      const { container } = await db.containers.createIfNotExists({ id: "users" })
-      const querySpec = {
-        query: "SELECT * from c WHERE c.id=@username",
-        parameters: [
-          { name: "@username", value: username }
-        ]
-      }
-      const { resources: items } = await container.items.query(querySpec).fetchAll();
-
-      let currentPassword = items[0].password
-      let currentDecks = items[0].decks
-
       const createdItem = {id: username, password: currentPassword, screenName: screenName, decks: currentDecks}
-
       const { id, category } = createdItem
-
       await container.item(id, category).replace(createdItem);
+    } else {
+      if(await this.authenticate(username, oldPassword)){
+        console.log("Update Account: Authentication successful")
+        bcrypt.genSalt(10, function(err, salt) {
+          bcrypt.hash(newPassword, salt, async function (err, hash) {
+            const createdItem = {id: username, password: hash, screenName: screenName, decks: currentDecks}
+            const { id, category } = createdItem
+            await container.item(id, category).replace(createdItem);
+          });
+        });
+      } else {
+        console.log("Update Account: Authentication failed")
+        throw "Old password incorrect."
+      }
     }
   }
 

@@ -68,7 +68,7 @@ function connect() {
     user.form.show = 0;
     document.cookie = "username=" + data.id
     document.cookie = "screenName=" + data.screenName
-    document.cookie = "deckIDs=" + data.deckIDs
+    document.cookie = "decks=" + data.decks
     console.log("Cookie set: ", document.cookie)
   });
 

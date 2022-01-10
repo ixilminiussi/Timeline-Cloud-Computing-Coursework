@@ -1,4 +1,6 @@
 const { CosmosClient } = require("@azure/cosmos")
+const bcrypt = require("bcrypt");
+
 
 const endpoint = process.env.COSMOS_ENDPOINT
 const key = process.env.COSMOS_KEY
@@ -80,15 +82,16 @@ class Database {
     }
     const { resources: items } = await container.items.query(querySpec).fetchAll();
 
-    if(items.length == 0){
+    if(items.length === 0){
       throw "Username not found."
     }
 
-    let actualPassword = items[0].password
+    let hash = items[0].password
+    console.log("Login: Hash fetched: ", hash)
 
-    if(password !== actualPassword){
-      throw "Password incorrect."
-    }
+    const passwordCorrect = await bcrypt.compare(password, hash);
+
+    if (!passwordCorrect) throw "Password incorrect."
 
     return {id: username, screenName: items[0].screenName, deckIDs: items[0].deckIDs}
   }
@@ -105,14 +108,19 @@ class Database {
       throw "Username already exists."
     }
 
-    await container.items.create({
-      id: username,
-      password: password,
-      screenName: username,
-      deckIDs: []
+    bcrypt.genSalt(10, function(err, salt) {
+      bcrypt.hash(password, salt, async function (err, hash) {
+        await container.items.create({
+          id: username,
+          password: hash,
+          screenName: username,
+          deckIDs: []
+        })
+        console.log("Sign-Up Hashed Password: " + hash);
+      });
     });
 
-    return {id: username, screenName: username, deckIDs: []}
+    return {id: username, screenName: username, deckIDs: []};
   }
 
 

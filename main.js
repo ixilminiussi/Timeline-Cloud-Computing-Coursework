@@ -97,7 +97,7 @@ io.on("connection", socket => {
 
   socket.on("restart_game", () => {
     console.log("socket: restart_game")
-    gameStore.restartGameViaSocket(socket)
+    gameStore.startGameViaSocket(socket)
   })
 
   socket.on("card_placed", (cardID, index) => {

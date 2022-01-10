@@ -129,6 +129,27 @@ class Database {
     return {id: username, screenName: username, decks: []};
   }
 
+  async authenticate(username, password){
+    const db = await this._getDb()
+    const { container } = await db.containers.createIfNotExists({ id: "users" })
+    const querySpec = {
+      query: "SELECT * from c WHERE c.id=@username",
+      parameters: [
+        { name: "@username", value: username }
+      ]
+    }
+    const { resources: items } = await container.items.query(querySpec).fetchAll();
+
+    if(items.length === 0){
+      throw "Username not found."
+    }
+
+    let hash = items[0].password
+    console.log("Authenticate: Hash fetched: ", hash)
+
+    return await bcrypt.compare(password, hash);
+  }
+
   // PRIVATE
   async _getDb() {
     if (this._db) {

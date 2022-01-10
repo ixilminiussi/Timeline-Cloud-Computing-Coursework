@@ -138,7 +138,7 @@ io.on("connection", socket => {
       i ++
     }
 
-    console.log(cardJson)
+    db.createDeckForUser(deckJson, cardJson, user)
   })
 })
 

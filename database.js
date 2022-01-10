@@ -45,24 +45,27 @@ class Database {
 
   async getDecksForUser(user) {
 
+    const db = await this._getDb()
     const { container } = await db.containers.createIfNotExists({ id: "users" })
 
     const querySpec = {
-      query: "SELECT * FROM c WHERE c.username = '"+user.username+"'"
+      query: "SELECT * FROM c WHERE c.id='"+user.username+"'"
     }
     
-    const { resources: items } = await container.items.query(querySpec).fetchAll();
+    const { resources: users } = await container.items.query(querySpec).fetchAll();
 
-    if (items[0] === null) {
-      console._error("found no user under name " + user.username)
+    if (users.length <= 0) {
+      this._error("found no user under name " + user.username)
+      return "error"
     } else {
-      console._log("found custom decks ", items[0].customDecks)
+      if (users[0].deckIDs === null) {
+        this._log("no decks found under user ", user.username)
+        return []
+      }
 
-      return items[0].customDecks
+      this._log("found custom decks ", users[0].deckIDs)
+      return users[0].deckIDs
     }
-
-    console._log("no decks found under user ", user.username)
-    return []
   }
 
   async createDeckForUser(deckJson, cardsJson, user) {
@@ -71,39 +74,44 @@ class Database {
 
     const decks = await this.getDecksForUser(user)
 
+    if (decks === "error") {
+      return
+    }
+
     decks.forEach(deck => {
 
       if (deck.name === deckJson.name) {
-        console._error("deck of that name already exists ", deckJson.name)
+        this._error("deck of that name already exists ", deckJson.name)
         return
       }
     })
 
     // Creates the card container 
 
-    const { container } = await db.containers.createIfNotExists({ id: "cards" }) 
-    const { resource: createdDeck } = await container.items.create(cardsJson);
-    console._log(`\r\nCreated new deck: $ createdDeck.id}`);
+    const db = await this._getDb()
+    const { cardContainer } = await db.containers.createIfNotExists({ id: "cards" }) 
+    const { resource: createdDeck } = await cardContainer.items.create(cardsJson);
+    this._log(`\r\nCreated new deck: $ createdDeck.id}`);
 
     deckJson.cardContainer = createdDeck.id
 
     // Updates the user with pointer to card container
 
-    const { container } = await db.containers.createIfNotExists({ id: "users" })
+    const { userContainer } = await db.containers.createIfNotExists({ id: "users" })
     const querySpec = {
-      query: "SELECT * FROM c WHERE c.username = '"+user.username+"'"
+      query: "SELECT * FROM c WHERE c.id='"+user.username+"'"
     }
     
-    const { resources: items } = await container.items.query(querySpec).fetchAll();
+    const { resources: users } = await userContainer.items.query(querySpec).fetchAll();
 
-    if (items[0] === null) {
-      console._error("found no user under name " + user.username)
+    if (users[0] === null) {
+      this._error("found no user under name " + user.username)
     } else {
-      items[0].customDecks.push(deckJson)
+      users[0].deckIDs.push(deckJson)
 
-      const { resource: updatedUser } = await container.item(items[0].id).replace(items[0].customDecks)
+      const { resource: updatedUser } = await userContainer.item(users[0].id).replace(users[0].deckIDs)
 
-      return items[0].customDecks
+      return users[0].deckIDs
     }
   }
 

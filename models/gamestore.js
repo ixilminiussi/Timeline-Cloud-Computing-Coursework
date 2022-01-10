@@ -51,7 +51,22 @@ class GameStore {
   }
 
   /**
-   * Adds a new player to a game using this socket
+   * Select a new hand size for a game. Only valid while the game is not currently playing.
+   * @param {Socket} socket The same socket that requested a new game with `GameStore.createGame`.
+   * @param {number} handSize The number of cards that each player should be dealt when the game starts.
+   */
+  updateHandSizeForGameWithSocket(socket, handSize) {
+    const game = this._games.find(g => g.creatorSocket === socket)
+    if (!game) {
+      console.error("Cannot find game with socket")
+      return
+    }
+
+    game.selectHandSize(handSize)
+  }
+
+  /**
+   * Adds a new player to a game using this socket.
    * @param {Socket} socket The socket the new player is using.
    * @param {string} gameID The unique ID of the game that the player should
    * be added to. If this game does not already exist, it will be created.

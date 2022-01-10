@@ -47,6 +47,21 @@
         </div>
       </div>
 
+      <!-- Hand size selection -->
+      <div class="mt-12">
+        How many cards should be dealt to each player?
+
+        <div class="mt-2 flex items-center">
+          <select v-model="handSize" @change="handSizeChanged">
+            <option value="2">2 cards</option>
+            <option value="3">3 cards</option>
+            <option value="4">4 cards</option>
+            <option value="5">5 cards</option>
+            <option value="6">6 cards</option>
+          </select>
+        </div>
+      </div>
+
       <div class="mt-10">
         <!-- Open the game in a new tab -->
         <button

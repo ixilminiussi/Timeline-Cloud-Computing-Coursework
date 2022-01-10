@@ -97,28 +97,25 @@ io.on("connection", socket => {
 
   socket.on("player_login", async (username, password) => {
     console.log("socket: player_login", username, password)
-    const res = await db.login(username, password)
-    console.log("Login result: ", res)
-
-    if (res.error === '') {
-      socket.emit("update_cookie", {
-        id: res.id,
-        screenName: res.screenName,
-        deckIDs: res.deckIDs
-      })
-    } else {
-      socket.emit("login_error", res.error)
+    try{
+      const res = await db.login(username, password)
+      console.log("Login result: ", res)
+      socket.emit("update_cookie", res)
+    }
+    catch (err) {
+      socket.emit("login_error", err)
     }
   })
 
   socket.on("player_signup", async (username, password) => {
     console.log("socket: player_signup", username, password)
-    const res = await db.signUp(username, password)
-    console.log("Sign-up result: ", res)
-    if(res === 0){
-      socket.emit("login_error", "Username already exists.")
-    } else {
+    try {
+      const res = await db.signUp(username, password)
+      console.log("Sign-up result: ", res)
       socket.emit("update_cookie", res)
+    }
+    catch (err) {
+      socket.emit("login_error", err)
     }
   })
 })

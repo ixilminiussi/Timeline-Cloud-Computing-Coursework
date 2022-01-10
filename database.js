@@ -75,62 +75,34 @@ class Database {
   async login(username, password){
     const db = await this._getDb()
     const { container } = await db.containers.createIfNotExists({ id: "users" })
-    const records = await container.items.readAll().fetchAll()
-    const users = records.resources.map(u => ({ // Strip the CosmosDb properties
-      username: u.id,
-      password: u.password,
-      screenName: u.screenName,
-      deckIDs: u.deckIDs
-    }))
-
-    let userExists = false
-    let actualPassword;
-    let screenName;
-    let deckIDs;
-
-    users.forEach(user =>  {
-      if (user.username === username){
-        this._log("Username found:", username)
-        userExists = true
-        actualPassword = user.password
-        screenName = user.screenName
-        deckIDs = user.deckIDs
-      }
-    })
-
-    if(!userExists){
-      return {error:'Username not found.'}
+    const querySpec = {
+      query: "SELECT * from c WHERE c.id='" + username + "'"
     }
+    const { resources: items } = await container.items.query(querySpec).fetchAll();
+
+    if(items.length == 0){
+      throw "Username not found."
+    }
+
+    let actualPassword = items[0].password
 
     if(password !== actualPassword){
-      return {error:'Password incorrect.'}
+      throw "Password incorrect."
     }
 
-    return {error:'', id: username, screenName: screenName, deckIDs: deckIDs}
+    return {id: username, screenName: items[0].screenName, deckIDs: items[0].deckIDs}
   }
 
   async signUp(username, password){
     const db = await this._getDb()
     const { container } = await db.containers.createIfNotExists({ id: "users" })
-    const records = await container.items.readAll().fetchAll()
-    const users = records.resources.map(u => ({ // Strip the CosmosDb properties
-      username: u.id,
-      password: u.password,
-      screenName: u.screenName,
-      deckIDs: u.deckIDs
-    }))
+    const querySpec = {
+      query: "SELECT * from c WHERE c.id='" + username + "'"
+    }
+    const { resources: items } = await container.items.query(querySpec).fetchAll();
 
-    let userExists = false
-
-    users.forEach(user =>  {
-      if (user.username === username){
-        this._log("Username already exists:", username)
-        userExists = true
-      }
-    })
-
-    if(userExists){
-      return 0
+    if(items.length > 0){
+      throw "Username already exists."
     }
 
     await container.items.create({

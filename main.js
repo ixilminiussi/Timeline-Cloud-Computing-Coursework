@@ -16,10 +16,16 @@ const io = require("socket.io")(server)
 app.set("view engine", "ejs")
 app.use("/static", express.static("public"))
 
+const PORT = process.env.PORT || 8080
 let baseServerURL = ""
 
 app.get("/", (req, res) => {
-  baseServerURL = req.protocol + '://' + req.get('host')
+  if (process.env.NODE_ENV === "development") {
+    baseServerURL = "http://localhost:" + PORT
+  } else {
+    baseServerURL = "https://" + req.get("host")
+  }
+
   res.render("newgame", {version: process.version})
 })
 
@@ -32,7 +38,6 @@ app.get("/accountsettings", (req, res) => {
 })
 
 function startServer() {
-  const PORT = process.env.PORT || 8080
   server.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`)
   })

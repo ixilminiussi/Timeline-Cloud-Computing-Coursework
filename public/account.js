@@ -40,21 +40,6 @@ var user = new Vue({
             this.deleteAllCookies()
             console.log("Cookies after delete: " + document.cookie)
         },
-        createDeck: function() {
-
-        },
-        importDecks: function() {
-
-        },
-        toggleAccountForm: function() {
-            //Old status codes
-            // if (this.me.status === -1) {
-            //     this.me.status = 2;
-            // }
-            // if (this.me.status === 2) {
-            //     this.me.status = -1;
-            // }
-        },
         showLoginForm: function() {
             this.form.show = 1;
         },
@@ -63,16 +48,6 @@ var user = new Vue({
         },
         closeLoginForm: function() {
             this.form.show = 0;
-        },
-        openAccount: function() {
-            //Old status codes
-            // if (this.me.status === -1) {
-            //     this.status = 0;
-            // }
-        },
-        closeAccount: function() {
-            //Old status codes
-            // this.me.status = -1;
         },
         togglePassword: function(input) {
             if (input === 'passwordInput') {
@@ -97,7 +72,6 @@ var user = new Vue({
                 }
             }
         },
-        //Remember to reference in the report
         getCookies: function(str){
             let cookieString = RegExp(str+"=[^;]+").exec(document.cookie);
             return decodeURIComponent(!!cookieString ? cookieString.toString().replace(/^[^=]+./,"") : "");
@@ -111,7 +85,6 @@ var user = new Vue({
                 this.me.status = 1
             }
         },
-        //Remember to reference in the report
         deleteAllCookies: function(){
             let cookies = document.cookie.split(";");
 
@@ -124,6 +97,7 @@ var user = new Vue({
         },
         displayError: function(error) {
             console.log("Error returned: " + error)
+            this.form.successMsg = false
             this.form.error = error
             new Promise(resolve => setTimeout(resolve, 5000))
               .then(() => this.form.error = '')

@@ -77,40 +77,30 @@ class Database {
   async login(username, password){
     const db = await this._getDb()
     const { container } = await db.containers.createIfNotExists({ id: "users" })
-    const querySpec = {
-      query: "SELECT * from c WHERE c.id=@username",
-      parameters: [
-        { name: "@username", value: username }
-      ]
-    }
-    const { resources: items } = await container.items.query(querySpec).fetchAll();
 
-    if(items.length === 0){
+    const userQueryResult = await this._getUserWithUsername(username, container)
+
+    if(userQueryResult.length === 0){
       throw "Username not found."
     }
 
-    let hash = items[0].password
+    let hash = userQueryResult[0].password
     console.log("Login: Hash fetched: ", hash)
 
     const passwordCorrect = await bcrypt.compare(password, hash);
 
     if (!passwordCorrect) throw "Password incorrect."
 
-    return {id: username, screenName: items[0].screenName, decks: items[0].decks}
+    return {id: username, screenName: userQueryResult[0].screenName, decks: userQueryResult[0].decks}
   }
 
   async signUp(username, password){
     const db = await this._getDb()
     const { container } = await db.containers.createIfNotExists({ id: "users" })
-    const querySpec = {
-      query: "SELECT * from c WHERE c.id=@username",
-      parameters: [
-        { name: "@username", value: username }
-      ]
-    }
-    const { resources: items } = await container.items.query(querySpec).fetchAll();
 
-    if(items.length > 0){
+    const userQueryResult = await this._getUserWithUsername(username, container)
+
+    if(userQueryResult.length > 0){
       throw "Username already exists."
     }
 
@@ -132,19 +122,14 @@ class Database {
   async authenticate(username, password){
     const db = await this._getDb()
     const { container } = await db.containers.createIfNotExists({ id: "users" })
-    const querySpec = {
-      query: "SELECT * from c WHERE c.id=@username",
-      parameters: [
-        { name: "@username", value: username }
-      ]
-    }
-    const { resources: items } = await container.items.query(querySpec).fetchAll();
 
-    if(items.length === 0){
+    const userQueryResult = await this._getUserWithUsername(username, container)
+
+    if(userQueryResult.length === 0){
       throw "Username not found."
     }
 
-    let hash = items[0].password
+    let hash = userQueryResult[0].password
     console.log("Authenticate: Hash fetched: ", hash)
 
     return await bcrypt.compare(password, hash);
@@ -153,16 +138,11 @@ class Database {
   async updateAccount(username, screenName, oldPassword, newPassword){
     const db = await this._getDb()
     const { container } = await db.containers.createIfNotExists({ id: "users" })
-    const querySpec = {
-      query: "SELECT * from c WHERE c.id=@username",
-      parameters: [
-        { name: "@username", value: username }
-      ]
-    }
-    const { resources: items } = await container.items.query(querySpec).fetchAll();
 
-    let currentPassword = items[0].password
-    let currentDecks = items[0].decks
+    const userQueryResult = await this._getUserWithUsername(username, container)
+
+    let currentPassword = userQueryResult[0].password
+    let currentDecks = userQueryResult[0].decks
 
     if(newPassword === ''){
       const createdItem = {id: username, password: currentPassword, screenName: screenName, decks: currentDecks}
@@ -202,6 +182,18 @@ class Database {
 
   async _error(...args) {
     console.error("[Database - Error]", ...args)
+  }
+
+  async _getUserWithUsername(username, container){
+    const querySpec = {
+      query: "SELECT * from c WHERE c.id=@username",
+      parameters: [
+        { name: "@username", value: username }
+      ]
+    }
+    const { resources: items } = await container.items.query(querySpec).fetchAll();
+
+    return items;
   }
 }
 

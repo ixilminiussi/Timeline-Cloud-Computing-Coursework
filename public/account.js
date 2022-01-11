@@ -1,8 +1,8 @@
 var user = new Vue({
     el: '#account',
     data: {
-        me: { status: 1, username: 'ixil', displayname: '', password: '', email: '' }, // -1 - disconnected; 1 - connected
-        form: { show: 3, passwordInput: 'password' }, // -1 - nothing; 0 - show login form; 1 - show register form; 2 - show account applet (profile, disconnect); 3 - show create deck window;
+        me: { status: -1, username: '', displayname: '', password: '', email: '' }, // -1 - disconnected; 1 - connected
+        form: { show: -1, passwordInput: 'password' }, // -1 - nothing; 0 - show login form; 1 - show register form; 2 - show account applet (profile, disconnect); 3 - show create deck window;
         change: { newdisplayname: '', newemail: '', oldPassword: '', newPassword: '', oldPasswordInput: 'password', newPasswordInput: 'password' },
         file: { selectedFile: null }
     },

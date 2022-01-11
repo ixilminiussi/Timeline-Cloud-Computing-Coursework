@@ -64,6 +64,14 @@ Open http://localhost:8080.
 cloc --exclude-dir="node_modules" --include-ext="js,ejs" .
 ```
 
+## Deploying to GAE
+
+Instructions for arg1g19's machine:
+
+```bash
+gcloud app deploy --version test --project timeline-337918 
+```
+
 ## Server: Updating the Client
 
 These are the socket messages the server can use to update the client.

@@ -88,6 +88,11 @@ io.on("connection", socket => {
     gameStore.registerSocketWithGame(socket, gameID)
   })
 
+  socket.on("leave_game", gameID => {
+    console.log("socket: leave_game", gameID)
+    gameStore.removeSocketFromGame(socket, gameID)
+  })
+
   socket.on("register_username", username => {
     console.log("socket: register_username", username)
     gameStore.registerUsernameForPlayerWithSocket(socket, username)
@@ -98,9 +103,49 @@ io.on("connection", socket => {
     gameStore.startGameViaSocket(socket)
   })
 
+  socket.on("restart_game", () => {
+    console.log("socket: restart_game")
+    gameStore.startGameViaSocket(socket)
+  })
+
   socket.on("card_placed", (cardID, index) => {
     console.log("socket: card_placed")
     gameStore.cardPlacedViaSocket(socket, cardID, index)
+  })
+
+  socket.on("player_login", async (username, password) => {
+    console.log("socket: player_login", username, password)
+    try{
+      const res = await db.login(username, password)
+      console.log("Login result: ", res)
+      socket.emit("update_cookie", res)
+    }
+    catch (err) {
+      socket.emit("login_error", err)
+    }
+  })
+
+  socket.on("player_signup", async (username, password) => {
+    console.log("socket: player_signup", username, password)
+    try {
+      const res = await db.signUp(username, password)
+      console.log("Sign-up result: ", res)
+      socket.emit("update_cookie", res)
+    }
+    catch (err) {
+      socket.emit("login_error", err)
+    }
+  })
+
+  socket.on("account_update", async (data) => {
+    console.log("socket: account_update", data)
+    try {
+      await db.updateAccount(data.username, data.screenName, data.oldPassword, data.newPassword)
+      socket.emit("account_update_success")
+    }
+    catch (err) {
+      socket.emit("login_error", err)
+    }
   })
 
   socket.on("create_deck", async (json, user) => {

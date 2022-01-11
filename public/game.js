@@ -23,7 +23,7 @@ async function dealCard(card) {
 
 function overwriteTimeline(cards) {
   app.timeline = cards
-  app.started = true
+  app.state = "playing"
 }
 
 async function insertCard(card, index) {
@@ -254,7 +254,7 @@ var app = new Vue({
   el: '#vue-app',
   data: {
     // Lobby
-    started: false, // Boolean describing if the game has started
+    state: "lobby", // lobby, playing, ended
     showModal: true,
     joinLink: window.location.href,
     copiedJoinLink: false,
@@ -279,6 +279,11 @@ var app = new Vue({
     draggingCardIndex: null,    // Index of card in hand that's being dragged
     dragTransform: "",          // CSS style (transform) of the card currently being dragged
     handPlaceholderIndex: null, // Index of card that's just been dropped into timeline
+
+    //statistics for players
+    showAll: false, // If true, shows both the date and event of all cards on screen
+    correctlyPlaced: 0,
+    winner: ""
   },
   mounted: function () {
     connect()
@@ -300,6 +305,10 @@ var app = new Vue({
       console.log("Emitting start command...")
       socket.emit("start_game")
     },
+    restartGame: function() {
+      console.log("Emitting restart command...")
+      socket.emit("restart_game")
+    },
     copyJoinLink: function () {
       if (this.joinLink) {
         navigator.clipboard.writeText(this.joinLink)
@@ -308,6 +317,9 @@ var app = new Vue({
             .then(() => this.copiedJoinLink = false)
       }
     },
+    leaveGame: function() {
+      socket.emit("leave_game", _getGameID())
+    }
   },
   computed: {
     isMyTurn: function () {
@@ -343,6 +355,13 @@ function connect() {
   // =============== Messages from the server ================
   //          (Each of these call a public function)
 
+  socket.on("reset", () => {
+    app.showAll = false
+    app.state = "playing"
+    app.correctlyPlaced = 0
+    app.winner = ""
+  })
+
   socket.on("deal_hand", (cards) => {
     dealHand(cards)
   })
@@ -367,8 +386,11 @@ function connect() {
     setCurrentTurn(username)
   })
 
-  socket.on("game_over", () => {
-    console.log("socket: game_over unimplemented")
+  socket.on("game_over", (correctlyPlaced, winner) => { // shows winner, shows timeline and user cards, shows button to start again, shows button to change deck, shows button to create new game
+    app.showAll = true
+    app.state = "ended"
+    app.correctlyPlaced = correctlyPlaced
+    app.winner = winner
     console.log(app.players)
   })
 }

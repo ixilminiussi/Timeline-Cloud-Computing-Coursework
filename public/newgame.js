@@ -58,11 +58,11 @@ function connect() {
   socket = io();
   socket.on('connect', function () {
 
-  });
+  })
 
   socket.on('connect_error', function (message) {
     console.error("Connection failed", message)
-  });
+  })
 
   socket.on('disconnect', function () {
     console.error("Connection dropped")
@@ -76,6 +76,26 @@ function connect() {
   socket.on("available_decks", decks => {
     console.log("socket: available_decks", decks)
     app.decks = decks
+  })
+
+  socket.on("update_cookie", data => {
+    console.log("socket: update_cookie", data)
+    user.me = { status: 1, username: data.id, displayname: data.screenName, password: ''}
+    user.form.show = 0
+    document.cookie = "username=" + data.id
+    document.cookie = "screenName=" + data.screenName
+    document.cookie = "decks=" + data.decks
+    console.log("Cookie set: ", document.cookie)
+  })
+
+  socket.on("login_error", error => {
+    console.log("socket: login_error", error)
+    user.displayError(error)
+  })
+
+  socket.on("account_update_success", function() {
+    console.log("socket: account_update_success")
+    user.displaySuccess()
   })
 
   socket.on("available_custom_decks", decks => {

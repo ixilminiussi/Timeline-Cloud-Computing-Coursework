@@ -1,4 +1,6 @@
 const { CosmosClient } = require("@azure/cosmos")
+const bcrypt = require("bcrypt");
+
 
 const endpoint = process.env.COSMOS_ENDPOINT
 const key = process.env.COSMOS_KEY
@@ -198,6 +200,97 @@ class Database {
     return cards
   }
 
+  async login(username, password){
+    const db = await this._getDb()
+    const { container } = await db.containers.createIfNotExists({ id: "users" })
+
+    const userQueryResult = await this._getUserWithUsername(username, container)
+
+    if(userQueryResult.length === 0){
+      throw "Username not found."
+    }
+
+    let hash = userQueryResult[0].password
+    console.log("Login: Hash fetched: ", hash)
+
+    const passwordCorrect = await bcrypt.compare(password, hash);
+
+    if (!passwordCorrect) throw "Password incorrect."
+
+    return {id: username, screenName: userQueryResult[0].screenName, decks: userQueryResult[0].decks}
+  }
+
+  async signUp(username, password){
+    const db = await this._getDb()
+    const { container } = await db.containers.createIfNotExists({ id: "users" })
+
+    const userQueryResult = await this._getUserWithUsername(username, container)
+
+    if(userQueryResult.length > 0){
+      throw "Username already exists."
+    }
+
+    bcrypt.genSalt(10, function(err, salt) {
+      bcrypt.hash(password, salt, async function (err, hash) {
+        await container.items.create({
+          id: username,
+          password: hash,
+          screenName: username,
+          decks: []
+        })
+        console.log("Sign-Up Hashed Password: " + hash);
+      });
+    });
+
+    return {id: username, screenName: username, decks: []};
+  }
+
+  async authenticate(username, password){
+    const db = await this._getDb()
+    const { container } = await db.containers.createIfNotExists({ id: "users" })
+
+    const userQueryResult = await this._getUserWithUsername(username, container)
+
+    if(userQueryResult.length === 0){
+      throw "Username not found."
+    }
+
+    let hash = userQueryResult[0].password
+    console.log("Authenticate: Hash fetched: ", hash)
+
+    return await bcrypt.compare(password, hash);
+  }
+
+  async updateAccount(username, screenName, oldPassword, newPassword){
+    const db = await this._getDb()
+    const { container } = await db.containers.createIfNotExists({ id: "users" })
+
+    const userQueryResult = await this._getUserWithUsername(username, container)
+
+    let currentPassword = userQueryResult[0].password
+    let currentDecks = userQueryResult[0].decks
+
+    if(newPassword === ''){
+      const createdItem = {id: username, password: currentPassword, screenName: screenName, decks: currentDecks}
+      const { id, category } = createdItem
+      await container.item(id, category).replace(createdItem);
+    } else {
+      if(await this.authenticate(username, oldPassword)){
+        console.log("Update Account: Authentication successful")
+        bcrypt.genSalt(10, function(err, salt) {
+          bcrypt.hash(newPassword, salt, async function (err, hash) {
+            const createdItem = {id: username, password: hash, screenName: screenName, decks: currentDecks}
+            const { id, category } = createdItem
+            await container.item(id, category).replace(createdItem);
+          });
+        });
+      } else {
+        console.log("Update Account: Authentication failed")
+        throw "Old password incorrect."
+      }
+    }
+  }
+
   // PRIVATE
   async _getDb() {
     if (this._db) {
@@ -215,6 +308,18 @@ class Database {
 
   async _error(...args) {
     console.error("[Database - Error]", ...args)
+  }
+
+  async _getUserWithUsername(username, container){
+    const querySpec = {
+      query: "SELECT * from c WHERE c.id=@username",
+      parameters: [
+        { name: "@username", value: username }
+      ]
+    }
+    const { resources: items } = await container.items.query(querySpec).fetchAll();
+
+    return items;
   }
 }
 

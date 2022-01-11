@@ -137,11 +137,18 @@ socket.on("set_current_turn", (username) => { /* ... */ })
 
 #### game_over
 
-Call this to make the client display the 'Game Over' screen, ranking players by number of cards remaining. Call `overwrite_players` beforehand to update the scores.
+Call this to let the clients no the game is over. the username given should represent the winner of the game, correctlyPlaced should be kept count of, and represents every succesful placement of a card
 
 ```javascript
-socket.on("game_over", () => { /* ... */ })
+socket.on("game_over", (correctlyPlaced, username) => { /* ... */ })
 ```
+
+#### reset
+
+Call this to tell the clients to reset certain variables to their default value, usually at the start of a game (such as 'winner', 'correctlyPlaced', and 'status')
+
+```javascript
+socket.on("reset", () => { /* ... */ })
 
 #### available_decks
 
@@ -152,6 +159,36 @@ Args:
 
 ```javascript
 socket.on("available_decks", decks)
+```
+
+#### update_cookie
+
+The server should call this to provide the client with updated cookie data.
+
+Args:
+* `data`: An object containing cookie data (username, screenName, decks)
+
+```javascript
+socket.on("update_cookie", data => {/* ... */})
+```
+
+#### login_error
+
+The server should call this to inform the client of a login, sign-up or account settings update error.
+
+Args:
+* `error` (`String`): A string describing the error returned by the login/sign-up/account update attempt.
+
+```javascript
+socket.on("login_error", error => {/* ... */})
+```
+
+#### account_update_success
+
+The server should call this to inform the client of a successful account settings update.
+
+```javascript
+socket.on("account_update_success", () => { /* ... */ })
 ```
 
 ## Server: Listening for Client Updates
@@ -226,6 +263,22 @@ Called by the admin player when they decide to start the game.
 socket.emit("start_game", username)
 ```
 
+#### restart_game
+
+Called by the admin player once the game is already over, and they click on 'play again'
+
+```javascript
+socket.emit("restart_game")
+```
+
+#### leave_game
+
+Called by any player once the game is already over, and they click on 'exit game'. Removes them from the game and updates every player;
+
+```javascript
+socket.emit("leave_game", gameID)
+```
+
 #### card_placed
 
 Called when the current player drops a card onto the timeline. The server should:
@@ -244,6 +297,41 @@ Args:
 
 ```javascript
 socket.emit("card_placed", card.id, cardIndex)
+```
+
+#### player_login
+
+Called by the client when they attempt a login.
+
+Args:
+* `username`: The username input to the login form
+* `password`: The password input to the login form
+
+```javascript
+socket.emit("player_login", username, password)
+```
+
+#### player_signup
+
+Called by the client when they attempt to sign-up.
+
+Args:
+* `username`: The username input to the sign-up form
+* `password`: The password input to the sign-up form
+
+```javascript
+socket.emit("player_signup", username, password)
+```
+
+#### account_update
+
+Called by the client when they change they click the submit changes button in the account settings page.
+
+Args:
+* `data`: An Object containing changes input to the account settings page.
+
+```javascript
+socket.emit("account_update", {username:...,screenName:...,oldPassword:...,newPassword:...})
 ```
 
 ## Client Object Schemas

@@ -1,42 +1,49 @@
 var user = new Vue({
     el: '#account',
     data: {
-        me: { status: -1, username: '', displayname: '', password: '', email: '' }, // -1 - disconnected; 1 - connected
-        form: { show: -1, passwordInput: 'password' }, // -1 - nothing; 0 - show login form; 1 - show register form; 2 - show account applet (profile, disconnect); 3 - show create deck window;
-        change: { newdisplayname: '', newemail: '', oldPassword: '', newPassword: '', oldPasswordInput: 'password', newPasswordInput: 'password' },
+        me: { status: 0, username: '', displayname: '', password: ''}, // 0 - Not logged in; 1 - Logged in
+        form: { show: 0, passwordInput: 'password', error: '', successMsg: false}, // 0 - nothing; 1 - show login form; 2 - show register form;
+        change: {oldPasswordInput: 'password', newPasswordInput: 'password' },
+        accountChanges: {tempDisplayname: '', oldPassword: '', newPassword: ''}
         file: { selectedFile: null }
     },
     mounted: function() {
         // Allows for closing the login form with keypress
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                this.closeForm()
+                this.closeLoginForm();
             }
         })
 
         // Allows for closing the login form by clicking outside
         window.addEventListener('mousedown', (e) => {
-            if (this.form.show !== -1 && !document.getElementById('form').contains(e.target)) {
-                this.closeForm()
+            if (this.form.show !== 0 && !document.getElementById('loginForm').contains(e.target)) {
+                this.closeLoginForm();
             }
         })
 
         if (this.me.status === 1) {
             socket.emit("available_decks", this.me)
         }
+
+        //Check cookie for log in session data
+        this.getUserInfoCookies();
     },
     methods: {
         login: function(username, password) {
-
+            socket.emit("player_login", username, password)
         },
-        signup: function(username, password, email) {
-
+        signup: function(username, password) {
+            socket.emit("player_signup", username, password)
         },
         signout: function() {
             this.me.username = ''
             this.me.password = ''
-            this.me.email = ''
-            this.me.status = -1
+            this.me.displayname = ''
+            this.accountChanges.tempDisplayname = ''
+            this.me.status = 0
+            this.deleteAllCookies()
+            console.log("Cookies after delete: " + document.cookie)
         },
         createDeck: function() {
 
@@ -66,23 +73,22 @@ var user = new Vue({
             if (this.me.status === 2) {
                 this.me.status = -1
             }
+            this.me.username = ''
+            this.me.password = ''
+            this.me.displayname = ''
+            this.accountChanges.tempDisplayname = ''
+            this.me.status = 0
+            this.deleteAllCookies()
+            console.log("Cookies after delete: " + document.cookie)
         },
         showLoginForm: function() {
-            this.form.show = 0
-        },
-        showSignupForm: function() {
             this.form.show = 1
         },
-        closeForm: function() {
-            this.form.show = -1
+        showSignupForm: function() {
+            this.form.show = 2
         },
-        openAccount: function() {
-            if (this.me.status === -1) {
-                this.status = 0
-            }
-        },
-        closeAccount: function() {
-            this.me.status = -1
+        closeLoginForm: function() {
+            this.form.show = 0
         },
         togglePassword: function(input) {
             if (input === 'passwordInput') {
@@ -109,6 +115,63 @@ var user = new Vue({
         },
         changeFile: function(event) {
             this.file.selectedFile = event.target.files[0]
+        },
+        getCookies: function(str){
+            let cookieString = RegExp(str+"=[^;]+").exec(document.cookie);
+            return decodeURIComponent(!!cookieString ? cookieString.toString().replace(/^[^=]+./,"") : "");
+        },
+        getUserInfoCookies: function(){
+            console.log("Cookie returned: " + document.cookie)
+            if(document.cookie.indexOf("username") !== -1){
+                this.me.username = this.getCookies("username")
+                this.me.displayname = this.getCookies("screenName")
+                this.accountChanges.tempDisplayname = this.getCookies("screenName")
+                this.me.status = 1
+            }
+        },
+        deleteAllCookies: function(){
+            let cookies = document.cookie.split(";");
+
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i];
+                let eqPos = cookie.indexOf("=");
+                let name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            }
+        },
+        displayError: function(error) {
+            console.log("Error returned: " + error)
+            this.form.successMsg = false
+            this.form.error = error
+            new Promise(resolve => setTimeout(resolve, 5000))
+              .then(() => this.form.error = '')
+        },
+        submitChanges: function (){
+            console.log("Submitting Changes")
+            this.me.displayname = this.accountChanges.tempDisplayname
+            document.cookie = "screenName=" + this.accountChanges.tempDisplayname
+            if(this.accountChanges.newPassword === ''){
+                socket.emit("account_update", {
+                    username: this.me.username,
+                    screenName: this.me.displayname,
+                    oldPassword: '',
+                    newPassword: ''
+                });
+            } else {
+                socket.emit("account_update", {
+                    username: this.me.username,
+                    screenName: this.me.displayname,
+                    oldPassword: this.accountChanges.oldPassword,
+                    newPassword: this.accountChanges.newPassword
+                });
+            }
+        } ,
+        displaySuccess: function () {
+            console.log("Update Succeeded")
+            this.form.successMsg = true
+            this.form.error = ''
+            new Promise(resolve => setTimeout(resolve, 5000))
+              .then(() => this.form.successMsg = false)
         }
     }
 })

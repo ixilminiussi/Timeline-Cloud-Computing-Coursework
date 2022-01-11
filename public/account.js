@@ -20,6 +20,10 @@ var user = new Vue({
                 this.closeForm()
             }
         })
+
+        if (this.me.status === 1) {
+            socket.emit("available_decks", this.me)
+        }
     },
     methods: {
         login: function(username, password) {
@@ -45,17 +49,15 @@ var user = new Vue({
             read.onloadend = function(){
                 try {
                     deckJson = JSON.parse(read.result)
+                    if (deckJson != null) {
+                        socket.emit("create_deck", deckJson, userJson)
+                    }
                 } catch (e) {
                     if (e instanceof SyntaxError) {
-                        alert(e);
+                        alert(e)
                     }
                 }
             }
-
-            socket.emit("create_deck", deckJson, userJson)
-        },
-        importDecks: function() {
-
         },
         toggleAccountForm: function() {
             if (this.me.status === -1) {

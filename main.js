@@ -115,7 +115,7 @@ io.on("connection", socket => {
       return
     }
 
-    deckJson = { "name": json.name, "cardContainer": _uuid }
+    deckJson = { "name": json.name, "cardContainer": _uuid, "id": _uuid }
 
     if (!("cards" in json)) {
       socket.emit("error", "json missing 'cards' array")
@@ -139,7 +139,15 @@ io.on("connection", socket => {
       i ++
     }
 
-    db.createDeckForUser(_uuid, deckJson, cardJson, user)
+    const result = await db.createDeckForUser(_uuid, deckJson, cardJson, user)
+
+    if (result != "error") {
+      if (user != null) {
+        console.log("socket: available_custom_decks")
+        const decks = await db.getDecksForUser(user)
+        socket.emit("available_custom_decks", decks)
+      }
+    }
   })
 })
 

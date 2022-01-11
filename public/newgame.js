@@ -12,13 +12,17 @@ var app = new Vue({
   },
   mounted: function () {
     connect()
-    socket.emit("available_decks", user.me)
+    socket.emit("available_decks")
     socket.emit("create_game")
   },
   methods: {
     selectDeckAt: function (index) {
       this.selectedDeckIndex = index
-      socket.emit("select_deck", this.decks[index].id)
+      if (this.selectedDeckIndex < this.decks.length) {
+        socket.emit("select_deck", this.decks[index].id)
+      } else {
+        socket.emit("select_deck", this.customDecks[index-this.decks.length].id)
+      }
     },
     copyJoinLink: function () {
       if (this.joinLink) {

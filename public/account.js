@@ -4,21 +4,21 @@ var user = new Vue({
         me: { status: 0, username: '', displayname: '', password: ''}, // 0 - Not logged in; 1 - Logged in
         form: { show: 0, passwordInput: 'password', error: '', successMsg: false}, // 0 - nothing; 1 - show login form; 2 - show register form;
         change: {oldPasswordInput: 'password', newPasswordInput: 'password' },
-        accountChanges: {tempDisplayname: '', oldPassword: '', newPassword: ''}
+        accountChanges: {tempDisplayname: '', oldPassword: '', newPassword: ''},
         file: { selectedFile: null }
     },
     mounted: function() {
         // Allows for closing the login form with keypress
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                this.closeLoginForm();
+                this.closeForm();
             }
         })
 
         // Allows for closing the login form by clicking outside
         window.addEventListener('mousedown', (e) => {
-            if (this.form.show !== 0 && !document.getElementById('loginForm').contains(e.target)) {
-                this.closeLoginForm();
+            if (this.form.show !== 0 && !document.getElementById('form').contains(e.target)) {
+                this.closeForm();
             }
         })
 
@@ -66,28 +66,13 @@ var user = new Vue({
                 }
             }
         },
-        toggleAccountForm: function() {
-            if (this.me.status === -1) {
-                this.me.status = 2
-            }
-            if (this.me.status === 2) {
-                this.me.status = -1
-            }
-            this.me.username = ''
-            this.me.password = ''
-            this.me.displayname = ''
-            this.accountChanges.tempDisplayname = ''
-            this.me.status = 0
-            this.deleteAllCookies()
-            console.log("Cookies after delete: " + document.cookie)
-        },
         showLoginForm: function() {
             this.form.show = 1
         },
         showSignupForm: function() {
             this.form.show = 2
         },
-        closeLoginForm: function() {
+        closeForm: function() {
             this.form.show = 0
         },
         togglePassword: function(input) {

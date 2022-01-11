@@ -7,7 +7,8 @@
     "node": "16.x"
   },
   "scripts": {
-    "start": "node main.js",
+    "start": "NODE_ENV=production node main.js",
+    "dev": "NODE_ENV=development node main.js",
     "gdeploy": "gcloud app deploy --version test",
     "hdeploy": "git push heroku master"
   },
@@ -16,7 +17,6 @@
   "dependencies": {
     "@azure/cosmos": "^3.15.0",
     "bcrypt": "^5.0.1",
-    "bent": "^7.3.12",
     "dotenv": "^10.0.0",
     "ejs": "^3.1.6",
     "express": "^4.17.1",

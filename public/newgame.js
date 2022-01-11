@@ -36,7 +36,7 @@ var app = new Vue({
       if (user.me.status === 0) {
         user.form.show = 1;
       }
-      if (user.me.status == 1) {
+      if (user.me.status === 1) {
         user.form.show = 3;
       }
     },

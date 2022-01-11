@@ -10,10 +10,10 @@
 </head>
 
 <div id="vue-app">
-  <div v-if="!started">
+  <div v-if="state === 'lobby'">
     <%- include('lobby') -%>
   </div>
-  <div v-if="started">
+  <div v-else>
     <%- include('play') -%>
   </div>
 </div>

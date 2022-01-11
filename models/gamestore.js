@@ -85,6 +85,21 @@ class GameStore {
   }
 
   /**
+   * Removes a player from his game using his socket
+   * @param {Socket} socket The socket the player was using
+   * @param {string} gameID The unique ID of the game the player wants to leave
+   */
+  removeSocketFromGame(socket, gameID) {
+    let game = this._games.find(g => g.id === gameID)
+    if (!game) {
+      console.error("Cannot find game with id", gameID, "- ignoring")
+    } else {
+      game.removePlayer(socket)
+      this._allPlayers.delete(socket)
+    }
+  }
+
+  /**
    * Assign a username to the player with the current socket. If a player with the
    * username already exists in the game then it's assumed this socket belongs to
    * the existing player (i.e. in case of a page reload) and existing player's info
@@ -155,4 +170,3 @@ class GameStore {
 }
 
 module.exports = GameStore
-

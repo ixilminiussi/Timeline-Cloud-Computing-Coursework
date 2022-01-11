@@ -137,11 +137,18 @@ socket.on("set_current_turn", (username) => { /* ... */ })
 
 #### game_over
 
-Call this to make the client display the 'Game Over' screen, ranking players by number of cards remaining. Call `overwrite_players` beforehand to update the scores.
+Call this to let the clients no the game is over. the username given should represent the winner of the game, correctlyPlaced should be kept count of, and represents every succesful placement of a card
 
 ```javascript
-socket.on("game_over", () => { /* ... */ })
+socket.on("game_over", (correctlyPlaced, username) => { /* ... */ })
 ```
+
+#### reset
+
+Call this to tell the clients to reset certain variables to their default value, usually at the start of a game (such as 'winner', 'correctlyPlaced', and 'status')
+
+```javascript
+socket.on("reset", () => { /* ... */ })
 
 #### available_decks
 
@@ -254,6 +261,22 @@ Called by the admin player when they decide to start the game.
 
 ```javascript
 socket.emit("start_game", username)
+```
+
+#### restart_game
+
+Called by the admin player once the game is already over, and they click on 'play again'
+
+```javascript
+socket.emit("restart_game")
+```
+
+#### leave_game
+
+Called by any player once the game is already over, and they click on 'exit game'. Removes them from the game and updates every player;
+
+```javascript
+socket.emit("leave_game", gameID)
 ```
 
 #### card_placed

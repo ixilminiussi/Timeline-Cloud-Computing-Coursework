@@ -80,6 +80,11 @@ io.on("connection", socket => {
     gameStore.registerSocketWithGame(socket, gameID)
   })
 
+  socket.on("leave_game", gameID => {
+    console.log("socket: leave_game", gameID)
+    gameStore.removeSocketFromGame(socket, gameID)
+  })
+
   socket.on("register_username", username => {
     console.log("socket: register_username", username)
     gameStore.registerUsernameForPlayerWithSocket(socket, username)
@@ -87,6 +92,11 @@ io.on("connection", socket => {
 
   socket.on("start_game", () => {
     console.log("socket: start_game")
+    gameStore.startGameViaSocket(socket)
+  })
+
+  socket.on("restart_game", () => {
+    console.log("socket: restart_game")
     gameStore.startGameViaSocket(socket)
   })
 

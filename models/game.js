@@ -29,6 +29,9 @@ class Game {
     this._timeline = []
     this._stage = Game.STAGE_LOBBY
     this._currentPlayerIndex = 0
+
+    // Used for stats on end screen
+    this._correctlyPlaced = 0
   }
 
   // PUBLIC
@@ -48,6 +51,16 @@ class Game {
     player.game = this
     this._updateClientsWithPlayers()
     return true
+  }
+
+  /**
+   * Removes player from the list
+   * @param {Socket} socket
+   */
+  removePlayer(socket) {
+    const playerIndex = this._players.findIndex(p => p.socket === socket)
+    this._players.splice(playerIndex, 1)
+    this._updateClientsWithPlayers()
   }
 
   /**
@@ -127,6 +140,7 @@ class Game {
     await chill(2500)
 
     if (wasPlacedCorrectly) {
+      this._correctlyPlaced += 1
       this._log("Card placed correctly")
       this._timeline.splice(index, 0, card)
     } else {
@@ -149,7 +163,9 @@ class Game {
       this._log(`${player.displayName()} has cleared hand, ending game`)
       this._stage = Game.STAGE_ENDED
       this._players.forEach(p => p.socket.emit("set_current_turn", null))
-      this._players.forEach(p => p.socket.emit("game_over"))
+      var name = player.username
+      this._updateClientsWithPlayers()
+      this._players.forEach(p => p.socket.emit("game_over", this._correctlyPlaced, name))
     } else { // Update current turn
       this._currentPlayerIndex = (this._currentPlayerIndex + 1) % this._players.length
       this._updateClientsWithCurrentTurn()
@@ -171,6 +187,12 @@ class Game {
       this._stage = Game.STAGE_LOBBY
       return
     }
+
+    // Reset certain values (in case of restart)
+    this._players.forEach(p => p.socket.emit("reset"))
+    this.creationTime = Date.now()
+    this._timeline = []
+    this._correctlyPlaced = 0
 
     // Place down starting card
     this._timeline = [this._deck.shift()]

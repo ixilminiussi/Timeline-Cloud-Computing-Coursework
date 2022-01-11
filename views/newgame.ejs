@@ -48,7 +48,7 @@
           <div v-for="(deck, index) in customDecks">
             <!-- If this is the selected deck -->
             <button v-if="index + decks.length === selectedDeckIndex"
-              class="py-3 px-3 h-full w-full text-left flex flex-col rounded-lg bg-blue-500 text-white space-y-2 transition-transform duration-150 hover:scale-105 ">
+              class="py-3 px-3 h-full w-full text-left flex flex-col rounded-lg bg-indigo-500 text-white space-y-2 transition-transform duration-150 hover:scale-105 ">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -58,14 +58,14 @@
             <!-- If this is an unselected deck -->
             <button v-else
               @click="selectDeckAt(index + decks.length)"
-              class="py-3 h-full w-full text-left px-3 flex flex-col rounded-lg border-2 border-blue-200 space-y-2 transition-transform duration-150 hover:scale-105">
-              <div class="h-5 w-5 rounded-full border-2 border-blue-200"></div>
-              <span class="text-blue-500">{{deck.name}}</span>
+              class="py-3 h-full w-full text-left px-3 flex flex-col rounded-lg border-2 border-indigo-200 space-y-2 transition-transform duration-150 hover:scale-105">
+              <div class="h-5 w-5 rounded-full border-2 border-indigo-200"></div>
+              <span class="text-indigo-500">{{deck.name}}</span>
             </button>
           </div>
           <button
               @click="showCreateDeckForm()"
-              class="py-3 h-full w-full text-left px-3 flex flex-col rounded-lg border-4 border-indigo-200 space-y-2 transition-transform duration-150 hover:scale-105">
+              class="py-3 h-full w-full text-left px-3 flex flex-col rounded-lg border-dotted border-2 border-indigo-200 space-y-2 transition-transform duration-150 hover:scale-105">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 stroke-indigo-300" fill="none" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>

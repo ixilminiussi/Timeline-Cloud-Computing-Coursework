@@ -61,4 +61,24 @@ function connect() {
     console.log("socket: available_decks", decks)
     app.decks = decks
   })
+
+  socket.on("update_cookie", data => {
+    console.log("socket: update_cookie", data)
+    user.me = { status: 1, username: data.id, displayname: data.screenName, password: ''}
+    user.form.show = 0
+    document.cookie = "username=" + data.id
+    document.cookie = "screenName=" + data.screenName
+    document.cookie = "decks=" + data.decks
+    console.log("Cookie set: ", document.cookie)
+  })
+
+  socket.on("login_error", error => {
+    console.log("socket: login_error", error)
+    user.displayError(error)
+  })
+
+  socket.on("account_update_success", function() {
+    console.log("socket: account_update_success")
+    user.displaySuccess()
+  })
 }

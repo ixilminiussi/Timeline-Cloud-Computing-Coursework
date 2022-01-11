@@ -27,20 +27,15 @@
               <p class="font-bold text-gray-400">{{ me.username }}</p>
             </div>
             <div>
-              <label class="block mb-1 font-bold text-gray-500" for="displayname">default name *</label>
-              <input v-model="me.displayname" type="text" id="displayname"
+              <label class="block mb-1 font-bold text-gray-500" for="displayname">display name *</label>
+              <input v-model="accountChanges.tempDisplayname" type="text" id="displayname"
                      class="w-full border-2 border-gray-200 p-2 rounded outline-none focus:border-blue-500">
               <p class="font-light text-gray-400">* different from username</p>
             </div>
             <div>
-              <label class="block mb-1 font-bold text-gray-500" for="email">email address</label>
-              <input v-model="me.email" type="text" id="email"
-                     class="w-full border-2 border-gray-200 p-2 rounded outline-none focus:border-blue-500">
-            </div>
-            <div>
               <label class="block mb-1 font-bold text-gray-500" for="password">new password</label>
-              <div class="relative flex"><input v-model="me.password" :type="change.newPasswordInput" id="password"
-                                                class="w-full border-2 border-gray-200 p-2 rounded outline-none focus:border-blue-500 laceholder-blueGray-300 text-blueGray-600 relative pr-12">
+              <div class="relative flex"><input v-model="accountChanges.newPassword" :type="change.newPasswordInput" id="password"
+                                                class="w-full border-2 border-gray-200 p-2 rounded outline-none focus:border-blue-500 placeholder-blueGray-300 text-blueGray-600 relative pr-12">
                 <button
                     class="z-10 h-full text-gray-500 leading-snug absolute bg-transparent rounded text-base items-center justify-center w-8 right-2 pr-3 py-1"
                     @click="togglePassword('newPasswordInput')">
@@ -67,8 +62,8 @@
             <div class="py-9">
               <label class="block mb-1 font-bold text-gray-500" for="password">old password *</label>
               <div class="relative flex">
-                <input v-model="me.password" :type="change.oldPasswordInput" id="password"
-                       class="w-full border-2 border-gray-200 p-2 rounded outline-none focus:border-blue-500 laceholder-blueGray-300 text-blueGray-600 relative pr-12">
+                <input v-model="accountChanges.oldPassword" :type="change.oldPasswordInput" id="password"
+                       class="w-full border-2 border-gray-200 p-2 rounded outline-none focus:border-blue-500 placeholder-blueGray-300 text-blueGray-600 relative pr-12">
                 <button
                     class="z-10 h-full text-gray-500 leading-snug absolute bg-transparent rounded text-base items-center justify-center w-8 right-2 pr-3 py-1"
                     @click="togglePassword('oldPasswordInput')">
@@ -93,10 +88,12 @@
                 </input>
               </div>
               <p class="font-light text-gray-400">* required to apply changes</p>
+              <div v-if="form.error === 'Old password incorrect.'" class="text-red-600">Password incorrect.</div>
             </div>
-            <button @click="signup(me.username, me.password, me.email)"
+            <button @click="submitChanges()"
                     class="p-2 rounded bg-blue-400 hover:bg-blue-300 transition duration-100 text-white">Submit changes
             </button>
+            <div v-if="form.successMsg === true" class="text-green-600">Updated successfully!</div>
           </div>
         </div>
       </div>
@@ -113,6 +110,7 @@
 <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 <!-- Application Javascript -->
 <script src="/static/account.js"></script>
+<script src="/static/newgame.js"></script>
 </body>
 
 

@@ -103,7 +103,7 @@ io.on("connection", socket => {
     gameStore.cardPlacedViaSocket(socket, cardID, index)
   })
 
-  socket.on("create_deck", (json, user) => {
+  socket.on("create_deck", async (json, user) => {
     console.log("socket: create_deck", user.username)
 
     var deckJson

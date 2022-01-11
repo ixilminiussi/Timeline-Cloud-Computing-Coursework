@@ -21,6 +21,7 @@ class Database {
       decks: null,
       customDecks: null,
       cards: new Map(), // [deckID: [Card]]
+      customCards: new Map()
     }
   }
 
@@ -57,7 +58,7 @@ class Database {
 
     if (users.length <= 0) {
       this._error("found no user under name " + user.username)
-      return
+      return []
     } else {
       if (users[0].deckIDs === null) {
         this._log("no decks found under user ", user.username)
@@ -133,12 +134,11 @@ class Database {
     }
   }
 
-  async getCardsForDeckWithID(deckID, user) {
-    if (user.status === 1) {
-      if (this._cache.customCards.has(deckID)) {
-        this._log("Cache hit: returning cards for deck ", deckID)
-        return this._cache.customCards.get(deckID)
-      }
+  async getCardsForDeckWithID(deckID) {
+
+    if (this._cache.customCards.has(deckID)) {
+      this._log("Cache hit: returning cards for deck ", deckID)
+      return this._cache.customCards.get(deckID)
     }
 
     if (this._cache.cards.has(deckID)) {
@@ -146,21 +146,46 @@ class Database {
       return this._cache.cards.get(deckID)
     }
 
+    const db = await this._getDb()
+
     const decks = await this.getPlayableDecks()
-    const customDecks = await this.getDecksForUser(user)
     const deck = decks.find(d => d.id === deckID)
     if (!deck) {
       this._error("No classic deck available for id", deckID)
-      if (!customDecks) {
-        this._error("No custom deck available for id", deckID)
-        return[]
-      }
+    } else {
+      this._log("Cache miss: downloading cards for deck", deckID)
+      const { container } = await db.containers.createIfNotExists({ id: deck.cardContainer })
+      const records = await container.items.readAll().fetchAll()
+      const cards = records.resources.map(c => ({ // Strip the CosmosDb properties
+        id: c.id,
+        frontValue: c.front,
+        backValue: c.back,
+        absoluteOrder: parseInt(c.absoluteOrder)
+      }))
+      
+      this._cache.cards.set(deckID, cards)
+
+      return cards
     }
-    
-    this._log("Cache miss: downloading cards for deck", deckID)
-    const db = await this._getDb()
-    var { container } = await db.containers.createIfNotExists({ id: deck.cardContainer })
-    var records = await container.items.readAll().fetchAll()
+
+    { // Testing if a custom decks exists under that name (unlike classic decks, custom decks share the same id for cardContainer as the id for the deck)
+      const querySpec = {
+          query: "SELECT * FROM root r WHERE r.id='"+deckID+"'"
+      };
+  
+      this._log("Cache miss: downloading cards for deck", deckID)
+      const records = await db.containers.query(querySpec).fetchNext();
+      if(!records.resources[0]){
+        this._error("No classic deck available for id", deckID)
+        return 
+      }
+
+      this._log(records.resources[0])
+    }
+
+    const { container } = await db.containers.createIfNotExists({ id: deckID })
+    const records = await container.items.readAll().fetchAll()
+
     const cards = records.resources.map(c => ({ // Strip the CosmosDb properties
       id: c.id,
       frontValue: c.front,
@@ -168,7 +193,8 @@ class Database {
       absoluteOrder: parseInt(c.absoluteOrder)
     }))
 
-    this._cache.cards.set(deckID, cards)
+    this._cache.customCards.set(deckID, cards)
+
     return cards
   }
 

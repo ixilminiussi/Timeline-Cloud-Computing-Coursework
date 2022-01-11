@@ -222,7 +222,7 @@ class Game {
   }
 
   async _loadSelectedDeck() {
-    const cards = await this._db.getCardsForDeckWithID(this._selectedDeckID)
+    const cards = await this._db.getCardsForDeckWithID(this._selectedDeckID, this.adminPlayer())
     return shuffle(cards)
   }
 

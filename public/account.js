@@ -41,16 +41,18 @@ var user = new Vue({
             read.readAsBinaryString(this.file.selectedFile);
 
             var userJson = this.me
+            var deckJson
             read.onloadend = function(){
                 try {
-                    var deckJson = JSON.parse(read.result)
-                    socket.emit("create_deck", JSON.parse(read.result), userJson)
+                    deckJson = JSON.parse(read.result)
                 } catch (e) {
                     if (e instanceof SyntaxError) {
                         alert(e);
                     }
                 }
             }
+
+            socket.emit("create_deck", deckJson, userJson)
         },
         importDecks: function() {
 

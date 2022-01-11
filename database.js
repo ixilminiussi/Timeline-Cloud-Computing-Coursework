@@ -68,7 +68,7 @@ class Database {
     }
   }
 
-  async createDeckForUser(deckJson, cardsJson, user) {
+  async createDeckForUser(_uuid, deckJson, cardsJson, user) {
 
     //Checks whether user already has deck with name
 
@@ -78,23 +78,34 @@ class Database {
       return
     }
 
+    var duplicate = false
+
     decks.forEach(deck => {
 
       if (deck.name === deckJson.name) {
         this._error("deck of that name already exists ", deckJson.name)
-        return ""
+        duplicate = true
       }
     })
+
+    if (duplicate) { // cannot simply return inside for loop
+      return
+    }
 
     // Creates the card container 
 
     const db = await this._getDb()
     {
-      const { container } = await db.containers.createIfNotExists({ id: "cards" }) 
-      const { resource: createdDeck } = await container.items.create(cardsJson);
-      this._log("created new deck ", createdDeck.id);
-  
-      deckJson.cardContainer = createdDeck.id
+      const { container } = await db.containers.createIfNotExists({ id: _uuid }) 
+      await Promise.all(cardsJson.map(async (card) => {
+        try {
+          const { resource: createdCard } = await container.items.create(card)
+          this._log("created new card ", createdCard)
+        } catch(e) {
+          this._error(e)
+        }
+      }))
+      this._log("created new deck ", _uuid);
     }
 
     // Updates the user with pointer to card container

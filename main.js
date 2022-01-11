@@ -8,7 +8,8 @@ const db = new Database()
 const gameStore = new GameStore(db)
 
 const express = require("express")
-const { emit } = require('process')
+const { v1: uuidv1 } = require('uuid')
+const { cp } = require('fs')
 const app = express()
 
 const server = require("http").Server(app)
@@ -107,38 +108,38 @@ io.on("connection", socket => {
 
     var deckJson
     var cardJson
+    var _uuid = uuidv1()
 
-    if (json.name === null) {
+    if (!("name" in json)) {
       socket.emit("error", "json missing 'name' field")
       return
     }
 
-    deckJson = { "name": json.name }
-    cardJson = { "name": json.name }
+    deckJson = { "name": json.name, "cardContainer": _uuid }
 
-    if (json.cards === null) {
+    if (!("cards" in json)) {
       socket.emit("error", "json missing 'cards' array")
       return
     }
 
-    cardJson.cards = []
+    cardJson = []
 
     var i = 0
     while (json.cards[i] != null) { // iterating through cards
 
-      if (json.cards[i].backValue === null) {
+      if (!("backValue" in json.cards[i])) {
         socket.emit("error", "json missing 'backValue' in card index ", i)
       }
-      if (json.cards[i].frontValue === null) {
+      if (!("frontValue" in json.cards[i])) {
         socket.emit("error", "json missing 'frontValue' in card index ", i)
       }
 
-      cardJson.cards.push({ "id":i, "backValue": json.cards[i].backValue, "frontValue": json.cards[i].frontValue, "absoluteOrder": i })
+      cardJson.push({ "id":String(i), "front": json.cards[i].frontValue, "back": json.cards[i].backValue, "absoluteOrder": i, "cardContainer": _uuid })
 
       i ++
     }
 
-    db.createDeckForUser(deckJson, cardJson, user)
+    db.createDeckForUser(_uuid, deckJson, cardJson, user)
   })
 })
 

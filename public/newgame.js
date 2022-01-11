@@ -33,8 +33,8 @@ var app = new Vue({
       }
     },
     showCreateDeckForm: function() {
-      if (user.me.status == -1) {
-        user.form.show = 0;
+      if (user.me.status === 0) {
+        user.form.show = 1;
       }
       if (user.me.status == 1) {
         user.form.show = 3;

@@ -2,27 +2,32 @@ var user = new Vue({
     el: '#account',
     data: {
         me: { status: 0, username: '', displayname: '', password: ''}, // 0 - Not logged in; 1 - Logged in
-        form: { show: 0, passwordInput: 'password', error: '', successMsg: false}, // 0 - nothing; 1 - show login form; 2 - show register form;
+        form: { show: 0, passwordInput: 'password', error: '', successMsg: false, deletingDeck: ''}, // 0 - nothing; 1 - show login form; 2 - show register form;
         change: {oldPasswordInput: 'password', newPasswordInput: 'password' },
-        accountChanges: {tempDisplayname: '', oldPassword: '', newPassword: ''}
+        accountChanges: {tempDisplayname: '', oldPassword: '', newPassword: ''},
+        file: { selectedFile: null }
     },
     mounted: function() {
         // Allows for closing the login form with keypress
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                this.closeLoginForm();
+                this.closeForm();
             }
-        });
+        })
 
         // Allows for closing the login form by clicking outside
         window.addEventListener('mousedown', (e) => {
-            if (this.form.show !== 0 && !document.getElementById('loginForm').contains(e.target)) {
-                this.closeLoginForm();
+            if (this.form.show !== 0 && !document.getElementById('form').contains(e.target)) {
+                this.closeForm();
             }
-        });
+        })
 
         //Check cookie for log in session data
         this.getUserInfoCookies();
+
+        if (this.me.status === 1) {
+            socket.emit("available_decks", this.me)
+        }
     },
     methods: {
         login: function(username, password) {
@@ -39,38 +44,70 @@ var user = new Vue({
             this.me.status = 0
             this.deleteAllCookies()
             console.log("Cookies after delete: " + document.cookie)
+            socket.emit("available_decks", this.me)
+        },
+        createDeck: function() {
+
+            read = new FileReader();
+
+            read.readAsBinaryString(this.file.selectedFile);
+
+            var userJson = this.me
+            var deckJson
+            read.onloadend = function(){
+                try {
+                    deckJson = JSON.parse(read.result)
+                    if (deckJson != null) {
+                        socket.emit("create_deck", deckJson, userJson)
+                    }
+                } catch (e) {
+                    if (e instanceof SyntaxError) {
+                        alert(e)
+                    }
+                }
+            }
+        },
+        showDeleteForm: function(deck) {
+            this.form.deletingDeck = deck
+            this.form.show = 4
+        },
+        deleteDeck: function() {
+            socket.emit("delete_deck", this.form.deletingDeck, this.me)
         },
         showLoginForm: function() {
-            this.form.show = 1;
+            this.form.show = 1
         },
         showSignupForm: function() {
-            this.form.show = 2;
+            this.form.show = 2
         },
-        closeLoginForm: function() {
-            this.form.show = 0;
+        closeForm: function() {
+            this.form.show = 0
         },
         togglePassword: function(input) {
             if (input === 'passwordInput') {
                 if (this.form.passwordInput === 'password') {
-                    this.form.passwordInput = 'text';
+                    this.form.passwordInput = 'text'
                 } else {
-                    this.form.passwordInput = 'password';
+                    this.form.passwordInput = 'password'
                 }
             }
             if (input === 'newPasswordInput') {
                 if (this.change.newPasswordInput === 'password') {
-                    this.change.newPasswordInput = 'text';
+                    this.change.newPasswordInput = 'text'
                 } else {
-                    this.change.newPasswordInput = 'password';
+                    this.change.newPasswordInput = 'password'
                 }
             }
             if (input === 'oldPasswordInput') {
                 if (this.change.oldPasswordInput === 'password') {
-                    this.change.oldPasswordInput = 'text';
+                    this.change.oldPasswordInput = 'text'
                 } else {
-                    this.change.oldPasswordInput = 'password';
+                    this.change.oldPasswordInput = 'password'
                 }
             }
+        },
+        changeFile: function(event) {
+            this.file.selectedFile = event.target.files[0]
         },
         getCookies: function(str){
             let cookieString = RegExp(str+"=[^;]+").exec(document.cookie);
@@ -130,4 +167,4 @@ var user = new Vue({
               .then(() => this.form.successMsg = false)
         }
     }
-});
+})

@@ -4,6 +4,7 @@ var app = new Vue({
   el: '#vue-app',
   data: {
     decks: [],
+    customDecks: [],
     selectedDeckIndex: null,
     joinLink: "Loading...",
     copiedJoinLink: false,
@@ -17,7 +18,14 @@ var app = new Vue({
   methods: {
     selectDeckAt: function (index) {
       this.selectedDeckIndex = index
-      socket.emit("select_deck", this.decks[index].id)
+      if (index === null) {
+        return
+      }
+      if (this.selectedDeckIndex < this.decks.length) {
+        socket.emit("select_deck", this.decks[index].id)
+      } else {
+        socket.emit("select_deck", this.customDecks[index-this.decks.length].id)
+      }
     },
     copyJoinLink: function () {
       if (this.joinLink) {
@@ -25,6 +33,14 @@ var app = new Vue({
         this.copiedJoinLink = true
         new Promise(resolve => setTimeout(resolve, 1000))
           .then(() => this.copiedJoinLink = false)
+      }
+    },
+    showCreateDeckForm: function() {
+      if (user.me.status === 0) {
+        user.form.show = 1
+      }
+      if (user.me.status === 1) {
+        user.form.show = 3
       }
     },
     openGameLink: function () {
@@ -35,11 +51,19 @@ var app = new Vue({
     handSizeChanged: function () {
       socket.emit("hand_size", this.handSize)
     },
+    createDeck: function() {
+      user.createDeck()
+    },
+    deleteDeck: function() {
+      if (this.selectedDeckIndex >= this.decks.length) {
+        user.showDeleteForm(this.customDecks[this.selectedDeckIndex-this.decks.length])
+      }
+    }
   }
-});
+})
 
 function connect() {
-  socket = io();
+  socket = io()
   socket.on('connect', function () {
 
   })
@@ -60,6 +84,15 @@ function connect() {
   socket.on("available_decks", decks => {
     console.log("socket: available_decks", decks)
     app.decks = decks
+    user.closeForm()
+    app.selectDeckAt(null)
+  })
+
+  socket.on("available_custom_decks", decks => {
+    console.log("socket: available_custom_decks", decks)
+    app.customDecks = decks
+    user.closeForm()
+    app.selectDeckAt(null)
   })
 
   socket.on("update_cookie", data => {
@@ -70,6 +103,7 @@ function connect() {
     document.cookie = "screenName=" + data.screenName
     document.cookie = "decks=" + data.decks
     console.log("Cookie set: ", document.cookie)
+    socket.emit("available_decks", user.me)
   })
 
   socket.on("login_error", error => {
@@ -80,5 +114,9 @@ function connect() {
   socket.on("account_update_success", function() {
     console.log("socket: account_update_success")
     user.displaySuccess()
+  })
+
+  socket.on("error", message => {
+    alert(message)
   })
 }

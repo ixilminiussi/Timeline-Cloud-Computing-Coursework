@@ -21,11 +21,12 @@ class Database {
     this._db = null
     this._cache = {
       decks: null,
+      customDecks: null,
       cards: new Map(), // [deckID: [Card]]
+      customCards: new Map()
     }
   }
 
-  // PUBLIC
   async getPlayableDecks() {
     if (this._cache.decks) {
       this._log("Cache hit: returning playable decks")
@@ -46,23 +47,160 @@ class Database {
     return decks
   }
 
+  async getDecksForUser(user) {
+
+    const db = await this._getDb()
+    const { container } = await db.containers.createIfNotExists({ id: "users" })
+    const userQueryResult = await this._getUserWithUsername(user.username, container)
+
+    if(userQueryResult.length > 0) {
+
+      if (userQueryResult[0].decks === undefined) {
+        this._log("no decks found under user ", user.username)
+        return []
+      }
+
+      this._log("found custom decks ", userQueryResult[0].decks)
+      return userQueryResult[0].decks
+    } else {
+      throw "Username not found."
+    }
+  }
+
+  async deleteDeck(deckJson, user) {
+
+    try {
+      if(!(await this.authenticate(user.username, user.password))){
+        console.log("Delete deck: Authentication failed")
+        throw "Password incorrect."
+      }
+    } catch(e) {
+      throw(e)
+    }
+
+    const db = await this._getDb()
+
+    { // Removes card container
+      const { container } = await db.containers.createIfNotExists({ id: deckJson.cardContainer })
+      await container.delete();
+
+      this._log("deleted container ", deckJson.cardContainer)
+    }
+
+    { // Removes from user collection
+      const { container } = await db.containers.createIfNotExists({ id: "users" })
+      
+      const userQueryResult = await this._getUserWithUsername(user.username, container)
+
+      userQueryResult[0].decks = userQueryResult[0].decks.filter(item => item.id != deckJson.id);
+  
+      const { id, key } = userQueryResult[0]
+      const { resource: updatedUser } = await container.item(id, key).replace(userQueryResult[0])
+      this._log(updatedUser)
+    }
+  }
+
+  async createDeckForUser(_uuid, deckJson, cardsJson, user) {
+
+    //Checks whether user already has deck with name
+
+    var decks = []
+
+    try {
+      decks = await this.getDecksForUser(user)
+    } catch(e) {
+      throw(e)
+    }
+
+    decks.forEach(deck => {
+
+      if (deck.name === deckJson.name) {
+        throw("Incorrect deck name - duplicate")
+      }
+    })
+
+    // Creates the card container 
+
+    const db = await this._getDb()
+    {
+      const { container } = await db.containers.createIfNotExists({ id: _uuid }) 
+      await Promise.all(cardsJson.map(async (card) => {
+        try {
+          const { resource: createdCard } = await container.items.create(card)
+          this._log("created new card ", createdCard)
+        } catch(e) {
+          this._error(e)
+        }
+      }))
+      this._log("created new deck ", _uuid);
+    }
+
+    // Updates the user with pointer to card container
+
+    const { container } = await db.containers.createIfNotExists({ id: "users" })
+    const userQueryResult = await this._getUserWithUsername(user.username, container)
+
+    userQueryResult[0].decks.push(deckJson)
+
+    const { id, key } = userQueryResult[0]
+    const { resource: updatedUser } = await container.item(id, key).replace(userQueryResult[0])
+    this._log(updatedUser)
+
+    return userQueryResult[0].decks
+  }
+
   async getCardsForDeckWithID(deckID) {
+
+    if (this._cache.customCards.has(deckID)) {
+      this._log("Cache hit: returning cards for deck ", deckID)
+      return this._cache.customCards.get(deckID)
+    }
+
     if (this._cache.cards.has(deckID)) {
       this._log("Cache hit: returning cards for deck ", deckID)
       return this._cache.cards.get(deckID)
     }
 
+    const db = await this._getDb()
+
     const decks = await this.getPlayableDecks()
     const deck = decks.find(d => d.id === deckID)
     if (!deck) {
-      this._error("No deck available for id", deckID)
-      return []
+      this._error("No classic deck available for id", deckID)
+    } else {
+      this._log("Cache miss: downloading cards for deck", deckID)
+      const { container } = await db.containers.createIfNotExists({ id: deck.cardContainer })
+      const records = await container.items.readAll().fetchAll()
+      const cards = records.resources.map(c => ({ // Strip the CosmosDb properties
+        id: c.id,
+        frontValue: c.front,
+        backValue: c.back,
+        absoluteOrder: parseInt(c.absoluteOrder)
+      }))
+      
+      this._cache.cards.set(deckID, cards)
+
+      return cards
     }
-    
-    this._log("Cache miss: downloading cards for deck", deckID)
-    const db = await this._getDb()
-    const { container } = await db.containers.createIfNotExists({ id: deck.cardContainer })
+
+    { // Testing if a custom decks exists under that name (unlike classic decks, custom decks share the same id for cardContainer as the id for the deck)
+      const querySpec = {
+          query: "SELECT * FROM root r WHERE r.id='"+deckID+"'"
+      };
+  
+      this._log("Cache miss: downloading cards for deck", deckID)
+      const records = await db.containers.query(querySpec).fetchNext();
+      if(!records.resources[0]){
+        this._error("No custom deck available for id", deckID)
+        return 
+      }
+
+      this._log(records.resources[0])
+    }
+
+    const { container } = await db.containers.createIfNotExists({ id: deckID })
     const records = await container.items.readAll().fetchAll()
+
     const cards = records.resources.map(c => ({ // Strip the CosmosDb properties
       id: c.id,
       frontValue: c.front,
@@ -70,7 +208,8 @@ class Database {
       absoluteOrder: parseInt(c.absoluteOrder)
     }))
 
-    this._cache.cards.set(deckID, cards)
+    this._cache.customCards.set(deckID, cards)
+
     return cards
   }
 

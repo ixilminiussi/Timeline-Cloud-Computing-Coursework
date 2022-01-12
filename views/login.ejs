@@ -30,8 +30,8 @@
 </div>
 
 <transition name="fade">
-    <div v-if="form.show === 1 || form.show === 2" class="absolute inset-0 flex z-10 min-h-screen items-center justify-center bg-black bg-opacity-30">
-        <div id="loginForm" class="bg-white pr-16 pt-16 pb-10 pl-16 rounded shadow-2xl max-w-sm">
+    <div v-if="form.show === 1 || form.show === 2" class="fixed inset-0 flex z-10 min-h-screen items-center justify-center bg-black bg-opacity-30">
+        <div id="form" class="bg-white pr-16 pt-16 pb-10 pl-16 rounded shadow-2xl max-w-sm">
             <h2 v-if="form.show === 1" class="text-3xl text-center font-bold mb-10 text-blue-400">Login</h2>
             <h2 v-else class="text-3xl text-center font-bold mb-10 text-blue-400">Create account</h2>
             <div class="space-y-5">
@@ -41,50 +41,160 @@
                     <div v-if="form.error === 'Username already exists.' || form.error === 'Username not found.'" class="text-red-600">{{form.error}}</div>
                 </div>
                 <div>
-                    <label class="block mb-1 font-bold text-gray-500" for="password">Password</label>
-
-                    <div class="relative flex">
-                        <input v-model="me.password" :type="form.passwordInput" id="password" class="w-full border-2 border-gray-200 p-3 rounded outline-none focus:border-blue-500 laceholder-blueGray-300 text-blueGray-600 relative pr-12">
-
-                        <button class="z-10 h-full text-gray-500 leading-snug absolute bg-transparent rounded text-base items-center justify-center w-8 right-2 pr-3 py-1" @click="togglePassword('passwordInput')">
-                                <div v-if="form.passwordInput === 'password'">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                </div>
-                                <div v-if="form.passwordInput === 'text'">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20"
-                                        fill="currentColor">
-                                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                                        <path fill-rule="evenodd"
-                                            d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                        </button>
-                    </div>
-                    <div v-if="form.error === 'Password incorrect.'" class="text-red-600">{{form.error}}</div>
+                  <label class="block mb-1 font-bold text-gray-500" for="password">Password</label>
+                
+                  <div class="relative flex">
+                    <input v-model="me.password" :type="form.passwordInput" id="password" class="w-full border-2 border-gray-200 p-3 rounded outline-none focus:border-blue-500 laceholder-blueGray-300 text-blueGray-600 relative pr-12">
+                    <button class="z-10 h-full text-gray-500 leading-snug absolute bg-transparent rounded text-base items-center justify-center w-8 right-2 pr-3 py-1" @click="togglePassword('passwordInput')">
+                      <div v-if="form.passwordInput === 'password'">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      </div>
+                      <div v-if="form.passwordInput === 'text'">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20"
+                            fill="currentColor">
+                          <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                          <path fill-rule="evenodd"
+                              d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                              clip-rule="evenodd" />
+                        </svg>
+                      </div>
+                    </button>
+                  </div>
+                  <div v-if="form.error === 'Password incorrect.'" class="text-red-600">{{form.error}}</div>
                 </div>
                 <div v-if="form.show === 1">
-                    <button @click="login(me.username, me.password)" class="block w-full p-4 rounded bg-blue-400 hover:bg-blue-300 transition duration-100 hover:text-blue-800 hover:scale-105">Login</button>
-                    <button @click.stop="showSignupForm()" class="block w-full p-2 mt-3 transition duration-100 text-blue-600 hover:text-blue-800 font-bold text-sm">Create
-                        an account</button>
+                  <button @click="login(me.username, me.password)" class="block w-full p-4 rounded bg-blue-400 hover:bg-blue-300 transition duration-100 hover:text-blue-800 hover:scale-105">Login</button>
+                  <button @click.stop="showSignupForm()" class="block w-full p-2 mt-3 transition duration-100 text-blue-600 hover:text-blue-800 font-bold text-sm">Create
+                      an account</button>
                 </div>
                 <div v-else>
-                    <button @click="signup(me.username, me.password)" class="block w-full p-4 rounded bg-blue-400 hover:bg-blue-300 transition duration-100 hover:text-blue-800">Sign-up</button>
-                    <button @click.stop="showLoginForm()" class="block w-full p-2 mt-3 transition duration-100 text-blue-600 hover:text-blue-800 font-bold text-sm">Already
-                        have an account ?</button>
+                  <button @click="signup(me.username, me.password)" class="block w-full p-4 rounded bg-blue-400 hover:bg-blue-300 transition duration-100 hover:text-blue-800">Sign-up</button>
+                  <button @click.stop="showLoginForm()" class="block w-full p-2 mt-3 transition duration-100 text-blue-600 hover:text-blue-800 font-bold text-sm">Already
+                      have an account ?</button>
                 </div>
             </div>
         </div>
     </div>
 </transition>
 
-<button v-if="form.show === 1 || form.show === 2" class="block rounded p-5 float-right float-top">
+<transition name="fade">
+    <div v-if="form.show === 3" class="fixed inset-0 flex z-10 min-h-screen items-center justify-center bg-black bg-opacity-30">
+      <div id="form" class="flex flex-row bg-white px-5 py-10 rounded-lg shadow-3xl">
+        <div class="self-center p-2 border-4 border-gray-300 rounded-md border-dotted relative hover:border-gray-400 transition-all duration-300">
+          <p class="text-lg font-bold text-gray-500 text-center italic">example file</p>
+          <p class="whitespace-nowrap font-mono text-xs text-gray-500 italic leading-3 p-2 bg-gray-200 rounded">
+            <br />{
+            <br />&emsp;"name": "discoveries",
+            <br />&emsp;"cards": [
+            <br />&emsp;&emsp;{
+            <br />&emsp;&emsp;&emsp;"frontValue": "fire",
+            <br />&emsp;&emsp;&emsp;"backValue": "1.7M BC"
+            <br />&emsp;&emsp;},
+            <br />&emsp;&emsp;{
+            <br />&emsp;&emsp;&emsp;"frontValue": "america",
+            <br />&emsp;&emsp;&emsp;"backValue": "1492"
+            <br />&emsp;&emsp;},
+            <br />&emsp;&emsp;{
+            <br />&emsp;&emsp;&emsp;"frontValue": "gravity",
+            <br />&emsp;&emsp;&emsp;"backValue": "1642"
+            <br />&emsp;&emsp;}
+            <br />&emsp;]
+            <br />}
+          </p>
+          <p class="text-sm font-normal text-gray-400 text-right mt-2">*hover for file rules</p>
+          <div class="absolute inset-0 w-full h-full opacity-0 hover:opacity-100 transition-all duration-300" for="rules">
+            <div class="h-full p-2 bg-gray-100 rounded">
+              <p class="text-lg font-bold text-gray-500 text-center italic">formatting rules</p>
+              <ul class="list-disc ml-6 text-sm text-gray-500">
+                <li>file must be in valid json form</li>
+                <li>frontValue determines the shown label (i.e. event name)</li>
+                <li>backValue determines the hidden label (i.e. event date)</li>
+                <span class="font-bold text-center italic leading-3"><br>The order is determined by the written order, not the backValue</span>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="basis-3/4 grid ml-4 auto-rows-auto">
+          <div class="relative flex h-64 flex-shrink justify-center items-center bg-gray-100 hover:bg-gray-200 hover:scale-100 text-gray-500 font-bold rounded-md border-4 border-gray-300 transition-all duration-100">
+            <div class="absolute">
+              <div v-if="file.selectedFile === null" class="flex flex-col items-center">
+                <i class="fa fa-folder-open fa-4x text-blue-700"></i>
+                <svg fill="gray" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M0 0h24v24H0z" fill="none" />
+                  <path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z" />
+                </svg>
+                <span class="ml-2">Select <span class="font-normal text-blue-500">.json</span> file</span>
+              </div>
+              <div v-else class="flex flex-col items-center">
+                <i class="fa fa-folder-open fa-4x text-blue-700"></i>
+                <svg fill="gray" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M0 0h24v24H0z" fill="none" />
+                  <path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z" />
+                </svg>
+                <span class="ml-2 font-normal text-blue-500 italic">{{ file.selectedFile.name }}</span>
+              </div>
+            </div>
+            <input accept="application/JSON" type="file" class="cursor-pointer h-full w-full opacity-0" @change="changeFile"/>
+          </div>
+          <div v-if="file.selectedFile === null" class="grid place-items-end">
+            <button class="cursor-not-allowed mt-2 p-3 rounded-md bg-blue-300 text-blue-800" disabled>Upload</button>
+          </div>
+          <div v-else class="grid place-items-end">
+            <button @click="createDeck()" class="mt-2 p-3 rounded-md bg-blue-400 hover:bg-blue-300 hover:scale-105 hover:text-blue-800 transition-all duration-100">Upload</button>
+          </div>
+        </div>
+      </div>
+    </div>
+</transition>
+
+<transition name="fade">
+  <div v-if="form.show === 4" class="fixed inset-0 flex z-10 min-h-screen items-center justify-center bg-black bg-opacity-30">
+    <div id="form" class="bg-white px-16 pt-10 pb-10 rounded shadow-2xl max-w-sm">
+      <h2 class="text-3xl text-center font-bold mb-6 text-blue-400">Delete deck '{{form.deletingDeck.name}}'</h2>
+      <div class="space-y-5">
+        <div>
+          <label class="block mb-1 font-bold text-gray-500" for="password">Password</label>
+          <div class="relative flex">
+            <input v-model="me.password" :type="form.passwordInput" id="password" class="w-full border-2 border-gray-200 p-3 rounded outline-none focus:border-blue-500 laceholder-blueGray-300 text-blueGray-600 relative pr-12">
+            <button class="z-10 h-full text-gray-500 leading-snug absolute bg-transparent rounded text-base items-center justify-center w-8 right-2 pr-3 py-1" @click="togglePassword('passwordInput')">
+              <div v-if="form.passwordInput === 'password'">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </div>
+              <div v-if="form.passwordInput === 'text'">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20"
+                    fill="currentColor">
+                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                  <path fill-rule="evenodd"
+                      d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                      clip-rule="evenodd" />
+                </svg>
+              </div>
+            </button>
+          </div>
+
+          <div v-if="form.error === 'Password incorrect.'" class="text-red-600">{{form.error}}</div>
+        </div>
+        <div>
+          <button @click="deleteDeck()" class="block w-full p-4 rounded bg-blue-400 hover:bg-blue-300 transition duration-100 hover:text-blue-800 hover:scale-105">confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</transition>
+
+<button v-if="form.show >= 1" class="fixed block rounded p-5 float-right float-top">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 transition duration-100 hover:stroke-blue-300" fill="none"
         viewBox="0 0 24 24" stroke="gray">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

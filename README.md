@@ -88,6 +88,14 @@ gcloud app deploy --version test --project timeline-337918
 
 These are the socket messages the server can use to update the client.
 
+#### reset
+
+Call this to tell the clients to reset certain variables to their default value, usually at the start of a game (such as 'winner', 'correctlyPlaced', and 'status')
+
+```javascript
+socket.on("reset", () => { /* ... */ })
+```
+
 #### deal_hand
 
 Call this once at the start of the game to give the player a hand of cards from the game deck. This replaces the current hand.
@@ -159,16 +167,12 @@ socket.on("set_current_turn", (username) => { /* ... */ })
 
 Call this to let the clients no the game is over. the username given should represent the winner of the game, correctlyPlaced should be kept count of, and represents every succesful placement of a card
 
-```javascript
-socket.on("game_over", (correctlyPlaced, username) => { /* ... */ })
-```
-
-#### reset
-
-Call this to tell the clients to reset certain variables to their default value, usually at the start of a game (such as 'winner', 'correctlyPlaced', and 'status')
+Args:
+* `correctlyPlaced` (`Int`): the amount of cards correctly placed during the game, kept track of by the server
+* `winner` (`String`): the name of the user who won the game, to be displayed as such on the endgame screen
 
 ```javascript
-socket.on("reset", () => { /* ... */ })
+socket.on("game_over", (correctlyPlaced, winner) => { /* ... */ })
 ```
 
 #### available_decks
@@ -191,6 +195,17 @@ Args:
 
 ```javascript
 socket.on("update_cookie", data => {/* ... */})
+```
+
+#### error
+
+The server should call this to send an error msg to the client, which will be displayed as an alert on the browser
+
+Args: 
+* `msg` (`String`): A string describing the error
+
+```javascript
+socket.on("error", msg => {/* ... */})
 ```
 
 #### login_error
@@ -218,10 +233,14 @@ These are the socket messages the client will use to update the server.
 
 #### available_decks
 
-Called when the client wants to receive all the decks that are available to be played. The server should respond by emitting `available_decks` on the same socket.
+Called when the client wants to receive all the decks that are available to be played. The server should respond by emitting `available_decks` on the same socket. If the user is connected and sends it's user info, the server should also respond with `available_custom_decks` with the user specific decks.
+
+Args:
+* `user` (`Json`): a Json containing the player information (such as user.password, and user.username)
 
 ```javascript
-socket.emit("available_decks", card.id, cardIndex)
+socket.emit("available_decks")
+socket.emit("available_decks", user)
 ```
 
 #### select_deck
@@ -233,6 +252,30 @@ Args:
 
 ```javascript
 socket.emit("select_deck", id)
+```
+
+#### create_deck
+
+Called when the client wants to create a new deck, to do so, they first need select a Json file containing the pertinent information. The server should then parse that file, and add it to the database.
+
+Args:
+* `deckJson` (`Json`): the Json file sent by the user containing the deck information
+* `userJson` (`Json`): a Json containing the player information (such as user.password, and user.username)
+
+```javascript
+socket.emit("create_deck", deckJson, userJson)
+```
+
+#### delete_deck
+
+Called when the client wants to delete a deck, to do so, they first need select the deck, click the "delete" button, and input their password to confirm. The server should then authenticate the user, and then remove the deck from the user item, as well as the corresponding card container
+
+Args:
+* `deckJson` (`Json`): the Json file containing the deck information
+* `userJson` (`Json`): a Json containing the player information (such as user.password, and user.username)
+
+```javascript
+socket.emit("delete_deck", deckJson, userJson)
 ```
 
 #### hand_size
@@ -281,12 +324,12 @@ socket.emit("register_username", username)
 Called by the admin player when they decide to start the game.
 
 ```javascript
-socket.emit("start_game", username)
+socket.emit("start_game")
 ```
 
 #### restart_game
 
-Called by the admin player once the game is already over, and they click on 'play again'
+Called by the admin player once the game is already over, and they decide to start the game over again
 
 ```javascript
 socket.emit("restart_game")
@@ -295,6 +338,8 @@ socket.emit("restart_game")
 #### leave_game
 
 Called by any player once the game is already over, and they click on 'exit game'. Removes them from the game and updates every player;
+
+* `gameID` (`String`): the unique ID of the game that this client would like to leave.
 
 ```javascript
 socket.emit("leave_game", gameID)
@@ -317,7 +362,7 @@ Args:
 * `index`: The index in the timeline at which the card was placed
 
 ```javascript
-socket.emit("card_placed", card.id, cardIndex)
+socket.emit("card_placed", id, index)
 ```
 
 #### player_login

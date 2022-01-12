@@ -8,6 +8,9 @@ const db = new Database()
 const gameStore = new GameStore(db)
 
 const express = require("express")
+const { v1: uuidv1 } = require('uuid')
+const { cp } = require('fs')
+const { ConflictResolutionMode } = require('@azure/cosmos')
 const app = express()
 
 const server = require("http").Server(app)
@@ -51,10 +54,21 @@ io.on("connection", socket => {
   })
 
   // ========================== Client-side API ==========================
-  socket.on("available_decks", async () => {
+  socket.on("available_decks", async (user) => {
     console.log("socket: available_decks")
     const decks = await db.getPlayableDecks()
     socket.emit("available_decks", decks)
+
+    if (user != null) {
+      console.log("socket: available_custom_decks")
+      try {
+        const decks = await db.getDecksForUser(user)
+        socket.emit("available_custom_decks", decks)
+      } catch(e) {
+        socket.emit("available_custom_decks", [])
+        console.log(e)
+      }
+    }
   })
 
   socket.on("select_deck", deckID => {
@@ -142,6 +156,72 @@ io.on("connection", socket => {
     }
     catch (err) {
       socket.emit("login_error", err)
+    }
+  })
+
+  socket.on("create_deck", async (json, user) => {
+    console.log("socket: create_deck", user.username)
+
+    var deckJson
+    var cardJson
+    var _uuid = uuidv1()
+
+    if (!("name" in json)) {
+      socket.emit("error", "json missing 'name' field")
+      return
+    }
+
+    deckJson = { "name": json.name, "cardContainer": _uuid, "id": _uuid }
+
+    if (!("cards" in json)) {
+      socket.emit("error", "json missing 'cards' array")
+      return
+    }
+
+    cardJson = []
+
+    var i = 0
+    while (json.cards[i] != null) { // iterating through cards
+
+      if (!("backValue" in json.cards[i])) {
+        socket.emit("error", "json missing 'backValue' in card index "+ i)
+        return
+      }
+      if (!("frontValue" in json.cards[i])) {
+        socket.emit("error", "json missing 'frontValue' in card index "+ i)
+        return
+      }
+
+      cardJson.push({ "id":String(i), "front": json.cards[i].frontValue, "back": json.cards[i].backValue, "absoluteOrder": i, "cardContainer": _uuid })
+
+      i ++
+    }
+
+    try {
+      await db.createDeckForUser(_uuid, deckJson, cardJson, user)
+
+      console.log("socket: available_custom_decks")
+      try {
+        const decks = await db.getDecksForUser(user)
+        socket.emit("available_custom_decks", decks)
+      } catch(e) {
+        socket.emit("available_custom_decks", [])
+        console.log(e)
+      }
+    } catch(e) {
+      socket.emit("error", e)
+    }
+  })
+
+  socket.on("delete_deck", async (deckJson, user) => {
+  
+    console.log("deleting custom deck "+ deckJson.name+" for user "+ user.username)
+    try {
+      await db.deleteDeck(deckJson, user)
+      const decks = await db.getDecksForUser(user)
+      socket.emit("available_custom_decks", decks)
+    } catch(e) {
+      socket.emit("login_error", e)
     }
   })
 })

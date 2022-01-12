@@ -101,6 +101,15 @@
           </svg>
         </button>
       </div>
+      <div class="mt-6">
+        <!-- Deletes selected deck -->
+        <button
+          v-if="selectedDeckIndex >= decks.length"
+          @click="openGameLink()"
+          class="flex items-center text-red-300 px-2 font-medium transition duration-100 hover:text-red-400">
+          <span>Delete deck</span>
+        </button>
+      </div>
     </div>
   </div>
 

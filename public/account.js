@@ -67,6 +67,9 @@ var user = new Vue({
                 }
             }
         },
+        deleteDeck: function(deckID) {
+            socket.emit("delete_deck", deckID, userJson)
+        },
         showLoginForm: function() {
             this.form.show = 1
         },

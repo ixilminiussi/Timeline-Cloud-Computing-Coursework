@@ -50,6 +50,11 @@ var app = new Vue({
     },
     createDeck: function() {
       user.createDeck()
+    },
+    deleteDeck: function() {
+      if (this.selectedDeckIndex >= this.decks.length) {
+        user.deleteDeck(this.customDecks[index-this.decks.length].id)
+      }
     }
   }
 })

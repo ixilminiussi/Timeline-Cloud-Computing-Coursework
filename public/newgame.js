@@ -81,11 +81,13 @@ function connect() {
   socket.on("available_decks", decks => {
     console.log("socket: available_decks", decks)
     app.decks = decks
+    user.closeForm()
   })
 
   socket.on("available_custom_decks", decks => {
     console.log("socket: available_custom_dekcs", decks)
     app.customDecks = decks
+    user.closeForm()
   })
 
   socket.on("update_cookie", data => {

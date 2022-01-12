@@ -392,7 +392,7 @@ function connect() {
   socket.on("overwrite_players", (players) => {
     overwritePlayers(players)
   })
-  
+
   socket.on("set_current_turn", (username) => {
     setCurrentTurn(username)
   })

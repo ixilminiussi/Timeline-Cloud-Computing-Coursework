@@ -22,12 +22,12 @@ var user = new Vue({
             }
         })
 
+        //Check cookie for log in session data
+        this.getUserInfoCookies();
+
         if (this.me.status === 1) {
             socket.emit("available_decks", this.me)
         }
-
-        //Check cookie for log in session data
-        this.getUserInfoCookies();
     },
     methods: {
         login: function(username, password) {
@@ -44,6 +44,7 @@ var user = new Vue({
             this.me.status = 0
             this.deleteAllCookies()
             console.log("Cookies after delete: " + document.cookie)
+            socket.emit("available_decks", this.me)
         },
         createDeck: function() {
 

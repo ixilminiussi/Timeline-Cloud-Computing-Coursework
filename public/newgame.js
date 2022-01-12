@@ -34,10 +34,10 @@ var app = new Vue({
     },
     showCreateDeckForm: function() {
       if (user.me.status === 0) {
-        user.form.show = 1;
+        user.form.show = 1
       }
       if (user.me.status === 1) {
-        user.form.show = 3;
+        user.form.show = 3
       }
     },
     openGameLink: function () {
@@ -49,13 +49,13 @@ var app = new Vue({
       socket.emit("hand_size", this.handSize)
     },
     createDeck: function() {
-      user.createDeck();
+      user.createDeck()
     }
   }
-});
+})
 
 function connect() {
-  socket = io();
+  socket = io()
   socket.on('connect', function () {
 
   })
@@ -78,6 +78,11 @@ function connect() {
     app.decks = decks
   })
 
+  socket.on("available_custom_decks", decks => {
+    console.log("socket: available_custom_dekcs", decks)
+    app.customDecks = decks
+  })
+
   socket.on("update_cookie", data => {
     console.log("socket: update_cookie", data)
     user.me = { status: 1, username: data.id, displayname: data.screenName, password: ''}
@@ -86,6 +91,7 @@ function connect() {
     document.cookie = "screenName=" + data.screenName
     document.cookie = "decks=" + data.decks
     console.log("Cookie set: ", document.cookie)
+    socket.emit("available_decks", user.me)
   })
 
   socket.on("login_error", error => {
@@ -96,11 +102,6 @@ function connect() {
   socket.on("account_update_success", function() {
     console.log("socket: account_update_success")
     user.displaySuccess()
-  })
-
-  socket.on("available_custom_decks", decks => {
-    console.log("socket: available_custom_dekcs", decks)
-    app.customDecks = decks
   })
 
   socket.on("error", message => {

@@ -10,6 +10,7 @@ const gameStore = new GameStore(db)
 const express = require("express")
 const { v1: uuidv1 } = require('uuid')
 const { cp } = require('fs')
+const { ConflictResolutionMode } = require('@azure/cosmos')
 const app = express()
 
 const server = require("http").Server(app)
@@ -209,6 +210,18 @@ io.on("connection", socket => {
       }
     } catch(e) {
       socket.emit("error", e)
+    }
+  })
+
+  socket.on("delete_deck", async (deckJson, user) => {
+  
+    console.log("deleting custom deck "+ deckJson.name+" for user "+ user.username)
+    try {
+      await db.deleteDeck(deckJson, user)
+      const decks = await db.getDecksForUser(user)
+      socket.emit("available_custom_decks", decks)
+    } catch(e) {
+      socket.emit("login_error", e)
     }
   })
 })

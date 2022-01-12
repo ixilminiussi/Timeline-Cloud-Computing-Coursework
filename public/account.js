@@ -2,7 +2,7 @@ var user = new Vue({
     el: '#account',
     data: {
         me: { status: 0, username: '', displayname: '', password: ''}, // 0 - Not logged in; 1 - Logged in
-        form: { show: 0, passwordInput: 'password', error: '', successMsg: false}, // 0 - nothing; 1 - show login form; 2 - show register form;
+        form: { show: 0, passwordInput: 'password', error: '', successMsg: false, deletingDeck: ''}, // 0 - nothing; 1 - show login form; 2 - show register form;
         change: {oldPasswordInput: 'password', newPasswordInput: 'password' },
         accountChanges: {tempDisplayname: '', oldPassword: '', newPassword: ''},
         file: { selectedFile: null }
@@ -67,8 +67,12 @@ var user = new Vue({
                 }
             }
         },
-        deleteDeck: function(deckID) {
-            socket.emit("delete_deck", deckID, userJson)
+        showDeleteForm: function(deck) {
+            this.form.deletingDeck = deck
+            this.form.show = 4
+        },
+        deleteDeck: function() {
+            socket.emit("delete_deck", this.form.deletingDeck, this.me)
         },
         showLoginForm: function() {
             this.form.show = 1

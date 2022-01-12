@@ -53,7 +53,7 @@ var app = new Vue({
     },
     deleteDeck: function() {
       if (this.selectedDeckIndex >= this.decks.length) {
-        user.deleteDeck(this.customDecks[index-this.decks.length].id)
+        user.showDeleteForm(this.customDecks[this.selectedDeckIndex-this.decks.length])
       }
     }
   }

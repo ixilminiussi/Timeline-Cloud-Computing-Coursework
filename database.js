@@ -67,6 +67,39 @@ class Database {
     }
   }
 
+  async deleteDeck(deckJson, user) {
+
+    try {
+      if(!(await this.authenticate(user.username, user.password))){
+        console.log("Delete deck: Authentication failed")
+        throw "Password incorrect."
+      }
+    } catch(e) {
+      throw(e)
+    }
+
+    const db = await this._getDb()
+
+    { // Removes card container
+      const { container } = await db.containers.createIfNotExists({ id: deckJson.cardContainer })
+      await container.delete();
+
+      this._log("deleted container ", deckJson.cardContainer)
+    }
+
+    { // Removes from user collection
+      const { container } = await db.containers.createIfNotExists({ id: "users" })
+      
+      const userQueryResult = await this._getUserWithUsername(user.username, container)
+
+      userQueryResult[0].deckIDs = userQueryResult[0].deckIDs.filter(item => item.id != deckJson.id);
+  
+      const { id, key } = userQueryResult[0]
+      const { resource: updatedUser } = await container.item(id, key).replace(userQueryResult[0])
+      this._log(updatedUser)
+    }
+  }
+
   async createDeckForUser(_uuid, deckJson, cardsJson, user) {
 
     //Checks whether user already has deck with name

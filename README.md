@@ -20,6 +20,18 @@ COSMOS_KEY = "<database account masterkey>"
 COSMOS_DB_ID = "<database ID>"
 ```
 
+**If you're running Windows**, install this package:
+
+```bash
+npm install -g win-node-env
+```
+
+If you don't, when you try to run the server locally with `npm run dev`, it will fail with
+
+>  'NODE_ENV' is not recognized as an internal or external command.
+
+macOS/Linux users can skip this step.
+
 ### Every Time
 
 To start development, first start TailwindCSS by running:

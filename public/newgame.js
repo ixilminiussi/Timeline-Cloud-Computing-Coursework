@@ -82,12 +82,14 @@ function connect() {
     console.log("socket: available_decks", decks)
     app.decks = decks
     user.closeForm()
+    this.selectedDeckIndex = null
   })
 
   socket.on("available_custom_decks", decks => {
     console.log("socket: available_custom_decks", decks)
     app.customDecks = decks
     user.closeForm()
+    this.selectedDeckIndex = null
   })
 
   socket.on("update_cookie", data => {

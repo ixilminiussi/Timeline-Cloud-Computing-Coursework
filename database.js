@@ -191,7 +191,7 @@ class Database {
       this._log("Cache miss: downloading cards for deck", deckID)
       const records = await db.containers.query(querySpec).fetchNext();
       if(!records.resources[0]){
-        this._error("No classic deck available for id", deckID)
+        this._error("No custom deck available for id", deckID)
         return 
       }
 

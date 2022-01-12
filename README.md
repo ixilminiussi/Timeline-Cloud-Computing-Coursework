@@ -184,6 +184,17 @@ Args:
 socket.on("update_cookie", data => {/* ... */})
 ```
 
+#### error
+
+The server should call this to send an error msg to the client, which will be displayed as an alert on the browser
+
+Args: 
+* `msg` (`String`): A string describing the error
+
+```javascript
+socket.on("error", msg => {/* ... */})
+```
+
 #### login_error
 
 The server should call this to inform the client of a login, sign-up or account settings update error.
@@ -240,6 +251,18 @@ Args:
 
 ```javascript
 socket.emit("create_deck", deckJson, userJson)
+```
+
+#### delete_deck
+
+Called when the client wants to delete a deck, to do so, they first need select the deck, click the "delete" button, and input their password to confirm. The server should then authenticate the user, and then remove the deck from the user item, as well as the corresponding card container
+
+Args:
+* `deckJson` (`Json`): the Json file containing the deck information
+* `userJson` (`Json`): a Json containing the player information (such as user.password, and user.username)
+
+```javascript
+socket.emit("delete_deck", deckJson, userJson)
 ```
 
 #### hand_size

@@ -60,8 +60,13 @@ io.on("connection", socket => {
 
     if (user != null) {
       console.log("socket: available_custom_decks")
-      const decks = await db.getDecksForUser(user)
-      socket.emit("available_custom_decks", decks)
+      try {
+        const decks = await db.getDecksForUser(user)
+        socket.emit("available_custom_decks", decks)
+      } catch(e) {
+        socket.emit("available_custom_decks", [])
+        console.log(e)
+      }
     }
   })
 
@@ -178,10 +183,12 @@ io.on("connection", socket => {
     while (json.cards[i] != null) { // iterating through cards
 
       if (!("backValue" in json.cards[i])) {
-        socket.emit("error", "json missing 'backValue' in card index ", i)
+        socket.emit("error", "json missing 'backValue' in card index "+ i)
+        return
       }
       if (!("frontValue" in json.cards[i])) {
-        socket.emit("error", "json missing 'frontValue' in card index ", i)
+        socket.emit("error", "json missing 'frontValue' in card index "+ i)
+        return
       }
 
       cardJson.push({ "id":String(i), "front": json.cards[i].frontValue, "back": json.cards[i].backValue, "absoluteOrder": i, "cardContainer": _uuid })
@@ -189,14 +196,19 @@ io.on("connection", socket => {
       i ++
     }
 
-    const result = await db.createDeckForUser(_uuid, deckJson, cardJson, user)
+    try {
+      await db.createDeckForUser(_uuid, deckJson, cardJson, user)
 
-    if (result != "error") {
-      if (user != null) {
-        console.log("socket: available_custom_decks")
+      console.log("socket: available_custom_decks")
+      try {
         const decks = await db.getDecksForUser(user)
         socket.emit("available_custom_decks", decks)
+      } catch(e) {
+        socket.emit("available_custom_decks", [])
+        console.log(e)
       }
+    } catch(e) {
+      socket.emit("error", e)
     }
   })
 })

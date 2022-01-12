@@ -51,24 +51,19 @@ class Database {
 
     const db = await this._getDb()
     const { container } = await db.containers.createIfNotExists({ id: "users" })
+    const userQueryResult = await this._getUserWithUsername(user.username, container)
 
-    const querySpec = {
-      query: "SELECT * FROM c WHERE c.id='"+user.username+"'"
-    }
-    
-    const { resources: users } = await container.items.query(querySpec).fetchAll(); // TODO, replace with authenticate function
+    if(userQueryResult.length > 0) {
 
-    if (users.length <= 0) {
-      this._error("found no user under name " + user.username)
-      return []
-    } else {
-      if (users[0].deckIDs === null) {
+      if (userQueryResult[0].deckIDs === null) {
         this._log("no decks found under user ", user.username)
-        return
+        return []
       }
 
-      this._log("found custom decks ", users[0].deckIDs)
-      return users[0].deckIDs
+      this._log("found custom decks ", userQueryResult[0].deckIDs)
+      return userQueryResult[0].deckIDs
+    } else {
+      throw "Username not found."
     }
   }
 
@@ -76,25 +71,20 @@ class Database {
 
     //Checks whether user already has deck with name
 
-    const decks = await this.getDecksForUser(user)
+    var decks = []
 
-    if (decks === "error") {
-      return "error"
+    try {
+      decks = await this.getDecksForUser(user)
+    } catch(e) {
+      throw(e)
     }
-
-    var duplicate = false
 
     decks.forEach(deck => {
 
       if (deck.name === deckJson.name) {
-        this._error("deck of that name already exists ", deckJson.name)
-        duplicate = true
+        throw("Incorrect deck name - duplicate")
       }
     })
-
-    if (duplicate) { // cannot simply return inside for loop
-      return "error"
-    }
 
     // Creates the card container 
 
@@ -114,26 +104,16 @@ class Database {
 
     // Updates the user with pointer to card container
 
-    const { container } = await db.containers.createIfNotExists({ id: "users" }) // TODO, replace with authenticate function
-    const querySpec = {
-      query: "SELECT * FROM c WHERE c.id='"+user.username+"'"
-    }
-    
-    const { resources: users } = await container.items.query(querySpec).fetchAll();
+    const { container } = await db.containers.createIfNotExists({ id: "users" })
+    const userQueryResult = await this._getUserWithUsername(user.username, container)
 
-    if (users <= 0) {
-      this._error("found no user under name " + user.username)
-    } else {
-      users[0].deckIDs.push(deckJson)
+    userQueryResult[0].deckIDs.push(deckJson)
 
-      const { id, key } = users[0]
+    const { id, key } = userQueryResult[0]
+    const { resource: updatedUser } = await container.item(id, key).replace(userQueryResult[0])
+    this._log(updatedUser)
 
-      const { resource: updatedUser } = await container.item(id, key).replace(users[0])
-
-      this._log(updatedUser)
-
-      return users[0].deckIDs
-    }
+    return userQueryResult[0].deckIDs
   }
 
   async getCardsForDeckWithID(deckID) {

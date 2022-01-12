@@ -85,7 +85,7 @@ function connect() {
   })
 
   socket.on("available_custom_decks", decks => {
-    console.log("socket: available_custom_dekcs", decks)
+    console.log("socket: available_custom_decks", decks)
     app.customDecks = decks
     user.closeForm()
   })

@@ -55,13 +55,13 @@ class Database {
 
     if(userQueryResult.length > 0) {
 
-      if (userQueryResult[0].deckIDs === null) {
+      if (userQueryResult[0].decks === undefined) {
         this._log("no decks found under user ", user.username)
         return []
       }
 
-      this._log("found custom decks ", userQueryResult[0].deckIDs)
-      return userQueryResult[0].deckIDs
+      this._log("found custom decks ", userQueryResult[0].decks)
+      return userQueryResult[0].decks
     } else {
       throw "Username not found."
     }
@@ -92,7 +92,7 @@ class Database {
       
       const userQueryResult = await this._getUserWithUsername(user.username, container)
 
-      userQueryResult[0].deckIDs = userQueryResult[0].deckIDs.filter(item => item.id != deckJson.id);
+      userQueryResult[0].decks = userQueryResult[0].decks.filter(item => item.id != deckJson.id);
   
       const { id, key } = userQueryResult[0]
       const { resource: updatedUser } = await container.item(id, key).replace(userQueryResult[0])
@@ -140,13 +140,13 @@ class Database {
     const { container } = await db.containers.createIfNotExists({ id: "users" })
     const userQueryResult = await this._getUserWithUsername(user.username, container)
 
-    userQueryResult[0].deckIDs.push(deckJson)
+    userQueryResult[0].decks.push(deckJson)
 
     const { id, key } = userQueryResult[0]
     const { resource: updatedUser } = await container.item(id, key).replace(userQueryResult[0])
     this._log(updatedUser)
 
-    return userQueryResult[0].deckIDs
+    return userQueryResult[0].decks
   }
 
   async getCardsForDeckWithID(deckID) {

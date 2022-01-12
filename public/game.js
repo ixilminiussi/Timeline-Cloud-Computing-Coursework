@@ -287,6 +287,7 @@ var app = new Vue({
   },
   mounted: function () {
     connect()
+    this.getScreenNameFromCookie()
     socket.emit("register_with_game", _getGameID())
     document.getElementById("usernameIn").focus()
 
@@ -319,6 +320,16 @@ var app = new Vue({
     },
     leaveGame: function() {
       socket.emit("leave_game", _getGameID())
+    },
+    getCookies: function(str){
+      let cookieString = RegExp(str+"=[^;]+").exec(document.cookie);
+      return decodeURIComponent(!!cookieString ? cookieString.toString().replace(/^[^=]+./,"") : "");
+    },
+    getScreenNameFromCookie: function(){
+      console.log("Cookie returned: " + document.cookie)
+      if(document.cookie.indexOf("username") !== -1){
+        this.username = this.getCookies("screenName")
+      }
     }
   },
   computed: {

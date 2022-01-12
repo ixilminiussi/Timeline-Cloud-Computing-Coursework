@@ -42,16 +42,16 @@ Done in 82ms.
 Then, *in another shell*, start the server with:
 
 ```bash
-npm run start
+npm run dev
 ```
 
 This is what the output should look like:
 
 ```
-aglen@Andrews-MBP Timeline % npm run start
+aglen@Andrews-MBP Timeline % npm run dev
 
 > timeline@0.1.0 start
-> node main.js
+> NODE_ENV=development node main.js
 
 Server listening on port 8080
 ```
@@ -62,6 +62,14 @@ Open http://localhost:8080.
 
 ```bash
 cloc --exclude-dir="node_modules" --include-ext="js,ejs" .
+```
+
+## Deploying to GAE
+
+Instructions for arg1g19's machine:
+
+```bash
+gcloud app deploy --version test --project timeline-337918 
 ```
 
 ## Server: Updating the Client

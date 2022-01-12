@@ -18,6 +18,9 @@ var app = new Vue({
   methods: {
     selectDeckAt: function (index) {
       this.selectedDeckIndex = index
+      if (index === null) {
+        return
+      }
       if (this.selectedDeckIndex < this.decks.length) {
         socket.emit("select_deck", this.decks[index].id)
       } else {
@@ -82,14 +85,14 @@ function connect() {
     console.log("socket: available_decks", decks)
     app.decks = decks
     user.closeForm()
-    this.selectedDeckIndex = null
+    app.selectDeckAt(null)
   })
 
   socket.on("available_custom_decks", decks => {
     console.log("socket: available_custom_decks", decks)
     app.customDecks = decks
     user.closeForm()
-    this.selectedDeckIndex = null
+    app.selectDeckAt(null)
   })
 
   socket.on("update_cookie", data => {

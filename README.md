@@ -169,6 +169,7 @@ Call this to tell the clients to reset certain variables to their default value,
 
 ```javascript
 socket.on("reset", () => { /* ... */ })
+```
 
 #### available_decks
 

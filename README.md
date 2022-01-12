@@ -389,5 +389,6 @@ Represents a deck of cards (e.g. for the game creation page).
 {
     id: String                  // Unique across all decks
     name: String                // The name of the deck
+    cardContainer: String       // The id of the container with the cards
 }
 ```

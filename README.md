@@ -1,7 +1,3 @@
-*This application was done in the context of a group Cloud Application Development coursework alongside 3 other students. It is being published here for the purpose of logging all projects I have worked on, but I am not the sole owner or writer of this code.*
-
-***
-
 # Timeline: COMP3207 Coursework 2
 
 The source code for Group H's Timeline game, created for COMP3207 Coursework 2. Project management is done over in the Issues.
